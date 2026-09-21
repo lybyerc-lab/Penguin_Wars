@@ -2,6 +2,17 @@
 
 A Godot 4.7 foundation for a 1–4 player, top-down co-op action roguelite. Open `project.godot` and press **F5** to run the project. No plugins, external assets, or dependencies are required.
 
+
+## Project direction
+
+Durable project context lives in the repository so future sessions and AI agents do not have to reconstruct the design from chat history:
+
+- [Project memory](docs/project-memory.md) — current state, architecture rulings, branch lineage and durable decisions.
+- [Design bible](docs/design-bible.md) — the Brotato-meets-Zelda game direction, systems, characters, Township, tone and humor.
+- [Roadmap](docs/roadmap.md) — prioritized implementation order from presentation polish through run systems, characters, Storm and new regions.
+- [AI collaboration guide](docs/ai-collaboration.md) — agent roles, handoff format, architecture guardrails and review rules.
+- [Architecture](docs/architecture.md) — code ownership and extension seams.
+
 There are two runnable scenes. `scenes/arena/test_arena.tscn` is the single-arena combat slice and the project's main scene. `scenes/run/expedition.tscn` is the town-and-caves loop described under [Town and caves](#town-and-caves); press **F6** on it, or run `godot --path . scenes/run/expedition.tscn`. Both share the same party, combat, economy and defence systems.
 
 ## Play the test arena
