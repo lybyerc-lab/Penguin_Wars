@@ -6,7 +6,7 @@ This is a direction document, not a promise of exact scheduling. The order matte
 
 Implementation baseline recorded here:
 
-`antigravity@f05d804`
+`antigravity@46efa8d`
 
 At that point the project has:
 
@@ -81,18 +81,18 @@ Deliver:
 
 Preserve existing wallet/XP seams while art/feel changes.
 
-## Phase 2 — Weapon Rack foundation
+## Phase 2 — Weapon Rack foundation — IMPLEMENTED at `codex/weapon-rack-foundation`
 
 Goal: make the build engine capable of Brotato-like inventory decisions.
 
 Deliver:
 
-- dedicated personal weapon rack/inventory runtime
-- up to 6 ordinary weapon slots
-- current single weapon becomes slot 0 migration path
-- CharacterDefinition.starting_weapons feeds rack
-- UI row in PlayerCornerHUD becomes real
-- per-player ownership
+- dedicated personal `WeaponRack` runtime
+- six ordinary slots, with a per-character capacity field for later exceptions
+- the former single weapon migrated to slot 0
+- `CharacterDefinition.starting_weapons` feeds the rack through `RunSession`
+- PlayerCornerHUD and Build Sheet report slots and occupancy
+- independent per-player `WeaponController` instances
 - no global weapon inventory
 
 Do not add every weapon yet. First prove the slot architecture.

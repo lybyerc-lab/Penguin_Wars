@@ -70,8 +70,7 @@ func spawn_party(count: int, entry: Vector2) -> bool:
 		if character != null:
 			player.identity.tint = character.tint
 			player.identity.character_id = character.id
-			if not character.starting_weapons.is_empty() and character.starting_weapons[0] != null:
-				player.get_node("Weapon").definition = character.starting_weapons[0]
+			player.configure_weapon_loadout(character.starting_weapons, character.weapon_capacity)
 		player.position = _slot(entry, index, count)
 		actor_root.add_child(player)
 		if not party.register(player):

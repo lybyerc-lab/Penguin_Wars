@@ -2,7 +2,7 @@
 
 > Durable project context for future sessions and AI handoffs.
 >
-> Documentation baseline: `antigravity@f05d804` (doorway mechanics plus carved cave-mouth art polish). This documentation was developed on a separate branch while gameplay work continued, then merged forward.
+> Documentation baseline: `antigravity@46efa8d` (doorway mechanics plus carved cave-mouth art polish). This documentation was developed on a separate branch while gameplay work continued, then merged forward.
 
 ## North-star concept
 
@@ -38,6 +38,7 @@ Current important lineage:
 - `antigravity@9fae195`: recovered full-screen Brotato-like presentation and corner HUD.
 - `antigravity@20ed8f9`: physical Zelda-style doorway thresholds replacing teleport pads.
 - `antigravity@f05d804`: chunky carved cave mouths, palette-aware tunnel depth, environmental route framing, wider Kelphollow expedition mouth and polished barricade presentation.
+- `antigravity@46efa8d`: current gameplay authority before the six-slot rack branch.
 
 Current implemented slice includes:
 
@@ -45,6 +46,7 @@ Current implemented slice includes:
 - Two-player default keyboard play, gamepad slots for more players.
 - Shared camera.
 - Auto-target basic weapons.
+- Personal six-slot `WeaponRack` runtimes; standard loadouts begin in slot 0.
 - Manual movement and dodge.
 - Personal health, XP, wallet and upgrade choices.
 - Snow-castle defense prototype.
@@ -150,7 +152,7 @@ Current player-card concept:
 - health
 - level
 - personal Snow
-- future compact six-weapon row
+- compact six-weapon row, with occupied icons and visible empty slots
 
 Room variation should primarily come from:
 

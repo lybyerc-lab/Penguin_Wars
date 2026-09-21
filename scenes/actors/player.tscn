@@ -1,14 +1,12 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=10 format=3]
 [ext_resource type="Script" path="res://scripts/actors/player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/combat/health.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/input/local_player_input.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/progression/experience.gd" id="4"]
-[ext_resource type="Script" path="res://scripts/combat/weapon_controller.gd" id="5"]
-[ext_resource type="Resource" path="res://resources/weapons/ice_lance.tres" id="6"]
+[ext_resource type="Script" path="res://scripts/combat/weapon_rack.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/combat/dash_controller.gd" id="7"]
 [ext_resource type="Script" path="res://scripts/combat/hit_feedback.gd" id="8"]
 [ext_resource type="Script" path="res://scripts/visuals/character_visual.gd" id="9"]
-[ext_resource type="Script" path="res://scripts/visuals/weapon_visual.gd" id="10"]
 [sub_resource type="CircleShape2D" id="Body"]
 radius = 16.0
 [node name="Player" type="CharacterBody2D"]
@@ -23,12 +21,8 @@ script = ExtResource("2")
 script = ExtResource("4")
 [node name="LocalInput" type="Node" parent="."]
 script = ExtResource("3")
-[node name="Weapon" type="Node2D" parent="."]
-z_index = 1
+[node name="WeaponRack" type="Node2D" parent="."]
 script = ExtResource("5")
-definition = ExtResource("6")
-[node name="Visual" type="Node2D" parent="Weapon"]
-script = ExtResource("10")
 [node name="CharacterVisual" type="Node2D" parent="."]
 script = ExtResource("9")
 [node name="Dash" type="Node" parent="."]

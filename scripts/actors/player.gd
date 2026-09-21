@@ -10,13 +10,20 @@ var _live_mask: int = 0
 @onready var health: Health = $Health
 @onready var experience: Experience = $Experience
 @onready var input_source: LocalPlayerInput = $LocalInput
-@onready var weapon: WeaponController = $Weapon
+@onready var weapon_rack: WeaponRack = $WeaponRack
 @onready var dash: DashController = $Dash
+
+## Compatibility view of slot 0. New code that owns inventory should use
+## weapon_rack; current combat, town and test seams still refer to the active
+## starting weapon through this narrow accessor.
+var weapon: WeaponController:
+	get:
+		return weapon_rack.controller_at(0) if weapon_rack != null else null
 
 func _ready() -> void:
 	assert(identity != null, "Set identity before adding a player to the tree")
 	input_source.identity = identity
-	weapon.wielder = self
+	weapon_rack.setup(self)
 	health.defenses = stats
 	health.changed.connect(_on_health_changed)
 	health.died.connect(_on_died)
@@ -40,7 +47,9 @@ func _physics_process(delta: float) -> void:
 func apply_upgrade(upgrade: UpgradeDefinition) -> void:
 	match upgrade.stat:
 		UpgradeDefinition.Stat.DAMAGE:
-			weapon.damage_bonus += upgrade.amount
+			var active_weapon := weapon_rack.controller_at(0)
+			if active_weapon != null:
+				active_weapon.damage_bonus += upgrade.amount
 		UpgradeDefinition.Stat.SPEED:
 			speed = maxf(1.0, speed + upgrade.amount)
 		UpgradeDefinition.Stat.MAX_HEALTH:
@@ -53,6 +62,11 @@ func apply_upgrade(upgrade: UpgradeDefinition) -> void:
 			if fields.has(upgrade.stat):
 				var field: String = fields[upgrade.stat]
 				stats.set(field, float(stats.get(field)) + upgrade.amount)
+
+func configure_weapon_loadout(definitions: Array[WeaponDefinition], capacity: int = WeaponRack.DEFAULT_CAPACITY) -> void:
+	var rack := get_node_or_null("WeaponRack") as WeaponRack
+	if rack != null:
+		rack.configure_loadout(definitions, capacity)
 
 func _on_health_changed(_current: float, _maximum: float) -> void:
 	queue_redraw()
