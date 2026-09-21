@@ -53,19 +53,3 @@ func _unhandled_input(event: InputEvent) -> void:
 			for player: PenguinPlayer in party.members():
 				if player.identity.device_id == event.device:
 					progression.choose(player.identity.player_id, 0 if event.button_index == JOY_BUTTON_A else 1)
-
-func _draw() -> void:
-	draw_style_box(_floor_style(), Rect2(-575, -295, 1150, 590))
-	for x: int in range(-520, 560, 80):
-		draw_line(Vector2(x, -260), Vector2(x, 260), Color(0.3, 0.7, 0.8, 0.08))
-	for y: int in range(-240, 280, 80):
-		draw_line(Vector2(-540, y), Vector2(540, y), Color(0.3, 0.7, 0.8, 0.08))
-	draw_arc(Vector2.ZERO, 95, 0, TAU, 64, Color(0.4, 0.8, 0.9, 0.15), 2)
-
-func _floor_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("102d40")
-	style.border_color = Color("376376")
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(30)
-	return style

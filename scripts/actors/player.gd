@@ -54,13 +54,9 @@ func _draw() -> void:
 	var color: Color = identity.tint if identity != null else Color.WHITE
 	if health != null and not health.is_alive():
 		color = Color("526273")
-	draw_circle(Vector2(0, 10), 20, Color(0, 0, 0, 0.22))
-	draw_circle(Vector2.ZERO, 20, color)
-	draw_circle(Vector2(0, 1), 15, Color("152438"))
-	draw_circle(Vector2(0, 5), 10, Color("f0f7ec"))
-	draw_circle(Vector2(-5, -6), 3, Color.WHITE)
-	draw_circle(Vector2(5, -6), 3, Color.WHITE)
-	draw_colored_polygon(PackedVector2Array([Vector2(-4, -1), Vector2(4, -1), Vector2(0, 5)]), Color("ffbf69"))
+	draw_set_transform(Vector2(0, 15), 0, Vector2(1, 0.45))
+	draw_arc(Vector2.ZERO, 25, 0, TAU, 32, Color(color, 0.8), 3)
+	draw_set_transform(Vector2.ZERO)
 	if health != null:
-		draw_rect(Rect2(-20, -31, 40, 4), Color("243648"))
-		draw_rect(Rect2(-20, -31, 40 * health.current / health.maximum, 4), color)
+		draw_rect(Rect2(-21, -46, 42, 6), Color("152a3e"))
+		draw_rect(Rect2(-20, -45, 40 * health.current / health.maximum, 4), color)

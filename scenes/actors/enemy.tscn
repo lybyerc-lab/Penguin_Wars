@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 [ext_resource type="Script" path="res://scripts/actors/enemy.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/combat/health.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/combat/hit_feedback.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/visuals/character_visual.gd" id="4"]
 [sub_resource type="CircleShape2D" id="Body"]
 radius = 13.0
 [node name="Enemy" type="CharacterBody2D"]
@@ -15,3 +16,6 @@ script = ExtResource("2")
 maximum = 28.0
 [node name="HitFeedback" type="Node" parent="."]
 script = ExtResource("3")
+[node name="CharacterVisual" type="Node2D" parent="."]
+script = ExtResource("4")
+enemy = true

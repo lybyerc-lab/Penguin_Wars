@@ -75,6 +75,10 @@ func _run() -> void:
 	var second: ArenaEnemy = spawn_enemy(arena, Vector2(180, 0))
 	wielder.weapon._physics_process(2.0)
 	check(distant.health.current == 14 and second.health.current == 28, "lance hits only nearest enemy at long range")
+	var impact_position: Vector2 = wielder.weapon._hit_position
+	distant.position = Vector2(220, 10)
+	wielder.weapon._physics_process(0.01)
+	check(wielder.weapon._hit_position == impact_position, "tracer remains on the actual impact during cooldown")
 	check(wielder.weapon.definition.damage == 14, "weapon resource unchanged by hits")
 	arena.free()
 	print("COMBAT FEEL TESTS: ", "PASS" if failures == 0 else "FAIL", " (", failures, " failures)")

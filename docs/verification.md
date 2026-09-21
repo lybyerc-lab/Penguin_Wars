@@ -20,3 +20,11 @@ Limitations: movement was tested through an injected input adapter, not a human-
 - User-requested reset restored the original arena scene and project settings, including actor visibility. Combat changes were retained.
 
 Physical dash buttons and gamepad mappings still require hands-on acceptance. No audio, hit-stop or screen shake was added; feedback remains local and visual so it does not interrupt co-op partners.
+
+## Visible weapons and visual pass
+
+- Godot imported all five original SVG assets successfully.
+- Both integration suites: **PASS, 0 failures**. Added a regression check that the lance tracer does not follow a different target during cooldown.
+- Live OpenGL render: **PASS**. Inspected idle and controlled-attack screenshots with visible held weapons, illustrated penguins/seal raiders, the ice-island backdrop, team cards and HUD-safe camera framing.
+- Dash timings, immunity, knockback strengths, weapon damage/ranges/cooldowns and collision shapes were preserved. Visual aim updates between attacks; weapon sprites do not determine hits.
+- This is an initial illustrated art pass, not final animation or art approval. Physical controller and human co-op acceptance remain separate from automated checks.

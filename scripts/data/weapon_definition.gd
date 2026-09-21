@@ -11,3 +11,5 @@ enum Pattern { SINGLE, ARC }
 @export_range(1.0, 360.0) var arc_degrees: float = 120.0
 @export var knockback: float = 90.0
 @export var tint: Color = Color("baf9ff")
+@export var held_texture: Texture2D
+@export var visual_scale: float = 0.56

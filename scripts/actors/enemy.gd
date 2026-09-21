@@ -33,9 +33,3 @@ func _physics_process(delta: float) -> void:
 func _on_died(event: DamageEvent) -> void:
 	defeated.emit(self, event)
 	queue_free()
-
-func _draw() -> void:
-	draw_circle(Vector2(0, 7), 16, Color(0, 0, 0, 0.18))
-	draw_circle(Vector2.ZERO, 15, Color("eb7985"))
-	draw_circle(Vector2(-5, -3), 3, Color("2a1e38"))
-	draw_circle(Vector2(5, -3), 3, Color("2a1e38"))

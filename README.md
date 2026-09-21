@@ -17,7 +17,7 @@ P1 (and P3) carries the **Ice Lance**: a fast single-target strike with 240-pixe
 
 Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability during that burst. The 1.1-second cooldown starts when the dash begins. Move to set direction, or dash along the last movement direction when stationary. Holding the button does not repeat dashes. The HUD shows each player's weapon and dash readiness. Hit flashes, floating damage, expanding impact rings, dash trails and cleaver arcs make combat events visible. No global hit pause or camera shake disrupts the other player's view.
 
-Three seeded encounters scale enemy count with party size. Kills give all living players XP; each player chooses damage or movement upgrades independently. Downed players stop moving/attacking and are excluded from enemy targeting. Revival is not implemented. The arena currently uses programmer-drawn penguins and enemies.
+Three seeded encounters scale enemy count with party size. Kills give all living players XP; each player chooses damage or movement upgrades independently. Downed players stop moving/attacking and are excluded from enemy targeting. Revival is not implemented. The arena uses original illustrated SVG penguins, seal raiders and visible held weapons, with a procedural ice-island backdrop.
 
 Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keyboard controls; slots 3 and 4 require gamepads. Slot indices map directly to Godot device IDs 0–3; a lobby/device assignment screen is a future extension. Keyboard and gamepad can control the same assigned slot. Physical keyboard bindings are intentionally fixed for this test scene.
 
@@ -34,7 +34,8 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 | `scripts/data`, `resources` | Typed weapon, upgrade and encounter definitions |
 | `scripts/encounters` | Seeded spawn and encounter state machine |
 | `scripts/camera`, `scripts/ui` | Shared view and test HUD |
-| `scripts/arena` | Small composition root and arena drawing |
+| `scripts/arena` | Small composition root |
+| `scripts/visuals`, `assets` | Character animation, held weapons, illustrated SVGs and ice arena art |
 | `tests` | Engine integration and renderer smoke tests |
 
 ## Extension points and boundaries
@@ -46,6 +47,8 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 **Damage.** `Health.take_damage(DamageEvent)` is the shared damage interface; `changed`, `damaged` and `died` are the output hooks. Damage events retain the source party ID and a knockback impulse. Dead actors reject further damage and healing; use a separate explicit revive operation later. `HitFeedback` listens to accepted damage and creates short-lived world effects which survive enemy deletion. `DashController` owns per-player burst/cooldown state; the player applies its motion and invulnerability. Weapons currently use instantaneous single-target or arc attacks. Add projectile scenes, teams and status effects around these interfaces. Before adding other immunity sources, replace the single invulnerability flag with a composed immunity policy.
 
 **Data.** Add `.tres` resources using `WeaponDefinition`, `UpgradeDefinition`, or `EncounterDefinition`. Shared resources are definitions and must remain immutable during play. Runtime cooldowns and damage bonuses belong to each weapon instance. `PenguinPlayer.apply_upgrade()` is the initial stat application seam; move into a dedicated stat aggregator when stacking rules grow. `RunProgression.OPTIONS` is the test catalog, ready to replace with weighted offers and unlock filters.
+
+**Visuals.** `CharacterVisual` creates character sprites, team scarves and cosmetic movement bobbing. `WeaponVisual` reads the weapon's presentation aim/attack phase to place its art beside the player and animate a thrust or sweep. Each weapon Resource supplies `held_texture` and `visual_scale`; add right-facing art with its handle on the left. Damage timing remains in `WeaponController`, independent of sprite motion. Idle weapons face the player's last movement direction; in-range targets drive aim between attacks. Attack tracers retain their actual impact position. `IceArenaVisual` owns purely decorative seeded ice, crystals and snow; these props do not block movement. The camera reserves top/bottom HUD space and expands that allowance for a four-player party. All assets in `assets/` were authored for this project; no Brotato assets were imported.
 
 **Encounters.** `EncounterDirector` emits state changes, kill events and completion. Spawn placement currently assumes this centered bounded arena and chooses the safest perimeter candidate. Replace this method with region spawn markers/navigation for real maps. Enemy movement is direct pursuit with world collision support, not pathfinding. Actors do not block one another. External despawns need an explicit director cancellation/despawn path so enemy counts remain correct.
 

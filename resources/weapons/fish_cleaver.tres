@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=3 format=3]
 [ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/fish_cleaver.svg" id="2"]
 [resource]
 script = ExtResource("1")
 id = &"fish_cleaver"
@@ -11,3 +12,5 @@ pattern = 1
 arc_degrees = 140.0
 knockback = 320.0
 tint = Color(1, 0.8, 0.47, 1)
+held_texture = ExtResource("2")
+visual_scale = 0.53
