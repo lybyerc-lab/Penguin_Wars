@@ -2,7 +2,7 @@
 
 > Durable project context for future sessions and AI handoffs.
 >
-> Documentation baseline: `antigravity@20ed8f9` (Zelda-style doorway mechanics). A doorway-art polish pass may exist later on `antigravity`; this document branch was intentionally created separately so documentation work does not interfere with active gameplay work.
+> Documentation baseline: `antigravity@f05d804` (doorway mechanics plus carved cave-mouth art polish). This documentation was developed on a separate branch while gameplay work continued, then merged forward.
 
 ## North-star concept
 
@@ -37,7 +37,7 @@ Current important lineage:
 - `antigravity@938c54c`: unified boss gameplay port.
 - `antigravity@9fae195`: recovered full-screen Brotato-like presentation and corner HUD.
 - `antigravity@20ed8f9`: physical Zelda-style doorway thresholds replacing teleport pads.
-- Active work after this point: doorway **art polish**, not doorway mechanics.
+- `antigravity@f05d804`: chunky carved cave mouths, palette-aware tunnel depth, environmental route framing, wider Kelphollow expedition mouth and polished barricade presentation.
 
 Current implemented slice includes:
 
