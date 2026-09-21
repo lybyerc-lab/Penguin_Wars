@@ -3,10 +3,13 @@ extends Node
 ## Owns encounter lifecycle; enemy scenes own behavior and combat.
 signal state_changed
 signal enemy_defeated(event: DamageEvent)
+signal loot_available(location: Vector2)
 signal completed
+signal wave_cleared(wave_number: int)
 
 enum State { READY, SPAWNING, CLEARING, INTERMISSION, COMPLETE, FAILED }
 @export var definition: EncounterDefinition
+@export var auto_advance: bool = false
 var party: PartyRoster
 var actor_root: Node2D
 var state: State = State.READY
@@ -53,8 +56,13 @@ func _physics_process(delta: float) -> void:
 		else:
 			state = State.INTERMISSION
 			_timer = 3.0
+		wave_cleared.emit(wave)
 		state_changed.emit()
-	elif state == State.INTERMISSION and _timer <= 0.0:
+	elif state == State.INTERMISSION and auto_advance and _timer <= 0.0:
+		_begin_wave()
+
+func advance_wave() -> void:
+	if state == State.INTERMISSION:
 		_begin_wave()
 
 func _spawn_enemy() -> void:
@@ -83,11 +91,12 @@ func _spawn_enemy() -> void:
 	actor_root.add_child(enemy)
 	alive_count += 1
 
-func _on_enemy_defeated(_enemy: ArenaEnemy, event: DamageEvent) -> void:
+func _on_enemy_defeated(enemy: ArenaEnemy, event: DamageEvent) -> void:
 	alive_count -= 1
 	enemy_defeated.emit(event)
+	loot_available.emit(enemy.global_position)
 
 func _clear_projectiles() -> void:
 	for node: Node in actor_root.get_children():
-		if node is EnemySnowball:
+		if node is EnemySnowball or node is CastleSnowball:
 			node._expire()

@@ -4,12 +4,26 @@ A Godot 4.7 foundation for a 1–4 player, top-down co-op action roguelite. Open
 
 ## Play the test arena
 
-- Player 1: **WASD**, **Space** to dash, **Q / E** to spend level-up choices.
-- Player 2: **Arrow keys**, **Ctrl** to dash, **Enter / Shift** to spend choices.
-- Each assigned gamepad: **left stick**, **X** to dash, **A / B** to spend choices.
+- Player 1: **WASD**, **Space** dash, **Q / E / T** damage/speed/Harvest upgrades, **B** build castle, **F** ready for next wave.
+- Player 2: **Arrow keys**, **Ctrl** dash, **Enter / Shift / Period** upgrades, **N** build castle, **Slash (/)** ready.
+- Each assigned gamepad: **left stick**, **X** dash, **A / B / right bumper** upgrades, **Y** build castle, **Start** ready.
 - Attacks automatically strike the nearest enemy within weapon range.
 - **R** restarts the run, including after victory or a party wipe.
-- Upgrade buttons can also be clicked. Choices queue without pausing other players.
+- Upgrade, build and ready buttons also support mouse. Upgrades are chosen in the between-wave shop; all living players must ready up before the next wave.
+
+### Supplies, snowflakes and defenses
+
+Two breakable snowmen supply the arena. Weapons prioritize enemies, then target snowmen in range; cleaver sweeps can hit both. Each snowman drops a **25 HP** pickup and **3 snowflakes**. Full-health players leave healing on the ground. Missing snowmen return at the next wave; intact ones remain.
+
+Enemy defeats drop **2 snowflakes** rather than immediately granting XP. Either player can collect a drop; its units are split round-robin among living players into **personal wallets**, also awarding XP. Uncollected snowflakes enter the run's reserve after a wave and add matching bonus value to future pickups. Downed players receive no allocation. Wallets and reserves reset with the run.
+
+**Harvest** starts at x1.00 and upgrades by +0.25. It multiplies that player's income and corresponding XP, including the **5 base income** paid after each completed wave. Fractional earnings are retained so small drops still benefit. This multiplier is our chosen variation, not an exact copy of Brotato's flat harvesting stat.
+
+XP still grants free stat choices. Extra upgrades cost **6 snowflakes**, increasing by **3 per personal paid purchase**. Shopping happens between waves; a purchase clears that player's ready status. The current fixed three-option stat shop is an initial economy slice: randomized items, rerolls, armor, weapon merging and a full skill system are future work.
+
+**Snow castles are player-built defenses.** Spend **10 personal snowflakes** to place one on open ice in front of your penguin. Each player can build one per run. It fires friendly snowballs for **8 damage every 0.9 seconds**, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves and reset with the run; they are currently indestructible support structures, with enemies continuing to target penguins.
+
+The town, nurse, blacksmith, town-hall stories and branching caves are recorded as the next design direction in [hub-and-dungeons.md](docs/hub-and-dungeons.md). Those locations and services are not implemented yet.
 
 ### Combat slice
 
@@ -25,7 +39,7 @@ Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability du
 
 The cleaver's strong knockback interrupts charger windups/rushes and thrower windups. The lance still pushes enemies but does not interrupt these attacks. Dash immunity blocks a snowball and consumes that shot. Enemy counts and the existing dash/weapon tuning are unchanged; mixed roles make positioning more important. These are initial encounter balance values for playtesting.
 
-Three seeded encounters scale enemy count with party size. Kills give all living players XP; each player chooses damage or movement upgrades independently. Downed players stop moving/attacking and are excluded from enemy targeting. Revival is not implemented. The arena uses original illustrated SVG penguins, seal raiders and visible held weapons, with a procedural ice-island backdrop.
+Three seeded encounters scale enemy count with party size. Collected materials and end-of-wave income grant XP; each player chooses upgrades independently. Downed players stop moving/attacking and are excluded from enemy targeting. Revival is not implemented. The arena uses original illustrated SVG penguins, seal raiders and visible held weapons, with a procedural ice-island backdrop.
 
 Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keyboard controls; slots 3 and 4 require gamepads. Slot indices map directly to Godot device IDs 0–3; a lobby/device assignment screen is a future extension. Keyboard and gamepad can control the same assigned slot. Physical keyboard bindings are intentionally fixed for this test scene.
 
@@ -39,6 +53,8 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 | `scripts/input` | Local movement input adapter |
 | `scripts/combat` | Health, damage messages, weapon runtime |
 | `scripts/progression` | Per-player XP and run reward/choice policy |
+| `scripts/loot`, `scenes/props` | Breakable snowmen, health/material pickups and wave resupply |
+| `scripts/defenses` | Player-funded castle placement and friendly projectiles |
 | `scripts/data`, `resources` | Typed weapon, upgrade and encounter definitions |
 | `scripts/encounters` | Seeded spawn and encounter state machine |
 | `scripts/enemies` | Replaceable charge/ranged behaviors and enemy snowballs |
@@ -67,6 +83,8 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 
 **Progression.** `Experience` handles XP overflow and emits one event per level; `RunProgression` owns team reward policy and queued personal choices. Downed players receive no XP. A new arena instance starts a fresh run. Save data, unlocks, inventory, bosses, interaction and run route selection are deliberately left to subsequent layers.
 
+**Economy and skills seam.** `PlayerStats` is a unique Resource instance per player and owns the Harvest multiplier/fractional carry. `RunWallet` owns balances; `RunProgression` owns material allocation, wave payments, purchases and readiness. `ArenaLoot` owns supply placement, drop wiring and reserve banking. `RunPickup` prevents duplicate collection and wasted healing. Breakable weapon targets expose a `Health` child and join `breakables`; enemy targets remain higher priority. `CastleBuilder` validates ownership, placement and affordability before spending. A future skill layer can grant stat modifiers or abilities through these separate systems. Move arena-specific bounds and prop locations into room data before introducing dungeons.
+
 ## Verification
 
 From this directory, with `godot` available:
@@ -76,8 +94,10 @@ godot --headless --path . --editor --import --quit
 godot --headless --path . --script res://tests/foundation_test.gd
 godot --headless --path . --script res://tests/combat_feel_test.gd
 godot --headless --path . --script res://tests/enemy_behavior_test.gd
+godot --headless --path . --script res://tests/economy_test.gd
 godot --path . --script res://tests/render_smoke.gd
 godot --path . --script res://tests/enemy_render_smoke.gd
+godot --path . --script res://tests/economy_render_smoke.gd
 ```
 
 The integration test fails with a nonzero exit code on failed assertions. It covers party IDs/capacity, movement/bounds, death/retargeting, XP overflow, queued upgrades and resource isolation, actual weapon kills/rewards, encounter completion, party wipe and scene cleanup. The renderer test writes `docs/arena-preview.png` using the live viewport. See `docs/verification.md` for actual results and limitations.

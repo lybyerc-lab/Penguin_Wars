@@ -4,6 +4,7 @@ extends CharacterBody2D
 @export var identity: PlayerIdentity
 @export var speed: float = 220.0
 var arena_bounds := Rect2(-540, -260, 1080, 520)
+var stats := PlayerStats.new()
 @onready var health: Health = $Health
 @onready var experience: Experience = $Experience
 @onready var input_source: LocalPlayerInput = $LocalInput
@@ -37,6 +38,8 @@ func apply_upgrade(upgrade: UpgradeDefinition) -> void:
 		UpgradeDefinition.Stat.MAX_HEALTH:
 			health.maximum = maxf(1.0, health.maximum + upgrade.amount)
 			health.heal(maxf(0.0, upgrade.amount))
+		UpgradeDefinition.Stat.HARVEST:
+			stats.harvest_multiplier = maxf(1.0, stats.harvest_multiplier + upgrade.amount)
 
 func _on_health_changed(_current: float, _maximum: float) -> void:
 	queue_redraw()

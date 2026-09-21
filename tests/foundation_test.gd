@@ -53,6 +53,7 @@ func _run() -> void:
 	players[1].experience.grant(15)
 	check(players[1].experience.level == 3 and players[1].experience.xp == 2, "multiple level-ups preserve overflow")
 	check(arena.progression.pending[2] == 2, "level-up queue retains choices")
+	arena.encounter.state = EncounterDirector.State.INTERMISSION
 	check(arena.progression.choose(2, 0), "upgrade choice accepted")
 	check(players[1].weapon.damage_bonus == 3 and players[0].weapon.damage_bonus == 0, "upgrade state isolated")
 	check(players[1].weapon.definition.damage == 22, "shared resource remains immutable")
@@ -62,7 +63,7 @@ func _run() -> void:
 	enemy.party = party
 	enemy.position = players[1].position + Vector2(80, 0)
 	arena.get_node("Actors").add_child(enemy)
-	enemy.defeated.connect(func(_actor: ArenaEnemy, event: DamageEvent) -> void: arena.progression.reward_team(event))
+	enemy.defeated.connect(func(_actor: ArenaEnemy, _event: DamageEvent) -> void: arena.progression.collect_materials(2, 1))
 	var xp_before: int = players[1].experience.xp
 	players[1].weapon._physics_process(1.1)
 	players[1].weapon._physics_process(1.1)
@@ -71,6 +72,8 @@ func _run() -> void:
 	await process_frame
 	# Drive all encounter waves without real-time waiting.
 	var director: EncounterDirector = arena.encounter
+	director.state = EncounterDirector.State.SPAWNING
+	director.auto_advance = true
 	for step: int in range(100):
 		director._physics_process(10.0)
 		for node: Node in get_nodes_in_group("enemies"):

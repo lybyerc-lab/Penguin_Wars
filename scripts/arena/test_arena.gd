@@ -9,6 +9,9 @@ const COLORS: Array[Color] = [Color("58dfed"), Color("ffcb77"), Color("bc9aff"),
 
 func _ready() -> void:
 	progression.party = party
+	progression.wallet = $Wallet
+	progression.encounter = encounter
+	progression.party_ready.connect(encounter.advance_wave)
 	for index: int in range(player_count):
 		var player := PLAYER_SCENE.instantiate() as PenguinPlayer
 		player.identity = PlayerIdentity.new()
@@ -28,10 +31,23 @@ func _ready() -> void:
 	$Camera.party = party
 	encounter.party = party
 	encounter.actor_root = $Actors
-	encounter.enemy_defeated.connect(progression.reward_team)
+	$Loot.party = party
+	$Loot.wallet = $Wallet
+	$Loot.progression = progression
+	$Loot.actor_root = $Actors
+	$Loot.encounter = encounter
+	encounter.loot_available.connect($Loot.enemy_drop)
+	encounter.state_changed.connect($Loot.on_encounter_changed)
+	encounter.wave_cleared.connect($Loot.bank_uncollected)
+	encounter.wave_cleared.connect(progression.finish_wave)
 	$HUD.party = party
 	$HUD.encounter = encounter
 	$HUD.progression = progression
+	$Builder.party = party
+	$Builder.wallet = $Wallet
+	$Builder.actor_root = $Actors
+	$Builder.encounter = encounter
+	$HUD.builder = $Builder
 	$HUD.setup()
 	encounter.start()
 
@@ -48,7 +64,28 @@ func _unhandled_input(event: InputEvent) -> void:
 				progression.choose(2, 0)
 			KEY_SHIFT:
 				progression.choose(2, 1)
+			KEY_T:
+				progression.choose(1, 2)
+			KEY_PERIOD:
+				progression.choose(2, 2)
+			KEY_B:
+				$Builder.build(1)
+			KEY_N:
+				$Builder.build(2)
+			KEY_F:
+				progression.toggle_ready(1)
+			KEY_SLASH:
+				progression.toggle_ready(2)
 	elif event is InputEventJoypadButton and event.pressed:
+		for player: PenguinPlayer in party.members():
+			if player.identity.device_id == event.device:
+				match event.button_index:
+					JOY_BUTTON_Y:
+						$Builder.build(player.identity.player_id)
+					JOY_BUTTON_RIGHT_SHOULDER:
+						progression.choose(player.identity.player_id, 2)
+					JOY_BUTTON_START:
+						progression.toggle_ready(player.identity.player_id)
 		if event.button_index in [JOY_BUTTON_A, JOY_BUTTON_B]:
 			for player: PenguinPlayer in party.members():
 				if player.identity.device_id == event.device:

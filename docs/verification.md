@@ -36,3 +36,11 @@ Physical dash buttons and gamepad mappings still require hands-on acceptance. No
 - `enemy_render_smoke.gd` ran through OpenGL. `enemy-warnings.png` and `enemy-attacks.png` were visually inspected for the charger lane, dotted ranged aim, distinct headgear and moving snowball. These screenshots are controlled two-enemy fixtures, not balance proof.
 - The main scene ran for 900 frames without gameplay script errors. The existing environment certificate-store message remains.
 - Human co-op balance and gamepad acceptance remain outstanding; the player-approved dash and weapon damage/cooldown/knockback values were preserved.
+
+## Snowmen, material economy, harvesting and player castles
+
+- Existing foundation, combat-feel and enemy-behavior tests passed after integration. Foundation coverage now enters the shop before selecting upgrades and explicitly enables automatic wave advance for its accelerated lifecycle test.
+- Economy integration test passed: snowman destruction/drops, full-health preservation, healing caps, duplicate pickup prevention, personal currency/XP allocation, fractional Harvest yield, combat shopping lock, insufficient funds, paid/free upgrades, personal price scaling, reserve carryover, once-per-wave income, co-op readiness, castle cost/cap/placement rejection, negative-spend rejection, friendly fire exclusion, owner damage credit and restart reset.
+- The OpenGL economy fixture was rendered and inspected for snowmen, snowflake/health pickups, the built castle, personal wallets, Harvest and shop/ready controls. The fixture grants test currency; live runs start at zero.
+- Both two- and four-player economy layouts were visually checked. The main scene also ran for 900 frames without gameplay script errors; the known environment certificate-store message remains.
+- The nurse, blacksmith, town hall, branching dungeons and full skill system are design direction only. Current limitations include fixed shop stock, one indestructible castle per player and arena-specific build bounds. Human balance and physical input acceptance remain separate.

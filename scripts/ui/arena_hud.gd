@@ -3,10 +3,14 @@ extends CanvasLayer
 var party: PartyRoster
 var encounter: EncounterDirector
 var progression: RunProgression
+var builder: CastleBuilder
 var _status: Label
 var _readouts: Dictionary = {}
 var _titles: Dictionary = {}
 var _buttons: Dictionary = {}
+var _build_buttons: Dictionary = {}
+var _ready_buttons: Dictionary = {}
+var _build_notes: Dictionary = {}
 
 func setup() -> void:
 	var top := MarginContainer.new()
@@ -39,9 +43,9 @@ func setup() -> void:
 		_add_card(cards, player)
 	var footer := Label.new()
 	footer.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	footer.offset_top = -36
+	footer.offset_top = -45
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	footer.text = "P1  WASD · SPACE dash · Q/E upgrades   /   P2  ARROWS · CTRL dash · ENTER/SHIFT upgrades   /   PAD  Left stick · X dash · A/B upgrades   /   R restart"
+	footer.text = "P1 WASD · SPACE dash · Q/E/T upgrades · B build · F ready   /   P2 ARROWS · CTRL dash · ENTER/SHIFT/PERIOD upgrades · N build · / ready\nPAD stick · X dash · A/B/RB upgrades · Y build · START ready   /   R restart   /   Break snowmen for health · Collect snowflakes for XP and shopping"
 	footer.add_theme_font_size_override("font_size", 12)
 	footer.add_theme_color_override("font_color", Color("c9e4e8"))
 	add_child(footer)
@@ -83,16 +87,44 @@ func _add_card(parent: GridContainer, player: PenguinPlayer) -> void:
 		button.pressed.connect(func() -> void: progression.choose(id, index))
 		choices.add_child(button)
 		_buttons[id].append(button)
+	var actions := HBoxContainer.new()
+	content.add_child(actions)
+	var build_button := Button.new()
+	build_button.focus_mode = Control.FOCUS_NONE
+	build_button.add_theme_font_size_override("font_size", 13)
+	build_button.text = "Build castle · 10"
+	build_button.pressed.connect(func() -> void: builder.build(id))
+	actions.add_child(build_button)
+	_build_buttons[id] = build_button
+	var ready_button := Button.new()
+	ready_button.focus_mode = Control.FOCUS_NONE
+	ready_button.add_theme_font_size_override("font_size", 13)
+	ready_button.pressed.connect(func() -> void: progression.toggle_ready(id))
+	actions.add_child(ready_button)
+	_ready_buttons[id] = ready_button
+	var note := Label.new()
+	note.add_theme_font_size_override("font_size", 11)
+	actions.add_child(note)
+	_build_notes[id] = note
 
 func _process(_delta: float) -> void:
 	if _status == null:
 		return
-	_status.text = "WAVE %d / %d   •   %s   •   %d raiders" % [encounter.wave, encounter.definition.wave_count, EncounterDirector.State.keys()[encounter.state], encounter.alive_count]
+	var phase: String = "SHOP / READY UP" if encounter.state == EncounterDirector.State.INTERMISSION else EncounterDirector.State.keys()[encounter.state]
+	_status.text = "WAVE %d/%d · %s · Reserve %d" % [encounter.wave, encounter.definition.wave_count, phase, progression.reserve]
 	for player: PenguinPlayer in party.members():
 		var id: int = player.identity.player_id
 		var choices: int = progression.pending.get(id, 0)
 		var dash_status: String = "READY" if player.dash.cooldown_remaining <= 0 else "%.1fs" % player.dash.cooldown_remaining
 		_titles[id].text = "P%d  /  %s    •    %s" % [id, player.weapon.definition.display_name.to_upper(), "%d HP" % player.health.current if player.health.is_alive() else "DOWN"]
-		_readouts[id].text = "Level %d   •   XP %d/%d   •   Dash %s   •   %d upgrades ready" % [player.experience.level, player.experience.xp, player.experience.required_xp(), dash_status, choices]
-		for button: Button in _buttons[id]:
-			button.disabled = choices == 0 or not player.health.is_alive()
+		_readouts[id].text = "LV %d · XP %d/%d · Dash %s · Harvest x%.2f · Flakes %d · Free %d" % [player.experience.level, player.experience.xp, player.experience.required_xp(), dash_status, player.stats.harvest_multiplier, progression.wallet.balance(id), choices]
+		for index: int in range(_buttons[id].size()):
+			var button: Button = _buttons[id][index]
+			var cost: String = "FREE" if choices > 0 else "%d" % progression.price(id, index)
+			button.text = "%s · %s" % [RunProgression.OPTIONS[index].display_name, cost]
+			button.disabled = not progression.can_choose(id, index) or not player.health.is_alive()
+		_build_buttons[id].text = "Castle built" if builder.has_castle(id) else "Build castle · 10"
+		_build_buttons[id].disabled = builder.has_castle(id) or progression.wallet.balance(id) < CastleBuilder.COST or not player.health.is_alive() or encounter.state in [EncounterDirector.State.COMPLETE, EncounterDirector.State.FAILED]
+		_ready_buttons[id].text = "Ready ✓" if progression.ready_players.get(id, false) else "Ready for next wave"
+		_ready_buttons[id].disabled = encounter.state != EncounterDirector.State.INTERMISSION or not player.health.is_alive()
+		_build_notes[id].text = builder.last_result.get(id, "")
