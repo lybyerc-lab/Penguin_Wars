@@ -36,7 +36,7 @@ func _run() -> void:
 	players[1].position = Vector2(10000, 10000)
 	await physics_frame
 	await physics_frame
-	check(players[1].position.x <= 540 and players[1].position.y <= 260, "arena bounds contain player")
+	check(players[1].position == players[1].position.clamp(players[1].arena_bounds.position, players[1].arena_bounds.end), "current room bounds contain player")
 	players[1].input_source = original_input
 	test_input.queue_free()
 	players[1].position = Vector2(40, 40)

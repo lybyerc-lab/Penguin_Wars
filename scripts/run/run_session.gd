@@ -37,6 +37,7 @@ func wire() -> void:
 	encounter.state_changed.connect(loot.on_encounter_changed)
 	encounter.wave_cleared.connect(loot.bank_uncollected)
 	encounter.wave_cleared.connect(progression.finish_wave)
+	encounter.boss_reward.connect(progression.grant_boss_reward)
 	builder.party = party
 	builder.wallet = wallet
 	builder.actor_root = actor_root

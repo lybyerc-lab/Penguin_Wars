@@ -58,6 +58,12 @@ func _ready() -> void:
 	overlay.journal = journal
 	add_child(overlay)
 	overlay.setup()
+	var boss_hud := BossHUD.new()
+	boss_hud.name = "BossHUD"
+	boss_hud.encounter = encounter
+	boss_hud.party = party
+	add_child(boss_hud)
+	boss_hud.setup()
 	encounter.completed.connect(_on_room_cleared)
 	encounter.state_changed.connect(_on_encounter_state)
 	enter_town()
@@ -111,10 +117,16 @@ func _load_room(next: RoomDefinition) -> void:
 	_services.clear()
 	overlay.services = _services
 	progression.begin_room()
+	# Town has no encounter, so the shop opens on this flag instead of a state.
+	progression.in_town = room.kind == RoomDefinition.Kind.TOWN
 	$Loot.begin_room()
 	RoomSpace.apply(room, party, encounter, $Builder, $Loot, $Camera, $Backdrop, $Actors)
 	session.place_party(room.entry_point)
 	$HUD.location = room.display_name
+	var banner := LocationBanner.new()
+	banner.location_name = room.display_name
+	banner.wide_party = party.members().size() > 2
+	overlay.add_child(banner)
 
 func _add_gate(spec: RoomExit) -> PartyGate:
 	var gate := PartyGate.new()

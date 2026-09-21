@@ -10,6 +10,8 @@ Design direction from the September 21 conversation. The town, the services and 
 - **A run root.** `Expedition` keeps wallets, stats, levels and purchases across a room change; the room's own actors go with the room. `RunSession` holds the wiring the arena slice uses too.
 - **Revival**, as the nurse's service, through a `Health.revive()` operation separate from healing.
 - **A run journal**, so the town hall meeting changes once the party has been down a cave.
+- **A boss** at the end of the cave, with telegraphed attacks, knockback resistance and a reward paid to every living penguin. Ranks two and three exist as data and are not placed yet.
+- **A room difficulty dial**, so the loud branch is genuinely harder than the quiet one without a second set of enemy scenes.
 
 ## What is still open
 
@@ -17,7 +19,8 @@ Design direction from the September 21 conversation. The town, the services and 
 - The permanent-versus-temporary split for the blacksmith. Everything it sells is currently run power only.
 - Touch. Service panels are keyboard and gamepad only; the Android layout still covers the arena slice.
 - Room geometry. Bounds are a rectangle with no interior collision, so no doors, walls or irregular rooms.
-- More caves, secrets and puzzles. One cave exists and its layout table lives in code, not data, because one town exists.
+- More caves, secrets and puzzles. One cave exists and its layout table lives in code, not data, because one town exists. The Glacier Warden and Mondo are written but have no room to stand in.
+- A shared HUD decision. The Antigravity branch reworks the heads-up display into four corner cards with a click-to-open character sheet, which frees the top of the screen that the current card grid occupies. That is a presentation choice, not a correctness one, so it was left alone here rather than merged; it is worth deciding deliberately.
 - Balance. Every price, revival fraction and encounter value is a first pass for playtesting.
 
 ## What stays central

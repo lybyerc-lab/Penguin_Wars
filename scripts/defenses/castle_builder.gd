@@ -14,7 +14,9 @@ func has_castle(player_id: int) -> bool:
 	return castles.has(player_id) and is_instance_valid(castles[player_id])
 
 func build(player_id: int) -> bool:
-	if has_castle(player_id) or encounter.state in [EncounterDirector.State.COMPLETE, EncounterDirector.State.FAILED]:
+	# READY covers town and any room with no encounter, where a castle would
+	# be bought and then left behind for nothing.
+	if has_castle(player_id) or encounter.state in [EncounterDirector.State.READY, EncounterDirector.State.COMPLETE, EncounterDirector.State.FAILED]:
 		return false
 	for player: PenguinPlayer in party.members(true):
 		if player.identity.player_id != player_id:

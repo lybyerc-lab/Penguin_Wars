@@ -110,6 +110,18 @@ func _run() -> void:
 	check(players[0].weapon.damage_bonus == damage_before + 4.0, "honing raises weapon damage")
 	check(market.offers(TownService.Kind.TOWN_HALL).is_empty(), "the town hall sells nothing")
 
+	# --- town is a shop, not a building site ----------------------------
+	var builder: CastleBuilder = run.get_node("Builder")
+	wallet.credit(1, 40)
+	var purse: int = wallet.balance(1)
+	check(not builder.build(1), "a castle cannot be built in town")
+	check(builder.castles.is_empty() and wallet.balance(1) == purse, "the refused castle costs nothing")
+	players[0].experience.grant(99)
+	var free_choices: int = run.progression.pending.get(1, 0)
+	check(free_choices > 0, "levelling up grants a free choice")
+	check(run.progression.choose(1, 0), "a choice earned underground can be spent in town")
+	check(run.progression.pending[1] == free_choices - 1, "spending consumes the free choice")
+
 	# --- into the cave -------------------------------------------------
 	var opening_lines: PackedStringArray = run.journal.town_hall_lines()
 	players[0].experience.grant(12)
@@ -127,6 +139,9 @@ func _run() -> void:
 	check(wallet.balance(1) == purse_before, "wallets survive a room change")
 	check(players[0].experience.level == level_before, "levels survive a room change")
 	check(players[0].health.current == health_before, "health survives a room change")
+	check(run.encounter.state == EncounterDirector.State.SPAWNING, "the entrance room starts its waves")
+	check(builder.build(1), "a castle can be built in a room with a fight in it")
+	check(builder.has_castle(1), "the castle stands")
 	check(run.gates().size() == 2, "the entrance room offers a branch")
 	for gate: PartyGate in run.gates():
 		check(gate.locked, "routes stay shut while the room is hostile")
@@ -146,6 +161,7 @@ func _run() -> void:
 	await process_frame
 	check(run.room.id == &"glitter_seam", "the party takes the supply branch")
 	check(run.room.kind == RoomDefinition.Kind.SUPPLY, "the seam is a supply room")
+	check(not builder.has_castle(1), "a castle does not follow the party into the next room")
 	check(run.encounter.state == EncounterDirector.State.READY, "a supply room starts no waves")
 	var snowmen: int = 0
 	for node: Node in run.get_node("Actors").get_children():

@@ -15,6 +15,9 @@ var reserve: int = 0
 var ready_players: Dictionary = {}
 var _recipient_index: int = 0
 var _paid_wave: int = 0
+## Town has no encounter, so without this a choice earned in a cave could not
+## be spent until the next room's intermission.
+var in_town: bool = false
 
 func bind_player(player: PenguinPlayer) -> void:
 	pending[player.identity.player_id] = 0
@@ -52,7 +55,7 @@ func can_choose(player_id: int, option: int) -> bool:
 	return shop_open() and option >= 0 and option < OPTIONS.size() and (pending.get(player_id, 0) > 0 or (wallet != null and wallet.balance(player_id) >= price(player_id, option)))
 
 func shop_open() -> bool:
-	return encounter == null or encounter.state in [EncounterDirector.State.INTERMISSION, EncounterDirector.State.COMPLETE]
+	return in_town or encounter == null or encounter.state in [EncounterDirector.State.INTERMISSION, EncounterDirector.State.COMPLETE]
 
 func collect_materials(_collector_id: int, amount: int) -> void:
 	var players: Array[PenguinPlayer] = party.members(true)
@@ -77,6 +80,11 @@ func finish_wave(wave: int) -> void:
 	ready_players.clear()
 	for player: PenguinPlayer in party.members(true):
 		_grant_income(player, 5)
+
+## A boss pays every living penguin, scaled by their own Harvest.
+func grant_boss_reward(amount: int) -> void:
+	for player: PenguinPlayer in party.members(true):
+		_grant_income(player, amount)
 
 ## Wallets, stats and purchase counts carry between rooms; wave payment and
 ## readiness do not, because the next room restarts its wave numbering.

@@ -20,7 +20,8 @@ func travel(run: Node2D, gate: PartyGate) -> void:
 func _run() -> void:
 	var run: Node2D = load("res://scenes/run/expedition.tscn").instantiate()
 	root.add_child(run)
-	await settle(40)
+	# Past the arrival banner, so the fixture shows the town at rest.
+	await settle(150)
 	var players: Array[PenguinPlayer] = run.party.members()
 	run.get_node("Wallet").credit(1, 26)
 	run.get_node("Wallet").credit(2, 14)

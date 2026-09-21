@@ -1,5 +1,24 @@
 # Verification record
 
+## Boss phase and enemy data, merged from the Antigravity branch
+
+September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb.
+
+The Antigravity branch built the town and caves independently and also added a boss system, a heads-up display rework and several smaller changes. Its town and cave implementation was not merged, because an equivalent already exists here and running both would leave two answers to the same question. What was taken is what this branch did not have.
+
+- **Two real defects it caught.** A snow castle could be bought and placed in the town square, and a free level-up choice earned underground could not be spent until the next room's intermission, because town has no encounter state. Both now have regression checks in the town and cave suite; reverting either fix turns four checks red, which was confirmed rather than assumed.
+- **Per-enemy combat data.** `contact_radius`, `hit_radius`, `projectile_damage` and `knockback_multiplier` replace shared constants, and a thrower's shot now carries its own shooter's damage. This is what makes a boss a larger, steadier target without a second combat path.
+- **The boss phase.** `BossDefinition`, `ArenaBoss`, `BossBehavior`, the boss scene, three boss resources and the boss bar, adapted to this branch's room-owned spawn ring and placed through room data — the mini-boss stands at the end of the Black Ledge — rather than through the Antigravity endless-cave schedule, which does not fit a named cave.
+- **Room difficulty and an arrival banner.** `EncounterDefinition.difficulty_multiplier` makes the Cracked Gallery branch genuinely harder at 1.25. The banner was repositioned out of the play area, since a room's fight can start the moment the party arrives.
+
+- Seven headless suites passed with zero failures: foundation, combat feel, enemy behavior, economy, stats/mobile, town/cave and the new boss suite. Seven render runs passed: arena, enemy, economy, mobile normal and wide, town and the new boss run.
+- `boss_test.gd` walks the real cave to the Black Ledge and checks that the boss follows the final wave rather than replacing it, health scaling with party size, routes staying shut while it lives, each telegraph being harmless and direction-locked, a heavy hit failing to cancel a windup, contact landing only during the rush, difficulty scaling applied before health is taken from maximum, and the reward being paid once to every living penguin and not twice. It was negative-controlled: altering the expected boss health produced a failure and a nonzero exit.
+- `cave-boss.png` was written from the live viewport and inspected for the crown, the ring, the drawn charge lane and the boss bar with its damage.
+
+Not merged: the corner-card heads-up display rework and its character-sheet buttons, the Antigravity town, cave, dungeon and journey scripts, and its flattened arena backdrop. The display rework is a deliberate presentation choice and is recorded as an open decision in hub-and-dungeons.md.
+
+Limitations: no human playthrough of a boss fight. The boss is driven through its states programmatically, which proves the telegraph contract and the reward path, not whether the fight is fun or fairly tuned. Boss health, damage, the +65% party scaling and the 1.25 branch multiplier are all first values. Ranks two and three are exercised only through their data.
+
 ## Town, services and the first branching cave
 
 September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb. This is the first run of the suites outside Windows; all previously recorded results reproduced.
