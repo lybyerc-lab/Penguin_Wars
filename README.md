@@ -25,7 +25,7 @@ XP still grants free stat choices. Extra upgrades cost **6 snowflakes**, increas
 
 Use **Stats / more upgrades** on desktop to open the character sheet. Preview the phone layout with `godot --path . -- --mobile` or enable `TestArena.mobile_preview` in the inspector. Android automatically selects one local penguin, touch movement/dash, and large build/shop/ready buttons. The solo mobile character sheet pauses combat. Desktop co-op remains available; online co-op is future work.
 
-The Android export preset is included, but **no APK has been built or tested on a phone**: this PC needs Java and Android SDK configuration. See [mobile-and-stats.md](docs/mobile-and-stats.md) for stat formulas, extension points, preview controls and export setup.
+The Android debug APK now builds and passes signing/alignment checks. Find it locally at `builds/penguin-wars-debug.apk`. **Physical phone testing remains pending.** Rebuild on this PC with `./tools/build-android.ps1 -WorkspaceToolchain`. See [mobile-and-stats.md](docs/mobile-and-stats.md) for stat formulas, extension points, preview controls and export setup.
 
 **Snow castles are player-built defenses.** Spend **10 personal snowflakes** to place one on open ice in front of your penguin. Each player can build one per run. It fires friendly snowballs for **8 damage every 0.9 seconds**, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves and reset with the run; they are currently indestructible support structures, with enemies continuing to target penguins.
 

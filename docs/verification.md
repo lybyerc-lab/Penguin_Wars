@@ -1,5 +1,15 @@
 # Verification record
 
+## Android APK build resolved
+
+September 21, 2026: installed portable Java 17 and Android SDK build packages, configured normal/workspace Godot paths, generated a local debug key, enabled ETC2/ASTC imports, added a penguin launcher icon, and explicitly selected Compatibility for the mobile renderer. SDK 36 matches the actual installed Godot 4.7.2 template (the general export guide listed older package versions).
+
+- `tools/build-android.ps1 -WorkspaceToolchain`: successful import and debug APK export, exit 0.
+- Independent `apksigner verify`: v2 and v3 signatures passed. `zipalign -c -P 16 4`: exit 0.
+- Manifest inspected: correct package/version, API 24 minimum/API 36 target, landscape, launcher alias, Compatibility rendering, no requested Internet permission. Archive contains ARM64 libraries and excludes project tests/docs.
+- Inspection reports an unused themed-icon resource warning; standard launcher icon is present. Normal startup still reports the environment certificate-store warning; export/signing completes.
+- `adb devices -l`: no device connected. This verifies packaging, not Android runtime or physical touch acceptance. The prior failed-export record below is historical and is now resolved.
+
 ## Combat stats and Android preparation
 
 - Foundation, economy, combat-feel, enemy-behavior and stats/mobile integration suites passed in Godot 4.7.2. New coverage checks armor/dodge caps, typed damage and crit order, actual weapon critical damage, cooldown scaling, vitality, regeneration, death gating and increased pickup radius.
