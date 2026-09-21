@@ -1,7 +1,5 @@
 extends Node2D
 ## Composition root. Wires independent systems; no combat simulation here.
-const PLAYER_SCENE: PackedScene = preload("res://scenes/actors/player.tscn")
-const COLORS: Array[Color] = [Color("58dfed"), Color("ffcb77"), Color("bc9aff"), Color("a9e886")]
 @export_range(1, 4) var player_count: int = 2
 @export var mobile_preview: bool = false
 ## The room owns bounds, the spawn ring and prop placement.
@@ -14,47 +12,25 @@ func _ready() -> void:
 	mobile_preview = mobile_preview or OS.has_feature("android") or "--mobile" in OS.get_cmdline_user_args()
 	if mobile_preview:
 		player_count = 1
-	progression.party = party
-	progression.wallet = $Wallet
-	progression.encounter = encounter
-	progression.party_ready.connect(encounter.advance_wave)
-	for index: int in range(player_count):
-		var player := PLAYER_SCENE.instantiate() as PenguinPlayer
-		player.identity = PlayerIdentity.new()
-		player.identity.player_id = index + 1
-		player.identity.local_slot = index
-		player.identity.device_id = index
-		player.identity.tint = COLORS[index]
-		if index % 2 == 1:
-			player.get_node("Weapon").definition = preload("res://resources/weapons/fish_cleaver.tres")
-		player.position = room.entry_point + Vector2((index - (player_count - 1) * 0.5) * 80.0, 0.0)
-		$Actors.add_child(player)
-		if not party.register(player):
-			push_error("Cannot register party member %d" % player.identity.player_id)
-			player.queue_free()
-			return
-		progression.bind_player(player)
-	$Camera.party = party
-	$Camera.mobile_layout = mobile_preview
-	encounter.party = party
-	encounter.actor_root = $Actors
-	$Loot.party = party
-	$Loot.wallet = $Wallet
-	$Loot.progression = progression
-	$Loot.actor_root = $Actors
-	$Loot.encounter = encounter
-	encounter.loot_available.connect($Loot.enemy_drop)
-	encounter.state_changed.connect($Loot.on_encounter_changed)
-	encounter.wave_cleared.connect($Loot.bank_uncollected)
-	encounter.wave_cleared.connect(progression.finish_wave)
+	# Same wiring the town/cave expedition uses, so the two cannot drift apart.
+	var session := RunSession.new()
+	session.party = party
+	session.wallet = $Wallet
+	session.progression = progression
+	session.encounter = encounter
+	session.loot = $Loot
+	session.builder = $Builder
+	session.camera = $Camera
+	session.actor_root = $Actors
+	session.mobile = mobile_preview
+	session.wire()
+	if not session.spawn_party(player_count, room.entry_point):
+		return
 	$HUD.party = party
 	$HUD.encounter = encounter
 	$HUD.progression = progression
-	$Builder.party = party
-	$Builder.wallet = $Wallet
-	$Builder.actor_root = $Actors
-	$Builder.encounter = encounter
 	$HUD.builder = $Builder
+	$HUD.location = room.display_name
 	RoomSpace.apply(room, party, encounter, $Builder, $Loot, $Camera, $IceArenaVisual, $Actors)
 	if mobile_preview:
 		$HUD.queue_free()

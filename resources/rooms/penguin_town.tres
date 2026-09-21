@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/room_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"kelphollow"
+display_name = "Kelphollow"
+kind = 3
+palette = 0
+bounds = Rect2(-600, -250, 1200, 500)
+spawn_ring = Vector2(560, 235)
+supply_points = Array[Vector2]([])
+entry_point = Vector2(0, 40)
+arrival_line = ""

@@ -1,0 +1,105 @@
+[gd_resource type="Resource" script_class="CaveDefinition" load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/room_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/room_exit.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/cave_definition.gd" id="3"]
+[ext_resource type="Resource" path="res://resources/encounters/shelf_mouth.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/encounters/cracked_gallery.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/encounters/black_ledge.tres" id="6"]
+
+[sub_resource type="Resource" id="exit_mouth_seam"]
+script = ExtResource("2")
+target_id = &"glitter_seam"
+label = "Glittering seam"
+hint = "Quiet. Supplies, and no fight."
+position = Vector2(-420, -170)
+
+[sub_resource type="Resource" id="exit_mouth_gallery"]
+script = ExtResource("2")
+target_id = &"cracked_gallery"
+label = "Cracked gallery"
+hint = "Loud. More of them, and worse."
+position = Vector2(420, -170)
+
+[sub_resource type="Resource" id="exit_seam_ledge"]
+script = ExtResource("2")
+target_id = &"black_ledge"
+label = "Down to the ledge"
+hint = "The floor gives way to steps."
+position = Vector2(0, -150)
+
+[sub_resource type="Resource" id="exit_gallery_ledge"]
+script = ExtResource("2")
+target_id = &"black_ledge"
+label = "Down to the ledge"
+hint = "Steps, and a draught off the water."
+position = Vector2(0, -190)
+
+[sub_resource type="Resource" id="exit_ledge_home"]
+script = ExtResource("2")
+target_id = &""
+label = "Climb back to Kelphollow"
+hint = "Home, with whatever you are carrying."
+position = Vector2(0, -165)
+
+[sub_resource type="Resource" id="room_mouth"]
+script = ExtResource("1")
+id = &"shelf_mouth"
+display_name = "The Hollow Shelf"
+kind = 0
+palette = 1
+bounds = Rect2(-520, -250, 1040, 500)
+spawn_ring = Vector2(495, 225)
+supply_points = Array[Vector2]([Vector2(-300, 105), Vector2(300, 105)])
+entry_point = Vector2(0, 150)
+encounter = ExtResource("4")
+exits = Array[ExtResource("2")]([SubResource("exit_mouth_seam"), SubResource("exit_mouth_gallery")])
+arrival_line = "Cold air moves past you from somewhere deeper in."
+
+[sub_resource type="Resource" id="room_seam"]
+script = ExtResource("1")
+id = &"glitter_seam"
+display_name = "The Glitter Seam"
+kind = 1
+palette = 2
+bounds = Rect2(-420, -210, 840, 420)
+spawn_ring = Vector2(400, 190)
+supply_points = Array[Vector2]([Vector2(-250, -60), Vector2(250, -60), Vector2(-250, 90), Vector2(250, 90)])
+entry_point = Vector2(0, 150)
+exits = Array[ExtResource("2")]([SubResource("exit_seam_ledge")])
+arrival_line = "Snow-fed crystals, and nothing moving. Break the drifts and carry what you can."
+
+[sub_resource type="Resource" id="room_gallery"]
+script = ExtResource("1")
+id = &"cracked_gallery"
+display_name = "The Cracked Gallery"
+kind = 0
+palette = 1
+bounds = Rect2(-560, -270, 1120, 540)
+spawn_ring = Vector2(535, 245)
+supply_points = Array[Vector2]([Vector2(-350, 120), Vector2(350, 120)])
+entry_point = Vector2(0, 170)
+encounter = ExtResource("5")
+exits = Array[ExtResource("2")]([SubResource("exit_gallery_ledge")])
+arrival_line = "Wide floor, cracked ceiling. They hear you arrive."
+
+[sub_resource type="Resource" id="room_ledge"]
+script = ExtResource("1")
+id = &"black_ledge"
+display_name = "The Black Ledge"
+kind = 0
+palette = 2
+bounds = Rect2(-500, -240, 1000, 480)
+spawn_ring = Vector2(480, 220)
+supply_points = Array[Vector2]([Vector2(-290, 100), Vector2(290, 100)])
+entry_point = Vector2(0, 140)
+encounter = ExtResource("6")
+exits = Array[ExtResource("2")]([SubResource("exit_ledge_home")])
+arrival_line = "Black stone under old ice. Something has been taking the fish, and it has been here."
+
+[resource]
+script = ExtResource("3")
+id = &"hollow_shelf"
+display_name = "The Hollow Shelf"
+signpost = "East passage · a short way down"
+rooms = Array[ExtResource("1")]([SubResource("room_mouth"), SubResource("room_seam"), SubResource("room_gallery"), SubResource("room_ledge")])

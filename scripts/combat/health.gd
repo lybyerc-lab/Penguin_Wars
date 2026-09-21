@@ -4,6 +4,7 @@ extends Node
 signal changed(current: float, maximum: float)
 signal died(event: DamageEvent)
 signal damaged(event: DamageEvent)
+signal revived(current: float)
 
 @export_range(1.0, 10000.0) var maximum: float = 100.0
 var current: float
@@ -35,3 +36,13 @@ func heal(amount: float) -> void:
 		return
 	current = minf(maximum, current + amount)
 	changed.emit(current, maximum)
+
+## Healing deliberately cannot raise the dead, so recovery services use this
+## explicit operation instead. Returns false when the target is already alive.
+func revive(amount: float) -> bool:
+	if is_alive() or amount <= 0.0:
+		return false
+	current = minf(maximum, amount)
+	changed.emit(current, maximum)
+	revived.emit(current)
+	return true

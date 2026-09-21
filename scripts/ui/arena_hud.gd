@@ -4,6 +4,9 @@ var party: PartyRoster
 var encounter: EncounterDirector
 var progression: RunProgression
 var builder: CastleBuilder
+## Where the party is. The HUD is shared by the arena slice and the town.
+var location: String = "Frostfall Bay"
+var _title: Label
 var _status: Label
 var _readouts: Dictionary = {}
 var _titles: Dictionary = {}
@@ -27,11 +30,10 @@ func setup() -> void:
 	top.add_child(column)
 	var header := HBoxContainer.new()
 	column.add_child(header)
-	var title := Label.new()
-	title.text = "PENGUIN WARS  /  FROSTFALL BAY"
-	title.add_theme_font_size_override("font_size", 22)
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(title)
+	_title = Label.new()
+	_title.add_theme_font_size_override("font_size", 22)
+	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(_title)
 	_status = Label.new()
 	_status.add_theme_color_override("font_color", Color("bddfe5"))
 	header.add_child(_status)
@@ -123,8 +125,12 @@ func _add_card(parent: GridContainer, player: PenguinPlayer) -> void:
 func _process(_delta: float) -> void:
 	if _status == null:
 		return
-	var phase: String = "SHOP / READY UP" if encounter.state == EncounterDirector.State.INTERMISSION else EncounterDirector.State.keys()[encounter.state]
-	_status.text = "WAVE %d/%d · %s · Reserve %d" % [encounter.wave, encounter.definition.wave_count, phase, progression.reserve]
+	_title.text = "PENGUIN WARS  /  %s" % location.to_upper()
+	if encounter.definition == null or encounter.state == EncounterDirector.State.READY:
+		_status.text = "EXPLORING · Reserve %d" % progression.reserve
+	else:
+		var phase: String = "SHOP / READY UP" if encounter.state == EncounterDirector.State.INTERMISSION else EncounterDirector.State.keys()[encounter.state]
+		_status.text = "WAVE %d/%d · %s · Reserve %d" % [encounter.wave, encounter.definition.wave_count, phase, progression.reserve]
 	for player: PenguinPlayer in party.members():
 		var id: int = player.identity.player_id
 		var choices: int = progression.pending.get(id, 0)

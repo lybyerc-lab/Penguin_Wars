@@ -5,6 +5,8 @@ extends CharacterBody2D
 @export var speed: float = 220.0
 var arena_bounds := Rect2(-540, -260, 1080, 520)
 var stats := PlayerStats.new()
+var _live_layer: int = 0
+var _live_mask: int = 0
 @onready var health: Health = $Health
 @onready var experience: Experience = $Experience
 @onready var input_source: LocalPlayerInput = $LocalInput
@@ -18,6 +20,9 @@ func _ready() -> void:
 	health.defenses = stats
 	health.changed.connect(_on_health_changed)
 	health.died.connect(_on_died)
+	health.revived.connect(_on_revived)
+	_live_layer = collision_layer
+	_live_mask = collision_mask
 
 func _physics_process(delta: float) -> void:
 	var movement: Vector2 = input_source.movement()
@@ -55,6 +60,11 @@ func _on_health_changed(_current: float, _maximum: float) -> void:
 func _on_died(_event: DamageEvent) -> void:
 	collision_layer = 0
 	collision_mask = 0
+	queue_redraw()
+
+func _on_revived(_current: float) -> void:
+	collision_layer = _live_layer
+	collision_mask = _live_mask
 	queue_redraw()
 
 func _draw() -> void:

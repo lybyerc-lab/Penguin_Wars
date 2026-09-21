@@ -5,6 +5,8 @@ var party: PartyRoster
 var mobile_layout: bool = false
 ## Room-owned area the camera must keep on screen.
 var framed_size := Vector2(1240, 660)
+## Screen space a scene needs below the world, for panels drawn over it.
+var bottom_reserve: float = 50.0
 
 func _process(delta: float) -> void:
 	if party == null:
@@ -20,7 +22,7 @@ func _process(delta: float) -> void:
 	# Reserve space for the HUD so actors cannot disappear underneath its cards.
 	var viewport: Vector2 = get_viewport_rect().size
 	var top_margin: float = 385.0 if party.members().size() > 2 else 220.0
-	var bottom_margin: float = 50.0
+	var bottom_margin: float = bottom_reserve
 	if mobile_layout:
 		top_margin = 140.0
 		bottom_margin = 55.0

@@ -78,6 +78,12 @@ func finish_wave(wave: int) -> void:
 	for player: PenguinPlayer in party.members(true):
 		_grant_income(player, 5)
 
+## Wallets, stats and purchase counts carry between rooms; wave payment and
+## readiness do not, because the next room restarts its wave numbering.
+func begin_room() -> void:
+	_paid_wave = 0
+	ready_players.clear()
+
 func toggle_ready(player_id: int) -> void:
 	if encounter == null or encounter.state != EncounterDirector.State.INTERMISSION:
 		return

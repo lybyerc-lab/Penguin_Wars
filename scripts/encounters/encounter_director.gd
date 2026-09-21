@@ -25,6 +25,19 @@ var _timer: float = 0.0
 var _spawn_index: int = 0
 var _rng := RandomNumberGenerator.new()
 
+## Return to a pre-start state so one director can run a second room.
+func reset() -> void:
+	_clear_projectiles()
+	for node: Node in actor_root.get_children() if actor_root != null else []:
+		if node is ArenaEnemy:
+			node.queue_free()
+	state = State.READY
+	wave = 0
+	alive_count = 0
+	_left = 0
+	_timer = 0.0
+	_spawn_index = 0
+
 func start() -> void:
 	assert(party != null and actor_root != null and definition != null)
 	_rng.seed = definition.run_seed

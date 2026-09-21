@@ -10,11 +10,19 @@ var encounter: EncounterDirector
 var supply_points: Array[Vector2] = [Vector2(-330, 110), Vector2(330, 110)]
 var _supplied_wave: int = 0
 
+## A new room resupplies from scratch.
+func begin_room() -> void:
+	_supplied_wave = 0
+
 func on_encounter_changed() -> void:
 	if encounter.state != EncounterDirector.State.SPAWNING or encounter.wave == _supplied_wave:
 		return
 	_supplied_wave = encounter.wave
-	# Replace only missing snowmen; intact supply props persist between waves.
+	resupply()
+
+## Replace only missing snowmen; intact supply props persist. Rooms without an
+## encounter call this directly, since no wave change will trigger it.
+func resupply() -> void:
 	for point: Vector2 in supply_points:
 		var occupied: bool = false
 		for node: Node in actor_root.get_children():
