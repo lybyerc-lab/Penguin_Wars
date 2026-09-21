@@ -77,6 +77,59 @@ func _run() -> void:
 	check(RoomExit.wall_position(test_bounds, RoomExit.Side.BOTTOM) == Vector2(0, 320),
 		  "BOTTOM wall position is flush at bounds.end.y")
 
+	# --- 2b. Offset Along The Wall -------------------------------------
+	var centred := RoomExit.new()
+	centred.side = RoomExit.Side.BOTTOM
+	check(centred.offset_along == 0.0, "a new exit is centred on its wall by default")
+	check(centred.place_on(test_bounds) == Vector2(0, 320), "a zero offset leaves the doorway centred")
+
+	var west := RoomExit.new()
+	west.side = RoomExit.Side.BOTTOM
+	west.offset_along = -260.0
+	var east := RoomExit.new()
+	east.side = RoomExit.Side.BOTTOM
+	east.offset_along = 260.0
+	check(west.place_on(test_bounds) == Vector2(-260, 320), "a negative offset slides the doorway west")
+	check(east.place_on(test_bounds) == Vector2(260, 320), "a positive offset slides it east")
+	check(west.place_on(test_bounds) != east.place_on(test_bounds), "two doorways can share one wall")
+	check(west.place_on(test_bounds).y == east.place_on(test_bounds).y, "both stay flush against that wall")
+
+	var high := RoomExit.new()
+	high.side = RoomExit.Side.LEFT
+	high.offset_along = -120.0
+	check(high.place_on(test_bounds) == Vector2(-600, -120), "a LEFT doorway offsets along y")
+
+	# The offset is measured from the wall centre, so a bigger room keeps it flush.
+	var wide_bounds := Rect2(-900, -500, 1800, 1000)
+	check(east.place_on(wide_bounds) == Vector2(260, 500), "offset is relative to the wall centre, not the room size")
+
+	var offset_gate := PartyGate.new()
+	offset_gate.exit = east
+	offset_gate.place_at_wall(test_bounds)
+	check(offset_gate.position == east.place_on(test_bounds), "gate and wall art agree on where a doorway is")
+	offset_gate.free()
+
+	# Doorway placement is room geometry. Resize the window for real and check
+	# that nothing about it moves.
+	var before_resize: Vector2 = east.place_on(test_bounds)
+	var original_size: Vector2i = root.size
+	root.size = Vector2i(640, 360)
+	await process_frame
+	check(root.size != original_size, "the test actually resized the viewport")
+	check(east.place_on(test_bounds) == before_resize, "a viewport resize does not move a doorway")
+	var resized_gate := PartyGate.new()
+	resized_gate.exit = east
+	resized_gate.place_at_wall(test_bounds)
+	check(resized_gate.position == before_resize, "a gate placed after a resize lands in the same place")
+	resized_gate.free()
+	root.size = original_size
+	await process_frame
+
+	# --- 2c. Doorway Dressing Comes From Data --------------------------
+	check(seam_exit.presentation == RoomExit.Presentation.CRYSTAL, "the seam doorway is dressed as crystal")
+	check(gallery_exit.presentation == RoomExit.Presentation.FRACTURED, "the gallery doorway is dressed as fractured")
+	check(ledge_room.exits[0].presentation == RoomExit.Presentation.STANDARD, "the way home is a standard doorway")
+
 	# --- 3. Orientation-Aware Rectangular Thresholds -------------------
 	check(PartyGate.DWELL == 0.4, "PartyGate dwell is tuned to 0.4s")
 	check(PartyGate.THRESHOLD_DEPTH >= 80.0 and PartyGate.THRESHOLD_DEPTH <= 110.0,
@@ -127,6 +180,12 @@ func _run() -> void:
 	var town_gate: PartyGate = town_gates[0]
 	check(town_gate.exit.side == RoomExit.Side.BOTTOM, "town cave mouth is on BOTTOM wall")
 	check(not town_gate.locked, "town cave mouth is unlocked")
+	check(town_gate.exit.presentation == RoomExit.Presentation.EXPEDITION_MOUTH,
+		  "the town mouth is dressed by data, not by the name of the cave beyond")
+	check(town_gate.is_town_mouth(), "the gate reads that dressing")
+	# One cave means one centred mouth; the offset is what keeps a second from stacking.
+	check(town_gate.exit.offset_along == 0.0, "a single cave mouth stays centred")
+	check(town_gate.position == town_gate.exit.place_on(run.room.bounds), "the mouth sits where its data says")
 
 	# One player alone inside threshold does NOT travel
 	players[0].global_position = town_gate.global_position

@@ -13,6 +13,7 @@ target_id = &"glitter_seam"
 label = "Glittering seam"
 hint = "Quiet. Supplies, and no fight."
 side = 0
+presentation = 2
 position = Vector2(-600, 0)
 
 [sub_resource type="Resource" id="exit_mouth_gallery"]
@@ -21,6 +22,7 @@ target_id = &"cracked_gallery"
 label = "Cracked gallery"
 hint = "Loud. More of them, and worse."
 side = 1
+presentation = 3
 position = Vector2(600, 0)
 
 [sub_resource type="Resource" id="exit_seam_ledge"]

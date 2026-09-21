@@ -69,13 +69,10 @@ const TOWN_MOUTH_WIDTH: float = 210.0
 		seed_value = value
 		queue_redraw()
 
-## Room kind (TOWN = 3, COMBAT = 0, SUPPLY = 1).
-var room_kind: int = 0:
-	set(value):
-		room_kind = value
-		queue_redraw()
-
-## Doorway data set by the room setup. Each entry is {side: int, position: Vector2, target_id: StringName}.
+## Doorway data set by the room setup. Each entry is
+## {side: int, position: Vector2, presentation: int}, where presentation is a
+## RoomExit.Presentation value. Doorway art never reads the name of the room on
+## the other side.
 var doorways: Array[Dictionary] = []:
 	set(value):
 		doorways = value
@@ -182,17 +179,17 @@ func _draw_walls_and_doorways(skin: Dictionary, floor_rect: Rect2) -> void:
 		Vector2(br.x, tl.y + corner_rad), Vector2(br.x, br.y - corner_rad),
 		RoomExit.Side.RIGHT, false)
 
+func _is_expedition_mouth(door: Dictionary) -> bool:
+	return int(door.get("presentation", RoomExit.Presentation.STANDARD)) == RoomExit.Presentation.EXPEDITION_MOUTH
+
 func _get_door_width(door: Dictionary) -> float:
-	var target: StringName = door.get("target_id", &"")
-	if room_kind == 3 or target == &"hollow_shelf":
-		return TOWN_MOUTH_WIDTH
-	return DOORWAY_WIDTH
+	return TOWN_MOUTH_WIDTH if _is_expedition_mouth(door) else DOORWAY_WIDTH
 
 func _carve_doorway_opening(skin: Dictionary, floor_rect: Rect2, door: Dictionary) -> void:
 	var s: int = door.get("side", RoomExit.Side.BOTTOM)
 	var pos: Vector2 = door.get("position", bounds.get_center())
-	var target: StringName = door.get("target_id", &"")
-	var is_town_mouth: bool = (room_kind == 3 or target == &"hollow_shelf")
+	var dress: int = int(door.get("presentation", RoomExit.Presentation.STANDARD))
+	var is_town_mouth: bool = dress == RoomExit.Presentation.EXPEDITION_MOUTH
 	var door_w: float = _get_door_width(door)
 	var half_w: float = door_w * 0.5
 
@@ -263,12 +260,12 @@ func _carve_doorway_opening(skin: Dictionary, floor_rect: Rect2, door: Dictionar
 	draw_colored_polygon(ground_fan, path_color)
 
 	# 4. Environmental route hints on the floor.
-	if target == &"glitter_seam":
+	if dress == RoomExit.Presentation.CRYSTAL:
 		# Crystalline sparkles on the path
 		draw_circle(pos + Vector2(25, -15), 3.0, Color("8fe6cf", 0.6))
 		draw_circle(pos + Vector2(35, 12), 2.5, Color("f1ffff", 0.7))
 		draw_circle(pos + Vector2(15, 8), 2.0, Color("7fe0c4", 0.5))
-	elif target == &"cracked_gallery":
+	elif dress == RoomExit.Presentation.FRACTURED:
 		# Threatening fracture lines branching from doorway into arena
 		var c1 := PackedVector2Array([pos + Vector2(-5, -half_w), pos + Vector2(-30, -half_w - 15), pos + Vector2(-55, -half_w - 5)])
 		var c2 := PackedVector2Array([pos + Vector2(-5, half_w), pos + Vector2(-35, half_w + 18), pos + Vector2(-65, half_w + 10)])

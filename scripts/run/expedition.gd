@@ -101,7 +101,9 @@ func enter_town() -> void:
 		spec.label = mouths[index].display_name
 		spec.hint = mouths[index].signpost
 		spec.side = RoomExit.Side.BOTTOM
-		spec.position = Vector2((index - (mouths.size() - 1) * 0.5) * MOUTH_SPACING, 165.0)
+		# Spread along the wall so a second cave does not stack on the first.
+		spec.offset_along = (index - (mouths.size() - 1) * 0.5) * MOUTH_SPACING
+		spec.presentation = RoomExit.Presentation.EXPEDITION_MOUTH
 		var gate: PartyGate = _add_gate(spec)
 		gate.locked = false
 		gate.place_at_wall(room.bounds)
@@ -111,9 +113,8 @@ func enter_town() -> void:
 			doors.append({
 				"side": gate.exit.side,
 				"position": gate.position,
-				"target_id": gate.exit.target_id,
+				"presentation": int(gate.exit.presentation),
 			})
-	$Backdrop.room_kind = int(room.kind)
 	$Backdrop.doorways = doors
 	overlay.banner = "Step up to a building to trade.  Head through a passage to set out."
 

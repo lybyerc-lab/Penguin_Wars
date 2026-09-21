@@ -1,5 +1,32 @@
 # Verification record
 
+## Pre-Brotato cleanup pass
+
+September 21, 2026. Branch `cleanup/pre-brotato`, cut from `antigravity` @ `46efa8d`. Godot **4.7.2 stable** in a Linux container, compatibility rendering, OpenGL through Xvfb. No gameplay features added; no behaviour intentionally changed.
+
+### Current baseline this record describes
+
+Doorways are physical openings cut into room walls, not travel pads. `PartyGate.DWELL` is **0.4 s**, and the threshold is an orientation-aware rectangle, not a circle. Travel needs every *living* penguin inside the same doorway; downed penguins are not waited for. The Black Ledge ships **Frostbreaker** as a real boss, and its exit stays barricaded until the boss falls. The heads-up display is full-screen with corner cards; the desktop camera reserves no HUD band, and only the mobile layout reserves space.
+
+### Corrections made
+
+- **Boss render fixture was not showing a boss.** `doorway_render_smoke.gd` travelled into the Black Ledge and settled 60 frames before capturing `doorway-black-ledge-boss.png`. The Black Ledge runs two ordinary waves *before* its boss, so the capture was wave 1. It now clears the ordinary waves, asserts `state == BOSS` with a live `active_boss`, and fails the smoke if that is not reached. The regenerated capture reads `WAVE 2 / 2 · BOSS` with Frostbreaker's bar full and the exit barricaded.
+- **A viewport test that never resized the viewport.** `fullscreen_hud_test.gd` carried the comment "Change viewport size and verify RoomDefinition geometry is strictly unchanged", an unused `old_vp_size` local, and a check comparing a value to itself. It now actually resizes the window, verifies the resize happened, then verifies room and player bounds are unchanged, and restores the size. The same invariant is covered from the doorway side in `doorway_test.gd`.
+- **Doorway offset seam.** `RoomExit.wall_position()` accepted an offset that nothing ever supplied, so every doorway centred on its wall and the town's cave-mouth spread was computed into `position` and then discarded by `place_at_wall()`. A second cave would have stacked its mouth on the first. `RoomExit.offset_along` now persists that offset and `RoomExit.place_on()` is the single placement call used by gates and wall art alike. Current visual positions are unchanged, which was confirmed by comparing captures rather than assumed.
+- **Doorway dressing no longer reads room names.** Six checks against `hollow_shelf`, `glitter_seam` and `cracked_gallery` chose gate width, arch style, caption colour, floor hints and wall cavity size. They are replaced by `RoomExit.Presentation` (`STANDARD`, `EXPEDITION_MOUTH`, `CRYSTAL`, `FRACTURED`) carried in the exit data. `RoomVisual.room_kind` became redundant and was retired with its two writers. `doorway-shelf-mouth-unlocked.png` before and after are visually identical.
+- **Stale claims corrected in README**: travel pads and "one second" (now doorways and a short dwell); "No room ships with a boss yet" (the Black Ledge does); bosses listed among features "left to subsequent layers"; the HUD described as showing weapon and dash readiness (corner cards show level, health and Snow); the camera described as reserving top and bottom HUD bands; and mouse support described as covering build and ready, which on desktop it does not.
+- **Currency wording**: the mobile status line said "Flakes" while the corner cards say "Snow". The mobile line now says Snow.
+
+### Test results
+
+All ten headless suites passed with zero failures: foundation, combat feel, enemy behavior, economy, stats/mobile, seams, town/cave, boss, fullscreen HUD and doorway.
+
+All eight render passes ran on the real renderer and passed: arena, enemy, economy, mobile (normal and wide), town, boss and doorway.
+
+### Limitations
+
+No human playtest in this pass. Rendering is not byte-deterministic here, so visual neutrality was established by inspecting captures side by side, not by comparing file hashes. `docs/architecture.md` and `docs/project-memory.md` were read but deliberately not edited — another lane owns them this cycle — so stale wording found there is reported rather than fixed.
+
 ## Directed rulings applied; architecture frozen for the boss port
 
 September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb. Branch `integration/adventure-base`.

@@ -19,6 +19,23 @@ func travel(run: Node2D, gate: PartyGate) -> void:
 		player.position = gate.position
 	gate._physics_process(PartyGate.DWELL + 0.2)
 
+## Clears the ordinary waves and stops the moment the boss takes the field, so
+## a capture named for the boss actually contains one.
+func clear_waves_only(run: Node2D) -> void:
+	var director: EncounterDirector = run.encounter
+	director.auto_advance = true
+	for step: int in range(200):
+		director._physics_process(10.0)
+		for node: Node in get_nodes_in_group("enemies"):
+			if node is BossActor:
+				continue
+			if node is ArenaEnemy:
+				node.health.take_damage(DamageEvent.new(1000, 1))
+		await process_frame
+		if director.state in [EncounterDirector.State.BOSS, EncounterDirector.State.COMPLETE]:
+			break
+	director.auto_advance = false
+
 func clear_room(run: Node2D) -> void:
 	var director: EncounterDirector = run.encounter
 	director.auto_advance = true
@@ -76,9 +93,15 @@ func _run() -> void:
 	await settle(20)
 	captures.append(await shot("res://docs/doorway-glitter-seam.png"))
 
-	# 5. Black Ledge during Frostbreaker (boss alive, exit barricaded)
+	# 5. Black Ledge during Frostbreaker. The Black Ledge runs ordinary waves
+	# before its boss, so clear those first or this captures wave 1 instead.
 	travel(run, run.gates()[0])
-	await settle(60)
+	await settle(30)
+	await clear_waves_only(run)
+	var boss_alive: bool = run.encounter.state == EncounterDirector.State.BOSS and is_instance_valid(run.encounter.active_boss)
+	if not boss_alive:
+		push_error("FAIL: Black Ledge fixture never reached the boss phase")
+		captures.append(ERR_DOES_NOT_EXIST)
 	players[0].position = Vector2(-120, 80)
 	players[1].position = Vector2(120, 80)
 	await settle(20)

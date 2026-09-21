@@ -39,12 +39,11 @@ static func apply(room: RoomDefinition, party: PartyRoster = null, encounter: En
 	if visual != null:
 		visual.bounds = room.bounds
 		visual.palette = int(room.palette)
-		visual.room_kind = int(room.kind)
 		var doors: Array[Dictionary] = []
 		for exit: RoomExit in room.exits:
 			doors.append({
 				"side": exit.side,
-				"position": RoomExit.wall_position(room.bounds, exit.side),
-				"target_id": exit.target_id,
+				"position": exit.place_on(room.bounds),
+				"presentation": int(exit.presentation),
 			})
 		visual.doorways = doors

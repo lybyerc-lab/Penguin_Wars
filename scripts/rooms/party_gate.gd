@@ -56,7 +56,7 @@ func is_horizontal() -> bool:
 	return s == RoomExit.Side.LEFT or s == RoomExit.Side.RIGHT
 
 func is_town_mouth() -> bool:
-	return exit != null and exit.target_id == &"hollow_shelf"
+	return exit != null and exit.presentation == RoomExit.Presentation.EXPEDITION_MOUTH
 
 func gate_width() -> float:
 	return TOWN_MOUTH_WIDTH if is_town_mouth() else THRESHOLD_WIDTH
@@ -67,7 +67,7 @@ func gate_width() -> float:
 func place_at_wall(bounds: Rect2) -> void:
 	if exit == null:
 		return
-	position = RoomExit.wall_position(bounds, exit.side)
+	position = exit.place_on(bounds)
 	var w: float = gate_width()
 	match exit.side:
 		RoomExit.Side.LEFT:
@@ -155,9 +155,9 @@ func _get_palette_theme() -> Dictionary:
 			}
 
 func _draw_passage(s: int) -> void:
-	var target: StringName = exit.target_id if exit != null else &""
-	var is_glitter: bool = target == &"glitter_seam"
-	var is_cracked: bool = target == &"cracked_gallery"
+	var dress: int = exit.presentation if exit != null else RoomExit.Presentation.STANDARD
+	var is_glitter: bool = dress == RoomExit.Presentation.CRYSTAL
+	var is_cracked: bool = dress == RoomExit.Presentation.FRACTURED
 	var is_town: bool = is_town_mouth()
 	var is_boss: bool = (exit != null and exit.leads_outside() and palette == 2)
 
@@ -487,9 +487,10 @@ func _draw_captions(s: int) -> void:
 	if not subtitle.is_empty():
 		var sub_color := Color("8ea8b8")
 		if not locked:
-			if exit != null and exit.target_id == &"glitter_seam":
+			var dress: int = exit.presentation if exit != null else RoomExit.Presentation.STANDARD
+			if dress == RoomExit.Presentation.CRYSTAL:
 				sub_color = Color("7ec4b8")
-			elif exit != null and exit.target_id == &"cracked_gallery":
+			elif dress == RoomExit.Presentation.FRACTURED:
 				sub_color = Color("a088c0")
 		draw_string(font, Vector2(cx, cy + 16), subtitle, align, width, 11, sub_color)
 

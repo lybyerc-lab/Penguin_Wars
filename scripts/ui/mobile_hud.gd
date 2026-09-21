@@ -96,7 +96,7 @@ func _on_state_changed() -> void:
 func _process(_delta: float) -> void:
 	if _status == null:
 		return
-	_status.text = "HP %d/%d   •   LV %d   •   Flakes %d   •   Wave %d/%d   •   %s" % [_player.health.current, _player.health.maximum, _player.experience.level, progression.wallet.balance(1), encounter.wave, encounter.definition.wave_count, EncounterDirector.State.keys()[encounter.state]]
+	_status.text = "HP %d/%d   •   LV %d   •   Snow %d   •   Wave %d/%d   •   %s" % [_player.health.current, _player.health.maximum, _player.experience.level, progression.wallet.balance(1), encounter.wave, encounter.definition.wave_count, EncounterDirector.State.keys()[encounter.state]]
 	_build.text = "Castle built" if builder.has_castle(1) else "Build castle · 10"
 	_build.disabled = builder.has_castle(1) or progression.wallet.balance(1) < CastleBuilder.COST or not _player.health.is_alive() or encounter.state in [EncounterDirector.State.COMPLETE, EncounterDirector.State.FAILED]
 	_ready_button.disabled = encounter.state != EncounterDirector.State.INTERMISSION or not _player.health.is_alive()

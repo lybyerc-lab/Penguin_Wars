@@ -78,11 +78,16 @@ func _run() -> void:
 
 	var orig_bounds: Rect2 = arena.room.bounds
 	check(orig_bounds.size == Vector2(1200, 640), "frostfall_arena logical size is 1200x640")
-	# Change viewport size and verify RoomDefinition geometry is strictly unchanged
-	var old_vp_size: Vector2 = root.get_visible_rect().size
+	# Actually resize the window, then verify room geometry is strictly unchanged.
+	var original_window: Vector2i = root.size
+	root.size = Vector2i(800, 450)
+	await process_frame
+	check(root.size != original_window, "the test actually resized the viewport")
 	check(arena.room.bounds == orig_bounds, "room bounds are owned by RoomDefinition, not viewport")
 	for player: PenguinPlayer in players:
 		check(player.arena_bounds == orig_bounds, "player movement bounds strictly match RoomDefinition")
+	root.size = original_window
+	await process_frame
 
 	# =========================================================================
 	# 5. BossHUD Placement & Clearance
