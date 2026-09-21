@@ -14,9 +14,12 @@ extends Resource
 ## Short, dry, in character. Shown wherever a penguin is picked.
 @export var tagline: String = ""
 @export var tint: Color = Color.WHITE
-## Ordered loadout. Only slot 0 is wired today, because the penguin scene
-## carries one weapon node; the array is the seam for multiple weapon slots.
+## Ordered loadout. RunSession hands this to the player's WeaponRack; entries
+## occupy slots in order and each owns its own runtime controller.
 @export var starting_weapons: Array[WeaponDefinition] = []
+## Most penguins use all six slots. Character data can later choose a smaller
+## rack without Player.gd knowing any character names.
+@export_range(1, WeaponRack.DEFAULT_CAPACITY) var weapon_capacity: int = WeaponRack.DEFAULT_CAPACITY
 ## Applied at spawn through the same seam the shop uses, so a character's
 ## opening stats need no special case anywhere.
 @export var starting_stats: Array[UpgradeDefinition] = []

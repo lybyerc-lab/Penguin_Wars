@@ -203,7 +203,8 @@ A character carries four kinds of thing:
 | --- | --- |
 | `tint`, `tagline`, `body_scale` | Presentation. `body_scale` resizes the **art only**. |
 | `collision_scale` | The hitbox, set separately from the art on purpose. |
-| `starting_weapons` | Ordered loadout. Only slot 0 is wired today; the array is the seam for multiple weapon slots. |
+| `starting_weapons` | Ordered loadout. `RunSession` hands it once to the player's personal `WeaponRack`, which fills slots in order. |
+| `weapon_capacity` | Per-character rack capacity, defaulting to six for ordinary penguins. |
 | `starting_stats` | Opening stat changes, applied through the same `apply_upgrade()` seam the shop uses. |
 | `traits` | Rule changes. |
 
@@ -338,7 +339,6 @@ they go, and so nobody builds them somewhere else.
 | 20-wave run structure | `EncounterDefinition.wave_count`, already ranged to 20. The director's wave loop needs no change. |
 | Run/wave plan | Reserved and approved, not built. A lightweight data layer owned by `Expedition` that describes a run — which waves happen where, and which milestone bosses `BossSchedule` picks — and writes the result into `EncounterDefinition`. It describes; it must never move the party, or it becomes the second journey manager the contract forbids. |
 | Field shop: four offers, reroll, lock | `RunProgression`. `OPTIONS` is today's fixed catalogue and `choose(player_id, index)` indexes straight into it — both are the thing an offer system replaces. Expect to keep `pending`, `purchases`, `price()` and the wallet, and to change what an "index" means. |
-| Six weapon slots | `CharacterDefinition.starting_weapons` already carries a list; the penguin scene carries one `WeaponController`. Slots are a change to the penguin and to `RunSession._apply_character`, not to the data. |
 | Four weapon tiers, duplicate merging | `WeaponDefinition`. A tier field and a merge rule live there and in whatever owns an inventory; `WeaponController` reads a definition and needs no knowledge of tiers. |
 | Weapon classes and set bonuses | `WeaponDefinition` for the class tag; `PlayerStats` for the resulting modifiers, through the same seam upgrades already use. |
 | Personal builds per co-op player | Already true: `PlayerStats` is one instance per penguin and `RunWallet` is per player. Keep it that way. |

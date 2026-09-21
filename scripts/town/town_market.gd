@@ -86,11 +86,13 @@ func buy(player_id: int, kind: TownService.Kind, index: int) -> bool:
 		&"tonic":
 			buyer.stats.regeneration += 0.4
 		&"hone":
-			buyer.weapon.damage_bonus += 4.0
+			var active_weapon := buyer.weapon_rack.controller_at(0)
+			if active_weapon != null:
+				active_weapon.damage_bonus += 4.0
 		&"rebalance":
 			buyer.stats.attack_speed += 10.0
 		&"swap":
-			buyer.weapon.definition = CLEAVER if buyer.weapon.definition == LANCE else LANCE
+			buyer.weapon_rack.replace_weapon(0, CLEAVER if buyer.weapon_rack.weapon_at(0) == LANCE else LANCE)
 	notes[player_id] = "%s — done" % offer.label
 	return true
 

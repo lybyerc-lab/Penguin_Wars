@@ -48,7 +48,7 @@ The architecture contract and every extension point are written up in [architect
 
 P1 (and P3) carries the **Ice Lance**: a fast single-target strike with 240-pixel range, 14 damage and a 0.42-second cooldown. P2 (and P4) carries the **Fish Cleaver**: a 140-degree sweep that damages every enemy in its 105-pixel reach for 22 damage, with a 1.05-second cooldown and stronger knockback. Both aim automatically at the nearest enemy. These are initial tuning values, not final balance.
 
-Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability during that burst. The 1.1-second cooldown starts when the dash begins. Move to set direction, or dash along the last movement direction when stationary. Holding the button does not repeat dashes. The HUD shows each player's weapon and dash readiness. Hit flashes, floating damage, expanding impact rings, dash trails and cleaver arcs make combat events visible. No global hit pause or camera shake disrupts the other player's view.
+Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability during that burst. The 1.1-second cooldown starts when the dash begins. Move to set direction, or dash along the last movement direction when stationary. Holding the button does not repeat dashes. Each player owns a six-slot personal weapon rack; the default loadout occupies slot 0 and the HUD shows the remaining empty slots. Hit flashes, floating damage, expanding impact rings, dash trails and cleaver arcs make combat events visible. No global hit pause or camera shake disrupts the other player's view.
 
 ### Enemy roles
 
@@ -159,7 +159,9 @@ godot --headless --path . --script res://tests/combat_feel_test.gd
 godot --headless --path . --script res://tests/enemy_behavior_test.gd
 godot --headless --path . --script res://tests/economy_test.gd
 godot --headless --path . --script res://tests/stats_mobile_test.gd
+godot --headless --path . --script res://tests/weapon_rack_test.gd
 godot --path . --script res://tests/render_smoke.gd
+godot --path . --script res://tests/weapon_rack_render_smoke.gd
 godot --path . --script res://tests/enemy_render_smoke.gd
 godot --path . --script res://tests/economy_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd
