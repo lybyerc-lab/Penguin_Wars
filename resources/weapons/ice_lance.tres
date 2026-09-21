@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=2 format=3]
-[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
+[gd_resource type="Resource" script_class="WeaponDefinition" format=3 uid="uid://irw72yxxc2d2"]
+
+[ext_resource type="Script" uid="uid://dt4grtuvsnq3r" path="res://scripts/data/weapon_definition.gd" id="1"]
+
 [resource]
 script = ExtResource("1")
 id = &"ice_lance"
 display_name = "Ice Lance"
-damage = 14.0
-cooldown = 0.65
-reach = 190.0
+cooldown = 0.42
+reach = 240.0

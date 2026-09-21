@@ -2,6 +2,17 @@ class_name LocalPlayerInput
 extends Node
 ## Input adapter only; simulation consumes a normalized movement command.
 var identity: PlayerIdentity
+var _dash_held: bool = false
+
+func dash_requested() -> bool:
+	if identity == null:
+		return false
+	var held: bool = (identity.local_slot == 0 and Input.is_physical_key_pressed(KEY_SPACE)) or (identity.local_slot == 1 and Input.is_physical_key_pressed(KEY_CTRL))
+	if identity.device_id >= 0 and identity.device_id in Input.get_connected_joypads():
+		held = held or Input.is_joy_button_pressed(identity.device_id, JOY_BUTTON_X)
+	var pressed: bool = held and not _dash_held
+	_dash_held = held
+	return pressed
 
 func movement() -> Vector2:
 	if identity == null:

@@ -55,7 +55,7 @@ func _run() -> void:
 	check(arena.progression.pending[2] == 2, "level-up queue retains choices")
 	check(arena.progression.choose(2, 0), "upgrade choice accepted")
 	check(players[1].weapon.damage_bonus == 3 and players[0].weapon.damage_bonus == 0, "upgrade state isolated")
-	check(players[1].weapon.definition.damage == 14, "shared resource remains immutable")
+	check(players[1].weapon.definition.damage == 22, "shared resource remains immutable")
 	check(not arena.progression.choose(2, 99), "invalid upgrade rejected")
 	# Exercise the actual weapon/target/damage/reward chain.
 	var enemy: ArenaEnemy = load("res://scenes/actors/enemy.tscn").instantiate()
@@ -64,8 +64,8 @@ func _run() -> void:
 	arena.get_node("Actors").add_child(enemy)
 	enemy.defeated.connect(func(_actor: ArenaEnemy, event: DamageEvent) -> void: arena.progression.reward_team(event))
 	var xp_before: int = players[1].experience.xp
-	players[1].weapon._physics_process(1.0)
-	players[1].weapon._physics_process(1.0)
+	players[1].weapon._physics_process(1.1)
+	players[1].weapon._physics_process(1.1)
 	check(not enemy.health.is_alive(), "weapon kills target in range")
 	check(players[1].experience.xp == xp_before + 1, "enemy death awards XP")
 	await process_frame

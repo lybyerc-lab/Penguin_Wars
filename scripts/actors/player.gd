@@ -8,6 +8,7 @@ var arena_bounds := Rect2(-540, -260, 1080, 520)
 @onready var experience: Experience = $Experience
 @onready var input_source: LocalPlayerInput = $LocalInput
 @onready var weapon: WeaponController = $Weapon
+@onready var dash: DashController = $Dash
 
 func _ready() -> void:
 	assert(identity != null, "Set identity before adding a player to the tree")
@@ -16,10 +17,16 @@ func _ready() -> void:
 	health.changed.connect(_on_health_changed)
 	health.died.connect(_on_died)
 
-func _physics_process(_delta: float) -> void:
-	velocity = input_source.movement() * speed if health.is_alive() else Vector2.ZERO
+func _physics_process(delta: float) -> void:
+	var movement: Vector2 = input_source.movement()
+	dash.tick(delta, movement, input_source.dash_requested(), health.is_alive())
+	health.invulnerable = dash.is_active()
+	velocity = movement * speed if health.is_alive() else Vector2.ZERO
+	if dash.is_active():
+		velocity = dash.direction * dash.burst_speed
 	move_and_slide()
 	global_position = global_position.clamp(arena_bounds.position, arena_bounds.end)
+	queue_redraw()
 
 func apply_upgrade(upgrade: UpgradeDefinition) -> void:
 	match upgrade.stat:
@@ -40,6 +47,10 @@ func _on_died(_event: DamageEvent) -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	if dash != null and dash.is_active():
+		for index: int in range(1, 4):
+			draw_circle(-dash.direction * index * 15.0, 20 - index * 3, Color(0.6, 0.95, 1.0, 0.4 / index))
+		draw_arc(Vector2.ZERO, 24, 0, TAU, 24, Color("d4fbff"), 2)
 	var color: Color = identity.tint if identity != null else Color.WHITE
 	if health != null and not health.is_alive():
 		color = Color("526273")

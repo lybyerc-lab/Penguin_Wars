@@ -4,12 +4,18 @@ A Godot 4.7 foundation for a 1–4 player, top-down co-op action roguelite. Open
 
 ## Play the test arena
 
-- Player 1: **WASD**, **Q / E** to spend level-up choices.
-- Player 2: **Arrow keys**, **Enter / Shift** to spend choices.
-- Each assigned gamepad: **left stick**, **A / B** to spend choices.
+- Player 1: **WASD**, **Space** to dash, **Q / E** to spend level-up choices.
+- Player 2: **Arrow keys**, **Ctrl** to dash, **Enter / Shift** to spend choices.
+- Each assigned gamepad: **left stick**, **X** to dash, **A / B** to spend choices.
 - Attacks automatically strike the nearest enemy within weapon range.
 - **R** restarts the run, including after victory or a party wipe.
 - Upgrade buttons can also be clicked. Choices queue without pausing other players.
+
+### Combat slice
+
+P1 (and P3) carries the **Ice Lance**: a fast single-target strike with 240-pixel range, 14 damage and a 0.42-second cooldown. P2 (and P4) carries the **Fish Cleaver**: a 140-degree sweep that damages every enemy in its 105-pixel reach for 22 damage, with a 1.05-second cooldown and stronger knockback. Both aim automatically at the nearest enemy. These are initial tuning values, not final balance.
+
+Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability during that burst. The 1.1-second cooldown starts when the dash begins. Move to set direction, or dash along the last movement direction when stationary. Holding the button does not repeat dashes. The HUD shows each player's weapon and dash readiness. Hit flashes, floating damage, expanding impact rings, dash trails and cleaver arcs make combat events visible. No global hit pause or camera shake disrupts the other player's view.
 
 Three seeded encounters scale enemy count with party size. Kills give all living players XP; each player chooses damage or movement upgrades independently. Downed players stop moving/attacking and are excluded from enemy targeting. Revival is not implemented. The arena currently uses programmer-drawn penguins and enemies.
 
@@ -37,7 +43,7 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 
 **Input.** The player consumes `LocalPlayerInput.movement()`. Replace that adapter with remappable actions, recorded commands, or network commands. Move ownership checks to the future session layer. Gamepads have a radial dead zone. Hot-plug lobby assignment and physical controller testing remain future work.
 
-**Damage.** `Health.take_damage(DamageEvent)` is the shared damage interface; `changed` and `died` are the output hooks. Damage events retain the source party ID for future credit/assist logic. Dead actors reject further damage and healing; use a separate explicit revive operation later. The current weapon is an instantaneous ranged strike with a brief tracer. Add projectile scenes, hitboxes, teams, invulnerability and status effects around this interface.
+**Damage.** `Health.take_damage(DamageEvent)` is the shared damage interface; `changed`, `damaged` and `died` are the output hooks. Damage events retain the source party ID and a knockback impulse. Dead actors reject further damage and healing; use a separate explicit revive operation later. `HitFeedback` listens to accepted damage and creates short-lived world effects which survive enemy deletion. `DashController` owns per-player burst/cooldown state; the player applies its motion and invulnerability. Weapons currently use instantaneous single-target or arc attacks. Add projectile scenes, teams and status effects around these interfaces. Before adding other immunity sources, replace the single invulnerability flag with a composed immunity policy.
 
 **Data.** Add `.tres` resources using `WeaponDefinition`, `UpgradeDefinition`, or `EncounterDefinition`. Shared resources are definitions and must remain immutable during play. Runtime cooldowns and damage bonuses belong to each weapon instance. `PenguinPlayer.apply_upgrade()` is the initial stat application seam; move into a dedicated stat aggregator when stacking rules grow. `RunProgression.OPTIONS` is the test catalog, ready to replace with weighted offers and unlock filters.
 
@@ -54,7 +60,10 @@ From this directory, with `godot` available:
 ```powershell
 godot --headless --path . --editor --import --quit
 godot --headless --path . --script res://tests/foundation_test.gd
+godot --headless --path . --script res://tests/combat_feel_test.gd
 godot --path . --script res://tests/render_smoke.gd
 ```
 
 The integration test fails with a nonzero exit code on failed assertions. It covers party IDs/capacity, movement/bounds, death/retargeting, XP overflow, queued upgrades and resource isolation, actual weapon kills/rewards, encounter completion, party wipe and scene cleanup. The renderer test writes `docs/arena-preview.png` using the live viewport. See `docs/verification.md` for actual results and limitations.
+
+The combat test checks dash speed, immunity windows, cooldown, death gating and player isolation; cleaver multi-target coverage, rear/range exclusions and knockback; weapon cooldown and long-range single-target lance behavior. The renderer test includes a controlled combat pose to inspect effects reliably. Physical input and subjective combat feel still need human playtesting.

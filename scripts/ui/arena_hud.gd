@@ -29,7 +29,7 @@ func setup() -> void:
 		var row := HBoxContainer.new()
 		_players.add_child(row)
 		var label := Label.new()
-		label.custom_minimum_size.x = 410
+		label.custom_minimum_size.x = 760
 		label.modulate = player.identity.tint
 		row.add_child(label)
 		_readouts[player.identity.player_id] = label
@@ -40,7 +40,7 @@ func setup() -> void:
 			button.pressed.connect(func() -> void: progression.choose(player.identity.player_id, index))
 			row.add_child(button)
 	var help := Label.new()
-	help.text = "P1  WASD + Q/E upgrades    •    P2  Arrows + Enter/Shift upgrades    •    Auto attack    •    R restart\nGamepads: left stick + A/B upgrades. Upgrade buttons also support mouse."
+	help.text = "P1  WASD · Space dash · Q/E upgrades    |    P2  Arrows · Ctrl dash · Enter/Shift upgrades\nGamepads: left stick · X dash · A/B upgrades    |    Auto attack · R restart"
 	help.add_theme_color_override("font_color", Color("8ba6bd"))
 	column.add_child(help)
 
@@ -50,7 +50,8 @@ func _process(_delta: float) -> void:
 	_status.text = "Wave %d / %d   •   %s   •   Enemies %d" % [encounter.wave, encounter.definition.wave_count, EncounterDirector.State.keys()[encounter.state], encounter.alive_count]
 	for player: PenguinPlayer in party.members():
 		var id: int = player.identity.player_id
-		_readouts[id].text = "P%d  %s   LV %d   XP %d/%d   Choices %d" % [id, str(int(player.health.current)) + " HP" if player.health.is_alive() else "DOWN", player.experience.level, player.experience.xp, player.experience.required_xp(), progression.pending.get(id, 0)]
+		var dash_status: String = "READY" if player.dash.cooldown_remaining <= 0 else "%.1fs" % player.dash.cooldown_remaining
+		_readouts[id].text = "P%d  %s   %s   LV %d · XP %d/%d   Choices %d   Dash %s" % [id, str(int(player.health.current)) + " HP" if player.health.is_alive() else "DOWN", player.weapon.definition.display_name, player.experience.level, player.experience.xp, player.experience.required_xp(), progression.pending.get(id, 0), dash_status]
 		var row: Node = _readouts[id].get_parent()
 		for child: Node in row.get_children():
 			if child is Button:

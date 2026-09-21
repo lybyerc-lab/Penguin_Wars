@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"fish_cleaver"
+display_name = "Fish Cleaver"
+damage = 22.0
+cooldown = 1.05
+reach = 105.0
+pattern = 1
+arc_degrees = 140.0
+knockback = 320.0
+tint = Color(1, 0.8, 0.47, 1)

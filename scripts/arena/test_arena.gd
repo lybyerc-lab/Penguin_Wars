@@ -16,6 +16,8 @@ func _ready() -> void:
 		player.identity.local_slot = index
 		player.identity.device_id = index
 		player.identity.tint = COLORS[index]
+		if index % 2 == 1:
+			player.get_node("Weapon").definition = preload("res://resources/weapons/fish_cleaver.tres")
 		player.position = Vector2((index - (player_count - 1) * 0.5) * 80.0, 40.0)
 		$Actors.add_child(player)
 		if not party.register(player):
