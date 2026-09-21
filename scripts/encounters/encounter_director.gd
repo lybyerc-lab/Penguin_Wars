@@ -12,6 +12,7 @@ enum State { READY, SPAWNING, CLEARING, INTERMISSION, COMPLETE, FAILED }
 @export var auto_advance: bool = false
 var party: PartyRoster
 var actor_root: Node2D
+var arena_bounds := Rect2(-540, -260, 1080, 520)
 var state: State = State.READY
 var wave: int = 0
 var alive_count: int = 0
@@ -75,12 +76,14 @@ func _spawn_enemy() -> void:
 	_spawn_index += 1
 	var enemy := selected.instantiate() as ArenaEnemy
 	enemy.party = party
+	enemy.arena_bounds = arena_bounds
 	# Pick the safest of several perimeter points to avoid spawning on a player.
 	var safest := Vector2.ZERO
 	var best: float = -1.0
 	for attempt: int in range(12):
 		var angle: float = _rng.randf_range(0.0, TAU)
-		var candidate := Vector2(cos(angle) * 515.0, sin(angle) * 235.0)
+		var half_size: Vector2 = arena_bounds.size * 0.5 - Vector2(25, 25)
+		var candidate: Vector2 = arena_bounds.get_center() + Vector2(cos(angle), sin(angle)) * half_size
 		var nearest: PenguinPlayer = party.nearest_alive(candidate)
 		var distance: float = candidate.distance_squared_to(nearest.global_position) if nearest != null else INF
 		if distance > best:

@@ -23,7 +23,7 @@ func _run() -> void:
 		arena.get_node("Loot").spawn_pickup(position, RunPickup.Kind.SNOWFLAKE, 2)
 	arena.get_node("Loot").spawn_pickup(Vector2(-210, 140), RunPickup.Kind.HEALTH, 25)
 	arena.encounter.state = EncounterDirector.State.INTERMISSION
-	for frame: int in range(90):
+	for frame: int in range(210):
 		await process_frame
 	await RenderingServer.frame_post_draw
 	var path: String = "res://docs/economy-four-players.png" if four_players else "res://docs/economy-preview.png"

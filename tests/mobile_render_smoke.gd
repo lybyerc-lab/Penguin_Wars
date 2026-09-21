@@ -10,8 +10,11 @@ func _run() -> void:
 	var arena: Node = load("res://scenes/arena/test_arena.tscn").instantiate()
 	arena.mobile_preview = true
 	root.add_child(arena)
-	for frame: int in range(120):
+	for frame: int in range(210):
 		await process_frame
+		if frame == 60:
+			await RenderingServer.frame_post_draw
+			root.get_texture().get_image().save_png("res://docs/location-arrival%s.png" % suffix)
 	await RenderingServer.frame_post_draw
 	var result: Error = root.get_texture().get_image().save_png("res://docs/mobile-controls%s.png" % suffix)
 	arena.encounter.set_physics_process(false)

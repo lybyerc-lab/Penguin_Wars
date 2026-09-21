@@ -9,7 +9,7 @@ A Godot 4.7 foundation for a 1–4 player, top-down co-op action roguelite. Open
 - Each assigned gamepad: **left stick**, **X** dash, **A / B / right bumper** upgrades, **Y** build castle, **Start** ready.
 - Attacks automatically strike the nearest enemy within weapon range.
 - **R** restarts the run, including after victory or a party wipe.
-- Upgrade, build and ready buttons also support mouse. Upgrades are chosen in the between-wave shop; all living players must ready up before the next wave.
+- Select your color-matched penguin card in a screen corner to open stats, upgrades, castle building, ready-up and restart controls. Keyboard/gamepad shortcuts remain available. Upgrades are chosen in the between-wave shop; all living players must ready up before the next wave.
 
 ### Supplies, snowflakes and defenses
 
@@ -23,7 +23,7 @@ XP still grants free stat choices. Extra upgrades cost **6 snowflakes**, increas
 
 ### Android and character stats
 
-Use **Stats / more upgrades** on desktop to open the character sheet. Preview the phone layout with `godot --path . -- --mobile` or enable `TestArena.mobile_preview` in the inspector. Android automatically selects one local penguin, touch movement/dash, and large build/shop/ready buttons. The solo mobile character sheet pauses combat. Desktop co-op remains available; online co-op is future work.
+Select a **corner penguin card** to open the character sheet. Cards show matching team scarves, health bars, level and personal flakes. P1/P2 occupy the upper corners; P3/P4 occupy the lower corners when present. The playable floor fills the viewport, and a centered location banner fades away after arrival. Preview the phone layout with `godot --path . -- --mobile` or enable `TestArena.mobile_preview` in the inspector. Android automatically selects one local penguin and touch movement/dash. The solo mobile character sheet pauses combat. Desktop co-op remains available; online co-op is future work.
 
 The Android debug APK now builds and passes signing/alignment checks. Find it locally at `builds/penguin-wars-debug.apk`. **Physical phone testing remains pending.** Rebuild on this PC with `./tools/build-android.ps1 -WorkspaceToolchain`. See [mobile-and-stats.md](docs/mobile-and-stats.md) for stat formulas, extension points, preview controls and export setup.
 
@@ -79,13 +79,13 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 
 **Data.** Add `.tres` resources using `WeaponDefinition`, `UpgradeDefinition`, or `EncounterDefinition`. Shared resources are definitions and must remain immutable during play. Runtime cooldowns and damage bonuses belong to each weapon instance. `PenguinPlayer.apply_upgrade()` is the initial stat application seam; move into a dedicated stat aggregator when stacking rules grow. `RunProgression.OPTIONS` is the test catalog, ready to replace with weighted offers and unlock filters.
 
-**Visuals.** `CharacterVisual` creates character sprites, team scarves and cosmetic movement bobbing. `WeaponVisual` reads the weapon's presentation aim/attack phase to place its art beside the player and animate a thrust or sweep. Each weapon Resource supplies `held_texture` and `visual_scale`; add right-facing art with its handle on the left. Damage timing remains in `WeaponController`, independent of sprite motion. Idle weapons face the player's last movement direction; in-range targets drive aim between attacks. Attack tracers retain their actual impact position. `IceArenaVisual` owns purely decorative seeded ice, crystals and snow; these props do not block movement. The camera reserves top/bottom HUD space and expands that allowance for a four-player party. All assets in `assets/` were authored for this project; no Brotato assets were imported.
+**Visuals.** `CharacterVisual` creates character sprites, team scarves and cosmetic movement bobbing. `WeaponVisual` reads the weapon's presentation aim/attack phase to place its art beside the player and animate a thrust or sweep. Each weapon Resource supplies `held_texture` and `visual_scale`; add right-facing art with its handle on the left. Damage timing remains in `WeaponController`, independent of sprite motion. Idle weapons face the player's last movement direction; in-range targets drive aim between attacks. Attack tracers retain their actual impact position. `IceArenaVisual` draws seeded ice across the whole viewport. Corner HUD cards overlay the floor, and the location banner fades after arrival. All assets in `assets/` were authored for this project; no Brotato assets were imported.
 
 **Encounters.** `EncounterDirector` emits state changes, kill events and completion. Spawn placement currently assumes this centered bounded arena and chooses the safest perimeter candidate. Replace this method with region spawn markers/navigation for real maps. Enemy movement is direct pursuit with world collision support, not pathfinding. Actors do not block one another. External despawns need an explicit director cancellation/despawn path so enemy counts remain correct.
 
-**Enemy behavior.** `ArenaEnemy` remains the shared health, contact and knockback actor. Optional `EnemyBehavior` children supply movement and attack state; inherited charger/thrower scenes configure those strategies. `EnemyAttackVisual` reads state to display warnings without controlling damage. New encounter Resource fields select the charger and ranged scenes; the director owns their introduction cadence. `EnemySnowball` uses swept segment hits against living party members and a layer-1 world ray, with no friendly fire. Shots can outlive their shooter but are cleared at wave completion or party wipe and freed with the run. Current arena clamping and projectile bounds must move to room-owned bounds when exploration lands.
+**Enemy behavior.** `ArenaEnemy` remains the shared health, contact and knockback actor. Optional `EnemyBehavior` children supply movement and attack state; inherited charger/thrower scenes configure those strategies. `EnemyAttackVisual` reads state to display warnings without controlling damage. New encounter Resource fields select the charger and ranged scenes; the director owns their introduction cadence. `EnemySnowball` uses swept segment hits against living party members and a layer-1 world ray, with no friendly fire. Shots can outlive their shooter but are cleared at wave completion or party wipe and freed with the run. Actor clamping and projectile limits share the current arena room bounds; move the resize policy into dungeon room data when exploration lands.
 
-**Exploration and camera.** The camera frames the bounded arena and living party, with margin and smoothing. Players are clamped to this arena. For Zelda-style rooms, introduce a region/room scene owning bounds, spawn markers, exits and encounters; gate exits on `completed`. Decide party tethering and room transitions before permitting independent exploration. No split-screen is implemented.
+**Exploration and camera.** The camera holds a fixed full-screen room view. Players and enemies share viewport-sized bounds with a small body inset; the room updates when the window size changes. For Zelda-style rooms, introduce a region/room scene owning bounds, spawn markers, exits and encounters; gate exits on `completed`. Decide party tethering and room transitions before permitting independent exploration. No split-screen is implemented.
 
 **Progression.** `Experience` handles XP overflow and emits one event per level; `RunProgression` owns team reward policy and queued personal choices. Downed players receive no XP. A new arena instance starts a fresh run. Save data, unlocks, inventory, bosses, interaction and run route selection are deliberately left to subsequent layers.
 
@@ -102,6 +102,7 @@ godot --headless --path . --script res://tests/combat_feel_test.gd
 godot --headless --path . --script res://tests/enemy_behavior_test.gd
 godot --headless --path . --script res://tests/economy_test.gd
 godot --headless --path . --script res://tests/stats_mobile_test.gd
+godot --headless --path . --script res://tests/fullscreen_hud_test.gd
 godot --path . --script res://tests/render_smoke.gd
 godot --path . --script res://tests/enemy_render_smoke.gd
 godot --path . --script res://tests/economy_render_smoke.gd

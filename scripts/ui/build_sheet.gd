@@ -3,6 +3,9 @@ extends PanelContainer
 ## Shared character sheet and scrollable upgrade catalog for desktop and touch.
 var player: PenguinPlayer
 var progression: RunProgression
+var builder: CastleBuilder
+var _build: Button
+var _ready_button: Button
 var _summary: Label
 var _offers: Array[Button] = []
 
@@ -49,6 +52,23 @@ func setup() -> void:
 		button.pressed.connect(func() -> void: progression.choose(player.identity.player_id, index))
 		grid.add_child(button)
 		_offers.append(button)
+	if builder != null:
+		var actions := HBoxContainer.new()
+		column.add_child(actions)
+		_build = _action_button("Build castle · 10", func() -> void: builder.build(player.identity.player_id), actions)
+		_ready_button = _action_button("Ready for next wave", func() -> void:
+			progression.toggle_ready(player.identity.player_id)
+			queue_free(), actions)
+		_action_button("Restart run", func() -> void: get_tree().reload_current_scene(), actions)
+
+func _action_button(text: String, callback: Callable, parent: Control) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.custom_minimum_size.y = 56
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.pressed.connect(callback)
+	parent.add_child(button)
+	return button
 
 func _process(_delta: float) -> void:
 	if _summary == null:
@@ -60,3 +80,8 @@ func _process(_delta: float) -> void:
 		var price: String = "FREE" if progression.pending.get(id, 0) > 0 else "%d flakes" % progression.price(id, index)
 		_offers[index].text = "%s   /   %s" % [RunProgression.OPTIONS[index].display_name, price]
 		_offers[index].disabled = not progression.can_choose(id, index) or not player.health.is_alive()
+	if _build != null:
+		_build.text = "Castle built" if builder.has_castle(id) else "Build castle · 10"
+		_build.disabled = builder.has_castle(id) or progression.wallet.balance(id) < CastleBuilder.COST or not player.health.is_alive() or progression.encounter.state in [EncounterDirector.State.COMPLETE, EncounterDirector.State.FAILED]
+		_ready_button.text = "Ready ✓" if progression.ready_players.get(id, false) else "Ready for next wave"
+		_ready_button.disabled = progression.encounter.state != EncounterDirector.State.INTERMISSION or not player.health.is_alive()

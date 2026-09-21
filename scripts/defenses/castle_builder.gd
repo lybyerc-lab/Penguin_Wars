@@ -17,7 +17,8 @@ func build(player_id: int) -> bool:
 	for player: PenguinPlayer in party.members(true):
 		if player.identity.player_id != player_id:
 			continue
-		var point: Vector2 = (player.global_position + player.dash.facing * 65).clamp(Vector2(-500, -220), Vector2(500, 220))
+		var build_bounds: Rect2 = player.arena_bounds.grow(-40)
+		var point: Vector2 = (player.global_position + player.dash.facing * 65).clamp(build_bounds.position, build_bounds.end)
 		if point.distance_to(player.global_position) < 40:
 			return _reject(player_id, "Face toward open ice")
 		for node: Node in actor_root.get_children():

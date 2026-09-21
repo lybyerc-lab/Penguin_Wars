@@ -65,7 +65,23 @@ func _ready() -> void:
 		mobile_hud.setup()
 	else:
 		$HUD.setup()
+	get_viewport().size_changed.connect(_resize_room)
+	_resize_room()
 	encounter.start()
+
+func _resize_room() -> void:
+	var size: Vector2 = get_viewport_rect().size
+	# A small body inset keeps penguins fully visible at the screen edges.
+	var floor_rect := Rect2(-size * 0.5, size)
+	var actor_bounds: Rect2 = floor_rect.grow(-28)
+	encounter.arena_bounds = actor_bounds
+	$IceArenaVisual.floor_rect = floor_rect
+	$IceArenaVisual.queue_redraw()
+	for actor: Node in $Actors.get_children():
+		if actor is PenguinPlayer or actor is ArenaEnemy:
+			actor.arena_bounds = actor_bounds
+		if actor is Node2D:
+			actor.position = actor.position.clamp(actor_bounds.position, actor_bounds.end)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:

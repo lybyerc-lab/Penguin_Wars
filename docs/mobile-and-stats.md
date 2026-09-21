@@ -4,9 +4,11 @@ The direction is Brotato-style combat stats with RPG flavor, Android first, one 
 
 ## Try it on PC
 
-Run `godot --path . -- --mobile`, or enable `TestArena.mobile_preview` in the inspector. Drag the left joystick with the mouse, use the right Dash button, and use the top buttons for castle placement, shopping, readying and restarting. Attacks remain automatic. A physical touchscreen supports movement and dash on separate fingers. Desktop keyboard controls remain available in preview.
+Run `godot --path . -- --mobile`, or enable `TestArena.mobile_preview` in the inspector. Drag the left joystick with the mouse and use the right Dash button. Tap the upper-left penguin card for stats, shopping, readying and restarting. Castle placement has a compact upper-right shortcut; Next wave appears there between waves. Attacks remain automatic. A physical touchscreen supports movement and dash on separate fingers. Desktop keyboard controls remain available in preview.
 
-On Android the mobile layout and one-player party are selected automatically. The landscape layout expands to wider screens, uses safe-area insets for the HUD and touch controls, and keeps Compatibility rendering. Character / Shop opens the scrollable catalog and pauses solo mobile combat until closed. Desktop character sheets do not pause shared co-op combat. Opening a sheet or losing application focus clears touch movement so it cannot stick.
+On Android the mobile layout and one-player party are selected automatically. The landscape layout expands to wider screens, uses safe-area insets for the HUD and touch controls, and keeps Compatibility rendering. The penguin card opens the scrollable catalog and pauses solo mobile combat until closed. Desktop character sheets do not pause shared co-op combat. Opening a sheet or losing application focus clears touch movement so it cannot stick.
+
+The arena floor covers the whole viewport. `TestArena._resize_room()` supplies shared room bounds to players, spawned enemies, visuals and castle placement, with a 28-pixel actor inset at the edges. `PartyCamera` now holds a fixed room view without reserving HUD strips. Enemy projectiles use the current room bounds. Desktop cards are anchored to four corners; only active player cards appear. `PlayerCornerHUD` is shared with mobile, and `LocationBanner` supplies the brief centered arrival title. Future online rooms must choose a host-owned room size instead of letting each client's viewport define simulation bounds.
 
 ## Stats and tuning
 

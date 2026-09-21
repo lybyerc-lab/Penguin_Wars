@@ -1,5 +1,12 @@
 # Verification record
 
+## Full-screen arena and corner HUD
+
+- Replaced the inset island and reserved HUD strips with a viewport-filling floor, fixed camera and shared resizable room bounds. Castle placement and enemy shots follow the expanded room.
+- Active players receive corner portraits with matching scarves, health bars, levels and personal flakes. Selecting a card opens that player's character sheet. The location appears at screen center and fades away after arrival; it does not capture input.
+- All six integration suites pass, including new corner assignment, live health/wallet readouts, correct-player sheet selection, full-room coverage, enemy bounds and banner removal checks. The prior foundation test's fixed old arena limit was updated to assert the current bounds.
+- Two/four-player desktop and standard/wide mobile layouts rendered for inspection. Android debug APK rebuilt with this layout; physical device acceptance remains pending.
+
 ## Android APK build resolved
 
 September 21, 2026: installed portable Java 17 and Android SDK build packages, configured normal/workspace Godot paths, generated a local debug key, enabled ETC2/ASTC imports, added a penguin launcher icon, and explicitly selected Compatibility for the mobile renderer. SDK 36 matches the actual installed Godot 4.7.2 template (the general export guide listed older package versions).

@@ -40,7 +40,8 @@ func _physics_process(delta: float) -> void:
 		_expire()
 		return
 	lifetime -= delta
-	if not wall.is_empty() or lifetime <= 0.0 or absf(global_position.x) > 590 or absf(global_position.y) > 310:
+	var shot_bounds: Rect2 = party.members()[0].arena_bounds.grow(60)
+	if not wall.is_empty() or lifetime <= 0.0 or not shot_bounds.has_point(global_position):
 		_expire()
 	queue_redraw()
 
