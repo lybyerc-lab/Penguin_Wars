@@ -100,22 +100,35 @@ func enter_town() -> void:
 		spec.target_id = mouths[index].id
 		spec.label = mouths[index].display_name
 		spec.hint = mouths[index].signpost
+		spec.side = RoomExit.Side.BOTTOM
 		spec.position = Vector2((index - (mouths.size() - 1) * 0.5) * MOUTH_SPACING, 165.0)
-		_add_gate(spec).locked = false
-	overlay.banner = "Step up to a building to trade.  Gather the whole party on a cave mouth to set out."
+		var gate: PartyGate = _add_gate(spec)
+		gate.locked = false
+		gate.place_at_wall(room.bounds)
+	var doors: Array[Dictionary] = []
+	for gate: PartyGate in _gates:
+		if gate.exit != null:
+			doors.append({
+				"side": gate.exit.side,
+				"position": gate.position,
+				"target_id": gate.exit.target_id,
+			})
+	$Backdrop.doorways = doors
+	overlay.banner = "Step up to a building to trade.  Head through a passage to set out."
 
 func enter_cave(target: CaveDefinition) -> void:
 	cave = target
 	journal.begin_expedition(cave)
 	_enter_room(cave.entrance())
 
-func _enter_room(next: RoomDefinition) -> void:
+func _enter_room(next: RoomDefinition, entry_side: int = -1) -> void:
 	if next == null:
 		return
-	_load_room(next)
+	_load_room(next, entry_side)
 	for spec: RoomExit in next.exits:
 		var gate: PartyGate = _add_gate(spec)
 		gate.locked = next.has_encounter()
+		gate.place_at_wall(next.bounds)
 	if next.has_encounter():
 		encounter.start()
 	else:
@@ -125,7 +138,7 @@ func _enter_room(next: RoomDefinition) -> void:
 
 ## Everything a room change resets. Players are deliberately not touched: their
 ## health, stats, levels and wallets are the run, not the room.
-func _load_room(next: RoomDefinition) -> void:
+func _load_room(next: RoomDefinition, entry_side: int = -1) -> void:
 	room = next
 	_routed = false
 	encounter.reset()
@@ -141,12 +154,46 @@ func _load_room(next: RoomDefinition) -> void:
 	progression.in_town = room.kind == RoomDefinition.Kind.TOWN
 	$Loot.begin_room()
 	RoomSpace.apply(room, party, encounter, $Builder, $Loot, $Camera, $Backdrop, $Actors)
-	session.place_party(room.entry_point)
+	var entry: Vector2 = room.entry_point
+	if entry_side >= 0:
+		entry = _entry_from_side(entry_side, room.bounds)
+	session.place_party(entry)
 	$HUD.location = room.display_name
 	var banner := LocationBanner.new()
 	banner.location_name = room.display_name
 	banner.wide_party = party.members().size() > 2
 	overlay.add_child(banner)
+
+## Compute a spawn position just inside the room from the given wall side.
+## The party appears ~80px inward from the wall edge so they are clearly
+## inside the room, not stuck at the threshold.
+func _entry_from_side(s: int, bounds: Rect2) -> Vector2:
+	var center: Vector2 = bounds.get_center()
+	var inset: float = 80.0
+	match s:
+		RoomExit.Side.LEFT:
+			return Vector2(bounds.position.x + inset, center.y)
+		RoomExit.Side.RIGHT:
+			return Vector2(bounds.end.x - inset, center.y)
+		RoomExit.Side.TOP:
+			return Vector2(center.x, bounds.position.y + inset)
+		RoomExit.Side.BOTTOM:
+			return Vector2(center.x, bounds.end.y - inset)
+	return center
+
+## LEFT↔RIGHT, TOP↔BOTTOM. Used to determine which side the party enters
+## the next room from, given the side they left the current room through.
+func _opposite_side(s: int) -> int:
+	match s:
+		RoomExit.Side.LEFT:
+			return RoomExit.Side.RIGHT
+		RoomExit.Side.RIGHT:
+			return RoomExit.Side.LEFT
+		RoomExit.Side.TOP:
+			return RoomExit.Side.BOTTOM
+		RoomExit.Side.BOTTOM:
+			return RoomExit.Side.TOP
+	return s
 
 func _add_gate(spec: RoomExit) -> PartyGate:
 	var gate := PartyGate.new()
@@ -182,6 +229,7 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 	var spec: RoomExit = gate.exit
 	if spec == null:
 		return
+	var opposite: int = _opposite_side(spec.side)
 	# A town exit names a cave; a cave exit names a room inside that cave.
 	if room.kind == RoomDefinition.Kind.TOWN:
 		var chosen: CaveDefinition = region.cave(spec.target_id)
@@ -199,12 +247,12 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 	if next == null:
 		push_error("Cave %s has no room named %s" % [cave.id, spec.target_id])
 		return
-	_enter_room(next)
+	_enter_room(next, opposite)
 
 func _on_room_cleared() -> void:
 	journal.record_room(room)
 	_unlock_gates()
-	overlay.banner = "%s is clear.  Gather on a route to move on." % room.display_name
+	overlay.banner = "%s is clear.  The way is open." % room.display_name
 
 func _on_encounter_state() -> void:
 	if encounter.state != EncounterDirector.State.FAILED or _routed:

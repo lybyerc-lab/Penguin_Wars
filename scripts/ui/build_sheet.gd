@@ -55,8 +55,8 @@ func _process(_delta: float) -> void:
 		return
 	var stats: PlayerStats = player.stats
 	var id: int = player.identity.player_id
-	_summary.text = "HP %.0f/%.0f · Armor %.0f · Regen %.1f/s · Dodge %.0f%% · Speed %.0f\nDamage +%.0f%% · Melee +%.0f · Ranged +%.0f · Attack speed +%.0f%% · Crit %.0f%% (x1.5)\nHarvest x%.2f · Engineering +%.0f · Pickup +%.0f · Range +%.0f\nSnowflakes %d · Free choices %d · %s" % [player.health.current, player.health.maximum, stats.armor, stats.regeneration, minf(stats.dodge_chance, 60), player.speed, stats.damage_percent, stats.melee_damage, stats.ranged_damage, stats.attack_speed, minf(stats.critical_chance, 100), stats.harvest_multiplier, stats.engineering, stats.pickup_bonus, stats.range_bonus, progression.wallet.balance(id), progression.pending.get(id, 0), "Choose an upgrade" if progression.shop_open() else "Shop opens after this wave"]
+	_summary.text = "HP %.0f/%.0f · Armor %.0f · Regen %.1f/s · Dodge %.0f%% · Speed %.0f\nDamage +%.0f%% · Melee +%.0f · Ranged +%.0f · Attack speed +%.0f%% · Crit %.0f%% (x1.5)\nHarvest x%.2f · Engineering +%.0f · Pickup +%.0f · Range +%.0f\nSnow %d · Free choices %d · %s" % [player.health.current, player.health.maximum, stats.armor, stats.regeneration, minf(stats.dodge_chance, 60), player.speed, stats.damage_percent, stats.melee_damage, stats.ranged_damage, stats.attack_speed, minf(stats.critical_chance, 100), stats.harvest_multiplier, stats.engineering, stats.pickup_bonus, stats.range_bonus, progression.wallet.balance(id), progression.pending.get(id, 0), "Choose an upgrade" if progression.shop_open() else "Shop opens after this wave"]
 	for index: int in range(_offers.size()):
-		var price: String = "FREE" if progression.pending.get(id, 0) > 0 else "%d flakes" % progression.price(id, index)
+		var price: String = "FREE" if progression.pending.get(id, 0) > 0 else "%d Snow" % progression.price(id, index)
 		_offers[index].text = "%s   /   %s" % [RunProgression.OPTIONS[index].display_name, price]
 		_offers[index].disabled = not progression.can_choose(id, index) or not player.health.is_alive()

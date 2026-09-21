@@ -3,6 +3,7 @@ extends Node2D
 ## Seeded decorative art only. Does not define collisions or spawn positions.
 ## Every shape is derived from the room bounds, so one script dresses the
 ## original ice arena and any later cave room at its own size.
+## Doorway openings are drawn as gaps in the wall where PartyGates sit.
 
 ## Palettes are indexed by RoomDefinition.Palette.
 const PALETTES: Array[Dictionary] = [
@@ -14,6 +15,7 @@ const PALETTES: Array[Dictionary] = [
 		"crystal_dark": Color("183e58"), "crystal_mid": Color("7bc9d8"),
 		"crystal_light": Color("b4e9e9"), "crystal_edge": Color("f1ffff"),
 		"drift_dark": Color("a2ced7"), "drift_light": Color("e1f0e9"),
+		"passage": Color("0a1218"),
 	},
 	{
 		"backdrop": Color("161127"), "streak": Color("241d3d"), "rim": Color("2a2140"),
@@ -23,6 +25,7 @@ const PALETTES: Array[Dictionary] = [
 		"crystal_dark": Color("2a1f42"), "crystal_mid": Color("8f7bc9"),
 		"crystal_light": Color("c3b0e9"), "crystal_edge": Color("f4ecff"),
 		"drift_dark": Color("6d5f8c"), "drift_light": Color("cdbde8"),
+		"passage": Color("0a0815"),
 	},
 	{
 		"backdrop": Color("0a1620"), "streak": Color("12303c"), "rim": Color("163445"),
@@ -32,6 +35,7 @@ const PALETTES: Array[Dictionary] = [
 		"crystal_dark": Color("10303a"), "crystal_mid": Color("3fae9d"),
 		"crystal_light": Color("8fe6cf"), "crystal_edge": Color("e8fff8"),
 		"drift_dark": Color("3e7f80"), "drift_light": Color("bfe8dd"),
+		"passage": Color("060f16"),
 	},
 ]
 
@@ -39,6 +43,9 @@ const PALETTES: Array[Dictionary] = [
 const CRACKS: Array[Vector2] = [Vector2(-0.8889, -0.6923), Vector2(0.5556, 0.6538), Vector2(-0.6852, 0.6538), Vector2(0.8704, -0.4231)]
 const CRYSTALS: Array[Vector2] = [Vector2(-1.0426, -0.9), Vector2(-1.05, 0.8269), Vector2(1.037, -0.8115), Vector2(1.0241, 0.9462), Vector2(-0.6574, 1.0846), Vector2(0.687, -1.0962)]
 const DRIFTS: Array[Vector2] = [Vector2(-0.8704, -1.0654), Vector2(0.3704, 1.0462), Vector2(0.8704, 1.0808), Vector2(-0.3148, -1.0846)]
+
+## Width of a doorway opening in the wall. Matches PartyGate.THRESHOLD_WIDTH.
+const DOORWAY_WIDTH: float = 130.0
 
 @export var bounds := Rect2(-540, -260, 1080, 520):
 	set(value):
@@ -51,6 +58,12 @@ const DRIFTS: Array[Vector2] = [Vector2(-0.8704, -1.0654), Vector2(0.3704, 1.046
 @export var seed_value: int = 92:
 	set(value):
 		seed_value = value
+		queue_redraw()
+
+## Doorway data set by the room setup. Each entry is {side: int, position: Vector2}.
+var doorways: Array[Dictionary] = []:
+	set(value):
+		doorways = value
 		queue_redraw()
 
 func _at(fraction: Vector2) -> Vector2:
@@ -77,6 +90,8 @@ func _draw() -> void:
 	edge.border_color = skin["border"]
 	edge.set_border_width_all(12)
 	draw_style_box(edge, floor_rect)
+	# Draw doorway openings in the wall.
+	_draw_doorways(skin, floor_rect)
 	var speck_area: Rect2 = bounds.grow_individual(-10, -15, -10, -20)
 	for index: int in range(55):
 		var point := Vector2(rng.randf_range(speck_area.position.x, speck_area.end.x), rng.randf_range(speck_area.position.y, speck_area.end.y))
@@ -98,6 +113,39 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, 26, skin["drift_dark"])
 		draw_circle(Vector2(-3, -5), 21, skin["drift_light"])
 	draw_set_transform(Vector2.ZERO)
+
+func _draw_doorways(skin: Dictionary, floor_rect: Rect2) -> void:
+	var passage_color: Color = skin.get("passage", skin["backdrop"])
+	for door: Dictionary in doorways:
+		var s: int = door.get("side", RoomExit.Side.BOTTOM)
+		var pos: Vector2 = door.get("position", bounds.get_center())
+		var half_w: float = DOORWAY_WIDTH * 0.5
+		# Cut a dark passage rectangle through the wall layers.
+		var opening: Rect2
+		var depth: float = 60.0  # How deep the opening extends through the wall.
+		match s:
+			RoomExit.Side.LEFT:
+				opening = Rect2(floor_rect.position.x - 20, pos.y - half_w, depth + 20, DOORWAY_WIDTH)
+			RoomExit.Side.RIGHT:
+				opening = Rect2(floor_rect.end.x - depth, pos.y - half_w, depth + 20, DOORWAY_WIDTH)
+			RoomExit.Side.TOP:
+				opening = Rect2(pos.x - half_w, floor_rect.position.y - 20, DOORWAY_WIDTH, depth + 20)
+			RoomExit.Side.BOTTOM:
+				opening = Rect2(pos.x - half_w, floor_rect.end.y - depth, DOORWAY_WIDTH, depth + 20)
+		draw_rect(opening, passage_color)
+		# Subtle edge highlight on the doorway frame.
+		var edge_color := Color(skin["border"], 0.5)
+		match s:
+			RoomExit.Side.LEFT, RoomExit.Side.RIGHT:
+				draw_line(Vector2(opening.position.x, opening.position.y),
+						  Vector2(opening.end.x, opening.position.y), edge_color, 2)
+				draw_line(Vector2(opening.position.x, opening.end.y),
+						  Vector2(opening.end.x, opening.end.y), edge_color, 2)
+			RoomExit.Side.TOP, RoomExit.Side.BOTTOM:
+				draw_line(Vector2(opening.position.x, opening.position.y),
+						  Vector2(opening.position.x, opening.end.y), edge_color, 2)
+				draw_line(Vector2(opening.end.x, opening.position.y),
+						  Vector2(opening.end.x, opening.end.y), edge_color, 2)
 
 func _draw_crystal(point: Vector2, skin: Dictionary) -> void:
 	draw_set_transform(point)

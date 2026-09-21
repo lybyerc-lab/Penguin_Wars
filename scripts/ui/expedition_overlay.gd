@@ -113,5 +113,5 @@ func _body(player_id: int, service: TownService) -> String:
 	for index: int in range(offers.size()):
 		var offer: TownMarket.Offer = offers[index]
 		var mark: String = "·" if market.can_afford(player_id, offer) else "×"
-		lines.append("%s  [%s]  %s — %s  ·  %d flakes" % [mark, keys[index], offer.label, offer.detail, offer.cost])
+		lines.append("%s  [%s]  %s — %s  ·  %d Snow" % [mark, keys[index], offer.label, offer.detail, offer.cost])
 	return "\n".join(lines)
