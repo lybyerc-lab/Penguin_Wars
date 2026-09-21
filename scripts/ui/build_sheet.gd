@@ -82,6 +82,6 @@ func _process(_delta: float) -> void:
 		_offers[index].disabled = not progression.can_choose(id, index) or not player.health.is_alive()
 	if _build != null:
 		_build.text = "Castle built" if builder.has_castle(id) else "Build castle · 10"
-		_build.disabled = builder.has_castle(id) or progression.wallet.balance(id) < CastleBuilder.COST or not player.health.is_alive() or progression.encounter.state in [EncounterDirector.State.COMPLETE, EncounterDirector.State.FAILED]
+		_build.disabled = builder.has_castle(id) or progression.wallet.balance(id) < CastleBuilder.COST or not player.health.is_alive() or progression.encounter.state in [EncounterDirector.State.READY, EncounterDirector.State.COMPLETE, EncounterDirector.State.FAILED]
 		_ready_button.text = "Ready ✓" if progression.ready_players.get(id, false) else "Ready for next wave"
 		_ready_button.disabled = progression.encounter.state != EncounterDirector.State.INTERMISSION or not player.health.is_alive()

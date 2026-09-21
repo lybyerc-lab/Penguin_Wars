@@ -27,9 +27,15 @@ Select a **corner penguin card** to open the character sheet. Cards show matchin
 
 The Android debug APK now builds and passes signing/alignment checks. Find it locally at `builds/penguin-wars-debug.apk`. **Physical phone testing remains pending.** Rebuild on this PC with `./tools/build-android.ps1 -WorkspaceToolchain`. See [mobile-and-stats.md](docs/mobile-and-stats.md) for stat formulas, extension points, preview controls and export setup.
 
-**Snow castles are player-built defenses.** Spend **10 personal snowflakes** to place one on open ice in front of your penguin. Each player can build one per run. It fires friendly snowballs for **8 damage every 0.9 seconds**, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves and reset with the run; they are currently indestructible support structures, with enemies continuing to target penguins.
+**Snow castles are player-built defenses.** Spend **10 personal snowflakes** to place one on open ice in front of your penguin. Each player can build one per cave. It fires friendly snowballs for **8 base damage every 0.9 seconds**, plus Engineering, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves but stay behind when leaving a cave; they are currently indestructible support structures, with enemies continuing to target penguins.
 
-The town, nurse, blacksmith, town-hall stories and branching caves are recorded as the next design direction in [hub-and-dungeons.md](docs/hub-and-dungeons.md). Those locations and services are not implemented yet.
+### Cave exits and town
+
+Finish the final wave to see **CAVE CLEARED!**, then choose **Next cave** or **Back to town**. Either choice moves the whole local party. You can open your penguin card to spend rewards before leaving. The exit choices stay available until selected; on mobile they replace the automatic end-of-cave shop screen.
+
+The next cave starts at wave one and keeps each player's health, stats, weapon bonuses, XP, level, flakes and pending upgrades. It uses a fresh seed and two more base enemies per depth (capped at +20); current caves reuse the same combat floor. Returning to the peaceful **Frostfall Town** staging area preserves the same run, allows stat shopping, and provides **Enter cave N** to continue. No automatic full heal or revival is granted; regeneration still works. Restart still begins a fresh run.
+
+Stationary castles, health drops, supplies and projectiles do not travel. Uncollected flakes are banked in the existing reserve. The nurse, blacksmith and town hall are labeled placeholders; their services, stories and branching dungeon layouts remain future work. See [hub-and-dungeons.md](docs/hub-and-dungeons.md).
 
 ### Combat slice
 
@@ -66,6 +72,7 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 | `scripts/enemies` | Replaceable charge/ranged behaviors and enemy snowballs |
 | `scripts/camera`, `scripts/ui` | Shared view and test HUD |
 | `scripts/arena` | Small composition root |
+| `scripts/journey` | Cave completion, party travel and preservation of the current run |
 | `scripts/visuals`, `assets` | Character animation, held weapons, illustrated SVGs and ice arena art |
 | `tests` | Engine integration and renderer smoke tests |
 
@@ -103,11 +110,14 @@ godot --headless --path . --script res://tests/enemy_behavior_test.gd
 godot --headless --path . --script res://tests/economy_test.gd
 godot --headless --path . --script res://tests/stats_mobile_test.gd
 godot --headless --path . --script res://tests/fullscreen_hud_test.gd
+godot --headless --path . --script res://tests/cave_journey_test.gd
 godot --path . --script res://tests/render_smoke.gd
 godot --path . --script res://tests/enemy_render_smoke.gd
 godot --path . --script res://tests/economy_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd -- --wide
+godot --path . --script res://tests/cave_journey_render.gd
+godot --path . --script res://tests/cave_journey_render.gd -- --mobile
 ```
 
 The integration test fails with a nonzero exit code on failed assertions. It covers party IDs/capacity, movement/bounds, death/retargeting, XP overflow, queued upgrades and resource isolation, actual weapon kills/rewards, encounter completion, party wipe and scene cleanup. The renderer test writes `docs/arena-preview.png` using the live viewport. See `docs/verification.md` for actual results and limitations.

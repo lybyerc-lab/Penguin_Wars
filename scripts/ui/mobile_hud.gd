@@ -96,13 +96,14 @@ func _exit_tree() -> void:
 		get_tree().paused = false
 
 func _on_state_changed() -> void:
-	if encounter.state in [EncounterDirector.State.INTERMISSION, EncounterDirector.State.COMPLETE]:
+	if encounter.state == EncounterDirector.State.INTERMISSION:
 		open_sheet()
 
 func _process(_delta: float) -> void:
 	if _status == null:
 		return
-	_status.text = "WAVE %d/%d" % [encounter.wave, encounter.definition.wave_count]
+	_status.text = "FROSTFALL TOWN" if progression.in_town else "WAVE %d/%d" % [encounter.wave, encounter.definition.wave_count]
+	_build.visible = not progression.in_town
 	_build.text = "Castle built" if builder.has_castle(1) else "Build castle · 10"
 	_build.disabled = builder.has_castle(1) or progression.wallet.balance(1) < CastleBuilder.COST or not _player.health.is_alive() or encounter.state in [EncounterDirector.State.COMPLETE, EncounterDirector.State.FAILED]
 	_ready_button.visible = encounter.state == EncounterDirector.State.INTERMISSION

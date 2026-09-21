@@ -7,6 +7,7 @@ const COLORS: Array[Color] = [Color("58dfed"), Color("ffcb77"), Color("bc9aff"),
 @onready var party: PartyRoster = $Party
 @onready var encounter: EncounterDirector = $Encounter
 @onready var progression: RunProgression = $Progression
+var journey: CaveJourney
 
 func _ready() -> void:
 	mobile_preview = mobile_preview or OS.has_feature("android") or "--mobile" in OS.get_cmdline_user_args()
@@ -67,7 +68,31 @@ func _ready() -> void:
 		$HUD.setup()
 	get_viewport().size_changed.connect(_resize_room)
 	_resize_room()
+	_setup_journey()
 	encounter.start()
+
+func _setup_journey() -> void:
+	journey = CaveJourney.new()
+	journey.name = "Journey"
+	journey.party = party
+	journey.encounter = encounter
+	journey.progression = progression
+	journey.loot = $Loot
+	journey.builder = $Builder
+	journey.actor_root = $Actors
+	add_child(journey)
+	journey.setup()
+	var town := TownVisual.new()
+	town.name = "TownVisual"
+	town.z_index = -1
+	town.hide()
+	add_child(town)
+	journey.location_changed.connect(func(in_town: bool, _number: int) -> void: town.visible = in_town)
+	var travel := CaveTravelHUD.new()
+	travel.name = "TravelHUD"
+	travel.journey = journey
+	add_child(travel)
+	travel.setup()
 
 func _resize_room() -> void:
 	var size: Vector2 = get_viewport_rect().size

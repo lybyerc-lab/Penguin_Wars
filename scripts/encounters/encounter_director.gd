@@ -23,6 +23,8 @@ var _rng := RandomNumberGenerator.new()
 
 func start() -> void:
 	assert(party != null and actor_root != null and definition != null)
+	wave = 0
+	alive_count = 0
 	_rng.seed = definition.run_seed
 	_begin_wave()
 

@@ -8,6 +8,9 @@ var actor_root: Node2D
 var encounter: EncounterDirector
 var _supplied_wave: int = 0
 
+func begin_cave() -> void:
+	_supplied_wave = 0
+
 func on_encounter_changed() -> void:
 	if encounter.state != EncounterDirector.State.SPAWNING or encounter.wave == _supplied_wave:
 		return

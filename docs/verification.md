@@ -1,5 +1,11 @@
 # Verification record
 
+## Cave completion, exits and town staging
+
+- Cave journey integration passed: exits locked during combat; actual multi-wave completion shows the banner; town retains build/HP/XP/level/wallet/free choices/reserve; town stops combat and rejects building; subsequent caves reset supplies and pay wave-one income exactly once; duplicate travel is rejected; direct next-cave travel and mobile button paths work.
+- Foundation, economy, stats/mobile and full-screen HUD regression suites passed after integration. Desktop and mobile completion/town screenshots were rendered and visually inspected.
+- Town is a minimal staging area. Named building services, revival, persistent saves, distinct cave geometry and online travel consensus are not implemented. No phone was connected for physical device acceptance.
+
 ## Full-screen arena and corner HUD
 
 - Replaced the inset island and reserved HUD strips with a viewport-filling floor, fixed camera and shared resizable room bounds. Castle placement and enemy shots follow the expanded room.
