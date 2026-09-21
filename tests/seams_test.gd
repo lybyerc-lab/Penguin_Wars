@@ -139,31 +139,51 @@ func _run() -> void:
 	# =================================================================
 	var ladder := BossSchedule.new()
 	check(ladder.boss_for(5) == null and ladder.problems().is_empty(), "an empty schedule selects nothing and is not broken")
-	var small := boss_data("res://tests/stub_boss.tscn")
-	var large := boss_data("res://tests/stub_boss.tscn")
-	large.id = &"stub_large"
-	var low := BossTier.new()
-	low.every = 5
-	low.boss = small
-	var high := BossTier.new()
-	high.every = 20
-	high.boss = large
-	var rungs: Array[BossTier] = [low, high]
+	# The agreed twenty-wave target: 5 mini, 10 warden, 15 an evolved mini, 20 the war king.
+	var mini := boss_data("res://tests/stub_boss.tscn")
+	mini.id = &"stub_mini"
+	var warden := boss_data("res://tests/stub_boss.tscn")
+	warden.id = &"stub_warden"
+	var evolved := boss_data("res://tests/stub_boss.tscn")
+	evolved.id = &"stub_evolved"
+	var king := boss_data("res://tests/stub_boss.tscn")
+	king.id = &"stub_king"
+	var every_five := BossTier.new()
+	every_five.every = 5
+	every_five.boss = mini
+	var every_ten := BossTier.new()
+	every_ten.every = 10
+	every_ten.boss = warden
+	var every_twenty := BossTier.new()
+	every_twenty.every = 20
+	every_twenty.boss = king
+	var wave_fifteen := BossTier.new()
+	wave_fifteen.at = 15
+	wave_fifteen.boss = evolved
+	var rungs: Array[BossTier] = [every_five, every_ten, every_twenty, wave_fifteen]
 	ladder.tiers = rungs
-	check(ladder.boss_for(4) == null, "an ordinary index carries no boss")
-	check(ladder.boss_for(5) == small, "a milestone selects its rung")
-	check(ladder.boss_for(20) == large, "the larger interval outranks the smaller one")
-	check(ladder.boss_for(40) == large, "precedence holds on later cycles")
-	check(ladder.boss_for(0) == null and ladder.boss_for(-5) == null, "non-positive indexes carry no boss")
+	check(ladder.problems().is_empty(), "the twenty-wave ladder is well formed")
+	check(ladder.boss_for(4) == null, "an ordinary run wave carries no boss")
+	check(ladder.boss_for(5) == mini, "run wave 5 is the mini-boss")
+	check(ladder.boss_for(10) == warden, "a larger interval outranks a smaller one")
+	check(ladder.boss_for(15) == evolved, "an exact run wave outranks every interval")
+	check(ladder.boss_for(20) == king, "run wave 20 is the war king")
+	check(ladder.milestones(20) == PackedInt32Array([5, 10, 15, 20]), "the twenty-wave target is exactly those four")
+	check(ladder.boss_for(0) == null and ladder.boss_for(-5) == null, "non-positive run waves carry no boss")
 	check(ladder.is_milestone(10) and not ladder.is_milestone(11), "milestones are reported")
-	check(ladder.milestones(20) == PackedInt32Array([5, 10, 15, 20]), "the ladder lists its milestones")
-	check(ladder.problems().is_empty(), "a well-formed ladder reports nothing")
-	var clash := BossTier.new()
-	clash.every = 5
-	clash.boss = null
-	var bad: Array[BossTier] = [low, clash]
+	check(ladder.boss_for(40) == king, "interval precedence holds past the first twenty")
+	var confused := BossTier.new()
+	confused.at = 3
+	confused.every = 3
+	confused.boss = mini
+	var blank := BossTier.new()
+	blank.boss = mini
+	var repeated := BossTier.new()
+	repeated.at = 15
+	repeated.boss = warden
+	var bad: Array[BossTier] = [every_five, confused, blank, wave_fifteen, repeated]
 	ladder.tiers = bad
-	check(ladder.problems().size() >= 2, "a duplicate interval and a missing boss are both reported")
+	check(ladder.problems().size() >= 3, "a tier set to both, a tier set to neither and a repeated wave are all reported")
 
 	# =================================================================
 	# Run modifiers seam
@@ -254,6 +274,7 @@ func _run() -> void:
 	odd.display_name = "Stub"
 	odd.tint = Color("00ffcc")
 	odd.body_scale = 0.5
+	odd.collision_scale = 2.0
 	var odd_stats: Array[UpgradeDefinition] = [load("res://resources/upgrades/vitality.tres")]
 	odd.starting_stats = odd_stats
 	var odd_traits: Array[PackedScene] = [load("res://tests/stub_trait.tscn")]
@@ -278,12 +299,20 @@ func _run() -> void:
 	check(oddity.health.maximum > 100.0, "starting stats apply through the ordinary upgrade seam")
 	check(is_equal_approx(oddity.get_node("CharacterVisual").scale.x, 0.5), "body scale reaches the art")
 	var body: CollisionShape2D = oddity.get_node("CollisionShape2D")
-	check(body.shape is CircleShape2D and is_equal_approx((body.shape as CircleShape2D).radius, 8.0), "body scale reaches the collision body")
+	# Art 0.5 and hitbox 2.0 on one character: coupled code could not produce this.
+	check(body.shape is CircleShape2D and is_equal_approx((body.shape as CircleShape2D).radius, 32.0), "collision scale sets the hitbox, not the art scale")
 	var other: PenguinPlayer = load("res://scenes/actors/player.tscn").instantiate()
 	other.identity = PlayerIdentity.new()
 	root.add_child(other)
 	await process_frame
 	check(is_equal_approx((other.get_node("CollisionShape2D").shape as CircleShape2D).radius, 16.0), "resizing one body does not resize the shared shape")
+	# Hitbox size is a balance decision, never a consequence of how big something is drawn.
+	RunSession.scale_art(other, 0.4)
+	check(is_equal_approx(other.get_node("CharacterVisual").scale.x, 0.4), "art scales on its own")
+	check(is_equal_approx((other.get_node("CollisionShape2D").shape as CircleShape2D).radius, 16.0), "scaling the art never moves the hitbox")
+	RunSession.scale_collision(other, 0.5)
+	check(is_equal_approx((other.get_node("CollisionShape2D").shape as CircleShape2D).radius, 8.0), "the hitbox scales on its own")
+	check(is_equal_approx(other.get_node("CharacterVisual").scale.x, 0.4), "scaling the hitbox never moves the art")
 	other.free()
 	strange.free()
 	await process_frame

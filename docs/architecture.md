@@ -4,6 +4,10 @@ How the town, caves and rooms fit together, and where to plug new work in.
 The rules in **Contract** are load-bearing: the tests enforce several of them,
 and the rest are what keeps the two runnable scenes from drifting apart.
 
+> **Frozen for the boss port.** This describes the agreed integration target.
+> Change it only if a port uncovers a genuinely missing seam, and say so rather
+> than working around it.
+
 ## Contract
 
 1. **`Expedition` is the only thing that moves the party.** Town to cave, room
@@ -115,21 +119,38 @@ completes the room rather than stranding the party, and says so with
 
 ### Milestone boss selection — `BossSchedule` + `BossTier`
 
-Selection only. A schedule answers "which boss, if any, belongs at milestone
-index N" and nothing else — it never spawns, places, scales or pays. Whoever
-builds a run's encounters asks, and writes the answer into an
-`EncounterDefinition`; the director takes it from there. That keeps milestone
-rules out of the director and combat out of the schedule.
+Selection only. A schedule answers "which boss, if any, belongs at **global run
+wave** N" and nothing else — it never spawns, places, scales or pays.
 
-A `BossTier` is one rung: a boss at every Nth milestone. The rung with the
-largest matching interval wins, so a 20 tier replaces the 10 and 5 tiers on
-milestone 20 without any of them knowing about the others.
+**It counts run waves.** Not cave numbers, not room-local wave numbers. Wave 7
+is the seventh wave of the whole run, whichever room it falls in.
 
-Escalating difficulty across a long run is deliberately **not** here. That is
-what `RunModifiers` and `EncounterDefinition.difficulty_multiplier` are for.
+A `BossTier` is one rung, set to either an exact wave (`at`) or an interval
+(`every`). An exact wave outranks every interval; among intervals the largest
+matching one wins. That expresses the agreed twenty-wave target directly:
 
-`problems()` reports empty tiers, duplicate intervals and bosses with no scene,
-so a broken ladder fails a test rather than a run.
+| Rung | Run waves it claims | Wins on |
+| --- | --- | --- |
+| `every = 5` — mini-boss | 5, 10, 15, 20 | 5 |
+| `every = 10` — Glacier Warden | 10, 20 | 10 |
+| `at = 15` — evolved mini-boss | 15 | 15 |
+| `every = 20` — Mondo, the War King | 20 | 20 |
+
+**Nothing calls this yet, and the director must never call it directly** —
+that would put milestone rules inside the combat loop. Its eventual caller is
+`Expedition`, through a lightweight run/wave plan that *describes* the run and
+writes the chosen boss into an `EncounterDefinition`. Such a layer is allowed
+precisely because it describes rather than moves: it is not a second journey
+manager. It is not built yet.
+
+Escalating difficulty across a long run is deliberately **not** here, and
+neither is Storm. Storm will later alter, replace or enhance these milestone
+encounters through `RunModifiers` and
+`EncounterDefinition.difficulty_multiplier`.
+
+`problems()` reports tiers set to both a wave and an interval, tiers set to
+neither, repeated waves, repeated intervals, and bosses with no scene, so a
+broken ladder fails a test rather than a run.
 
 ### Room-bounded projectiles
 
@@ -180,7 +201,8 @@ A character carries four kinds of thing:
 
 | Field | For |
 | --- | --- |
-| `tint`, `tagline`, `body_scale` | Presentation. `body_scale` resizes the art and the collision body. |
+| `tint`, `tagline`, `body_scale` | Presentation. `body_scale` resizes the **art only**. |
+| `collision_scale` | The hitbox, set separately from the art on purpose. |
 | `starting_weapons` | Ordered loadout. Only slot 0 is wired today; the array is the seam for multiple weapon slots. |
 | `starting_stats` | Opening stat changes, applied through the same `apply_upgrade()` seam the shop uses. |
 | `traits` | Rule changes. |
@@ -195,13 +217,27 @@ Nothing anywhere asks "is this the Caveman". A character is a definition plus
 the traits it carries, and `Player.gd` names no character. The planned roster
 maps onto this without a single special case:
 
+**Art size and hitbox size are independent, on purpose.** How big a target a
+penguin is, is a balance decision, never a consequence of how it is drawn.
+`body_scale` moves the art; `collision_scale` moves the hitbox; neither touches
+the other, and `tests/seams_test.gd` fails if anything couples them.
+`RunSession.scale_art()` and `scale_collision()` are public so a
+collision-altering trait can use them later.
+
+These names are **reserved**. They enter the project when their traits are
+implemented, not as empty definitions:
+
 | Character | Seam it uses |
 | --- | --- |
-| Squish Squish — tiny, fast, clumsy | `body_scale` below 1, `starting_stats` for speed, a trait for the clumsiness rule |
-| BurrowFoot — food and survival | `starting_stats`, plus a trait listening for pickups and healing |
-| Big-un — engineering specialist | `starting_stats` for Engineering, a trait that changes what castles do |
-| Caveman — slow, tough, heavy melee | `starting_stats` for armour and speed, `starting_weapons` for the loadout |
-| Snowquatch — large and strange | `body_scale` above 1, a trait for whatever makes it strange |
+| Squish Squish — "Tiny, but fierce." Fast, tiny, clumsy | `body_scale` and `collision_scale` below 1, chosen separately; `starting_stats` for speed; a trait for the clumsiness rule |
+| BurrowFoot — food, survival, homebody economy | `starting_stats`, plus a trait listening for pickups and healing |
+| Big-un — tech nerd, engineering specialist | `starting_stats` for Engineering, a trait that changes what castles do |
+| Caveman — slow-talking, extremely tough heavy melee | `starting_stats` for armour and speed, `starting_weapons` for the loadout |
+| Snowquatch — large penguin cryptid | `body_scale` and `collision_scale` above 1, chosen separately; a trait for whatever makes it strange |
+
+The same principle applies to boss content: `BossDefinition.visual_scale` is
+presentation, and `hit_radius` is balance. Deriving one from the other is a
+choice to make deliberately, not a default.
 
 A trait belongs to exactly one penguin. For anything party-wide, put the rule
 on a system and let the trait talk to it rather than reaching across to other
@@ -275,9 +311,14 @@ validation entry points; both are asserted in tests.
 
 ## Township is not the field shop
 
-Township is a pre-run and between-run hub: healing, revival, weapon trading and
-the town-hall meeting, through `TownService` and `TownMarket`. The between-wave
-field shop is a separate thing, and `RunProgression` keeps them apart:
+Township is a pre-run, meta and setup hub. The field shop is where paid run
+power is bought, between waves. They are different things and stay different.
+
+The current healing, revival and blacksmith services in `TownMarket` are
+**transitional prototypes**. Do not grow them into a second paid run shop —
+new paid run power belongs in the field shop, not in town.
+
+`RunProgression` keeps the two apart:
 
 - **In a room**, `shop_open()` follows the encounter state, and offers are both
   free (earned by levelling) and paid.
@@ -295,6 +336,7 @@ they go, and so nobody builds them somewhere else.
 | Planned | Where it belongs |
 | --- | --- |
 | 20-wave run structure | `EncounterDefinition.wave_count`, already ranged to 20. The director's wave loop needs no change. |
+| Run/wave plan | Reserved and approved, not built. A lightweight data layer owned by `Expedition` that describes a run — which waves happen where, and which milestone bosses `BossSchedule` picks — and writes the result into `EncounterDefinition`. It describes; it must never move the party, or it becomes the second journey manager the contract forbids. |
 | Field shop: four offers, reroll, lock | `RunProgression`. `OPTIONS` is today's fixed catalogue and `choose(player_id, index)` indexes straight into it — both are the thing an offer system replaces. Expect to keep `pending`, `purchases`, `price()` and the wallet, and to change what an "index" means. |
 | Six weapon slots | `CharacterDefinition.starting_weapons` already carries a list; the penguin scene carries one `WeaponController`. Slots are a change to the penguin and to `RunSession._apply_character`, not to the data. |
 | Four weapon tiers, duplicate merging | `WeaponDefinition`. A tier field and a merge rule live there and in whatever owns an inventory; `WeaponController` reads a definition and needs no knowledge of tiers. |

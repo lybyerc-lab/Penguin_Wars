@@ -88,8 +88,11 @@ func spawn_party(count: int, entry: Vector2) -> bool:
 ## Body, opening stats and rule-changing traits. Runs after the penguin is in
 ## the tree, so its own @onready nodes exist and apply_upgrade() works.
 static func _apply_character(player: PenguinPlayer, character: CharacterDefinition) -> void:
+	# Art size and hitbox size are set separately, on purpose.
 	if not is_equal_approx(character.body_scale, 1.0):
-		_scale_body(player, character.body_scale)
+		scale_art(player, character.body_scale)
+	if not is_equal_approx(character.collision_scale, 1.0):
+		scale_collision(player, character.collision_scale)
 	for upgrade: UpgradeDefinition in character.starting_stats:
 		if upgrade != null:
 			player.apply_upgrade(upgrade)
@@ -103,16 +106,19 @@ static func _apply_character(player: PenguinPlayer, character: CharacterDefiniti
 		player.add_child(rule)
 		rule.setup(player)
 
-static func _scale_body(player: PenguinPlayer, scale: float) -> void:
+static func scale_art(player: PenguinPlayer, scale: float) -> void:
 	var visual: Node2D = player.get_node_or_null("CharacterVisual") as Node2D
 	if visual != null:
 		visual.scale = Vector2.ONE * scale
+
+static func scale_collision(player: PenguinPlayer, scale: float) -> void:
 	var collision: CollisionShape2D = player.get_node_or_null("CollisionShape2D") as CollisionShape2D
-	if collision != null and collision.shape is CircleShape2D:
-		# The scene's shape is shared between instances; resize a copy.
-		var body: CircleShape2D = collision.shape.duplicate()
-		body.radius *= scale
-		collision.shape = body
+	if collision == null or not collision.shape is CircleShape2D:
+		return
+	# The scene's shape is shared between instances; resize a copy.
+	var body: CircleShape2D = collision.shape.duplicate()
+	body.radius *= scale
+	collision.shape = body
 
 ## Players keep their health, stats, levels and wallets across a room change.
 ## Enemies, shots, drops and built structures belong to the room they were in.

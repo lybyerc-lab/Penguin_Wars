@@ -1,5 +1,22 @@
 # Verification record
 
+## Directed rulings applied; architecture frozen for the boss port
+
+September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb. Branch `integration/adventure-base`.
+
+Three rulings came back on the integration base. Two needed code, not just recording.
+
+- **Township keeps paid offers closed.** Already the behaviour; now also written down as a standing constraint. The current healing, revival and blacksmith services are transitional prototypes and must not grow into a second paid run shop.
+- **`BossSchedule` counts global run waves**, not cave numbers and not room-local waves, and stays callerless. Its eventual caller is `Expedition` through a run/wave plan that describes the run without moving the party; that layer is reserved and not built. The agreed twenty-wave target needed a capability the interval-only ladder did not have: wave 15 carries an evolved mini-boss distinct from wave 5, which no "every Nth" rung can express. `BossTier` now takes either an exact wave or an interval, an exact wave outranks every interval, and the four rungs produce exactly 5, 10, 15, 20 with the right boss on each.
+- **Art size and hitbox size are now independent.** `body_scale` previously resized the collision body as well, which is precisely what the ruling forbids: how big a target a penguin is must be an explicit balance choice, not a consequence of how it is drawn. `collision_scale` is the new seam, `RunSession.scale_art()` and `scale_collision()` are public for later collision-altering traits, and the test asserts both directions — art 0.5 with hitbox 2.0 on one character is something coupled code cannot produce. Negative-controlled: coupling the two makes three checks fail.
+
+No character resources were created. The five reserved names are recorded in `architecture.md` with the seam each will use, so they enter the project when their traits do.
+
+- Seven headless suites passed with zero failures: foundation, combat feel, enemy behavior, economy, stats/mobile, town/cave and seams. Six render runs passed: arena, enemy, economy, mobile normal and wide, and town.
+- `architecture.md` now carries a freeze note: it describes the agreed integration target, and a port that needs something else should say so rather than work around it.
+
+Limitations unchanged from the previous pass: no human playthrough, no room ships with a boss so the phase is proven only against the stub, `BossSchedule` has no caller by design, the reserved characters are verified as supportable rather than implemented, `ProfileStore` does no file I/O, and Android packaging was not re-run.
+
 ## Integration base for the boss port
 
 September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb. Branch `integration/adventure-base`, cut from `c61d924`.

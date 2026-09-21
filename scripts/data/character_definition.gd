@@ -23,8 +23,12 @@ extends Resource
 ## Rule-changing components, instanced as children of the penguin at spawn.
 ## Each must instance a CharacterTrait.
 @export var traits: Array[PackedScene] = []
-## Scales the penguin's art and collision body. 1.0 is a standard penguin.
+## Scales the penguin's art only. It deliberately does NOT change the hitbox:
+## how big a target a penguin is, is a balance decision, not a consequence of
+## how it is drawn. A tiny penguin and a huge one both choose their own.
 @export_range(0.25, 4.0) var body_scale: float = 1.0
+## Scales the penguin's collision body. Independent of body_scale on purpose.
+@export_range(0.25, 4.0) var collision_scale: float = 1.0
 ## When false, the id must appear in CampaignState.unlocked to be selectable.
 @export var unlocked_by_default: bool = true
 

@@ -65,7 +65,7 @@ The party starts in **Kelphollow**. Services are entered by standing at them, so
 | Cold Forge | Odda | Hone the edge, +4 weapon damage · **9** — Rebalance the haft, +10% attack speed · **9** — Trade weapon, lance for cleaver and back · **6** |
 | Town Hall | Elder Bramblefoot | No purchases. A short meeting that reads the run journal and changes once the party has been down a cave. |
 
-Township is a hub, not the between-wave shop. Standing in town you can spend a **free** stat choice earned underground — one is never stranded — but the paid field-shop offers are only sold between waves, in a room. The town's own services are the four buildings above.
+Township is a pre-run and meta hub, not the between-wave shop. Standing in town you can spend a **free** stat choice earned underground — one is never stranded — but paid field-shop offers are only sold between waves, in a room. The four buildings above are transitional prototypes: paid run power belongs in the field shop, not in town.
 
 Rousing a downed penguin is the first revival in the game. `Health.revive()` is deliberately a separate operation from healing, which still cannot raise the dead; the player restores the collision layers it recorded when it entered the tree. A downed penguin cannot buy its own revival — someone still standing has to pay for it.
 
