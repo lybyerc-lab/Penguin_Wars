@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/upgrade_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"gathering"
+display_name = "Pickup range +20"
+stat = 12
+amount = 20.0
+snowflake_cost = 6

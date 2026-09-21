@@ -1,5 +1,13 @@
 # Verification record
 
+## Combat stats and Android preparation
+
+- Foundation, economy, combat-feel, enemy-behavior and stats/mobile integration suites passed in Godot 4.7.2. New coverage checks armor/dodge caps, typed damage and crit order, actual weapon critical damage, cooldown scaling, vitality, regeneration, death gating and increased pickup radius.
+- Injected touch events check movement, independent second-finger dash, one-shot dash commands, drag normalization, cancellation and focus-loss cleanup. Mobile creates one local player. Opening/closing the solo character sheet pauses/resumes combat and disables/restores touch controls. These are engine tests, not physical touchscreen acceptance.
+- OpenGL mobile layouts rendered at 1280x720 and 1600x720, with controls and scrollable character sheets visually inspected. Four-player desktop HUD was also rendered and inspected after the expanded catalog.
+- Android debug export was attempted and failed: Java/Android SDK are not configured. Templates exist in the normal user installation; the redirected test APPDATA also prevents the export attempt from locating those templates. No APK was produced. Android installation, physical input, cutouts, suspend/resume and sustained performance remain unverified.
+- The checked-in Android preset is preparation only. Online co-op, skill abilities and randomized shop stock remain future work. See `mobile-and-stats.md` for formulas, setup and extension points.
+
 Verified September 21, 2026 using Godot **4.7.2 stable**, Windows, compatibility rendering.
 
 - Editor import completed with all scripts registered and no script parse errors.

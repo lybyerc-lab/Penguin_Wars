@@ -19,7 +19,13 @@ Enemy defeats drop **2 snowflakes** rather than immediately granting XP. Either 
 
 **Harvest** starts at x1.00 and upgrades by +0.25. It multiplies that player's income and corresponding XP, including the **5 base income** paid after each completed wave. Fractional earnings are retained so small drops still benefit. This multiplier is our chosen variation, not an exact copy of Brotato's flat harvesting stat.
 
-XP still grants free stat choices. Extra upgrades cost **6 snowflakes**, increasing by **3 per personal paid purchase**. Shopping happens between waves; a purchase clears that player's ready status. The current fixed three-option stat shop is an initial economy slice: randomized items, rerolls, armor, weapon merging and a full skill system are future work.
+XP still grants free stat choices. Extra upgrades cost **6 snowflakes**, increasing by **3 per personal paid purchase**. Shopping happens between waves; a purchase clears that player's ready status. The character sheet now offers 15 upgrades, including armor, regeneration, typed damage, critical hits, dodge, Engineering and Harvest. The original three remain quick shortcuts. Randomized items, rerolls, weapon merging and a full skill system are future work.
+
+### Android and character stats
+
+Use **Stats / more upgrades** on desktop to open the character sheet. Preview the phone layout with `godot --path . -- --mobile` or enable `TestArena.mobile_preview` in the inspector. Android automatically selects one local penguin, touch movement/dash, and large build/shop/ready buttons. The solo mobile character sheet pauses combat. Desktop co-op remains available; online co-op is future work.
+
+The Android export preset is included, but **no APK has been built or tested on a phone**: this PC needs Java and Android SDK configuration. See [mobile-and-stats.md](docs/mobile-and-stats.md) for stat formulas, extension points, preview controls and export setup.
 
 **Snow castles are player-built defenses.** Spend **10 personal snowflakes** to place one on open ice in front of your penguin. Each player can build one per run. It fires friendly snowballs for **8 damage every 0.9 seconds**, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves and reset with the run; they are currently indestructible support structures, with enemies continuing to target penguins.
 
@@ -95,9 +101,12 @@ godot --headless --path . --script res://tests/foundation_test.gd
 godot --headless --path . --script res://tests/combat_feel_test.gd
 godot --headless --path . --script res://tests/enemy_behavior_test.gd
 godot --headless --path . --script res://tests/economy_test.gd
+godot --headless --path . --script res://tests/stats_mobile_test.gd
 godot --path . --script res://tests/render_smoke.gd
 godot --path . --script res://tests/enemy_render_smoke.gd
 godot --path . --script res://tests/economy_render_smoke.gd
+godot --path . --script res://tests/mobile_render_smoke.gd
+godot --path . --script res://tests/mobile_render_smoke.gd -- --wide
 ```
 
 The integration test fails with a nonzero exit code on failed assertions. It covers party IDs/capacity, movement/bounds, death/retargeting, XP overflow, queued upgrades and resource isolation, actual weapon kills/rewards, encounter completion, party wipe and scene cleanup. The renderer test writes `docs/arena-preview.png` using the live viewport. See `docs/verification.md` for actual results and limitations.

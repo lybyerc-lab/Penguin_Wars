@@ -5,7 +5,7 @@ signal choice_pending(player_id: int)
 signal upgrade_applied(player_id: int, upgrade: UpgradeDefinition)
 signal party_ready
 
-const OPTIONS: Array[UpgradeDefinition] = [preload("res://resources/upgrades/sharp_ice.tres"), preload("res://resources/upgrades/swift_flippers.tres"), preload("res://resources/upgrades/harvest.tres")]
+const OPTIONS: Array[UpgradeDefinition] = [preload("res://resources/upgrades/sharp_ice.tres"), preload("res://resources/upgrades/swift_flippers.tres"), preload("res://resources/upgrades/harvest.tres"), preload("res://resources/upgrades/vitality.tres"), preload("res://resources/upgrades/armor.tres"), preload("res://resources/upgrades/regeneration.tres"), preload("res://resources/upgrades/might.tres"), preload("res://resources/upgrades/melee.tres"), preload("res://resources/upgrades/ranged.tres"), preload("res://resources/upgrades/haste.tres"), preload("res://resources/upgrades/precision.tres"), preload("res://resources/upgrades/evasion.tres"), preload("res://resources/upgrades/gathering.tres"), preload("res://resources/upgrades/engineering.tres"), preload("res://resources/upgrades/reach.tres")]
 var party: PartyRoster
 var pending: Dictionary = {}
 var wallet: RunWallet

@@ -15,12 +15,13 @@ func _physics_process(delta: float) -> void:
 	if party == null or claimed or _age < 0.3:
 		return
 	var nearest: PenguinPlayer
-	var best: float = 30.0 * 30.0
+	var best: float = INF
 	for player: PenguinPlayer in party.members(true):
 		if kind == Kind.HEALTH and player.health.current >= player.health.maximum:
 			continue
 		var distance: float = global_position.distance_squared_to(player.global_position)
-		if distance < best:
+		var reach: float = maxf(30, 30 + player.stats.pickup_bonus)
+		if distance <= reach * reach and distance < best:
 			best = distance
 			nearest = player
 	if nearest != null:

@@ -1,6 +1,8 @@
 class_name WeaponDefinition
 extends Resource
 enum Pattern { SINGLE, ARC }
+enum DamageKind { MELEE, RANGED }
+@export var damage_kind: DamageKind = DamageKind.RANGED
 ## Shared immutable definition. Cooldowns and modifiers live on WeaponController.
 @export var id: StringName
 @export var display_name: String

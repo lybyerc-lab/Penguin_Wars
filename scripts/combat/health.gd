@@ -8,6 +8,7 @@ signal damaged(event: DamageEvent)
 @export_range(1.0, 10000.0) var maximum: float = 100.0
 var current: float
 var invulnerable: bool = false
+var defenses: PlayerStats
 
 func _ready() -> void:
 	current = maximum
@@ -18,6 +19,11 @@ func is_alive() -> bool:
 func take_damage(event: DamageEvent) -> void:
 	if not is_alive() or invulnerable or event.amount <= 0.0:
 		return
+	if defenses != null:
+		var mitigated: float = defenses.damage_received(event.amount, randf())
+		if mitigated <= 0.0:
+			return
+		event = DamageEvent.new(mitigated, event.source_player_id, event.impulse)
 	current = maxf(0.0, current - event.amount)
 	changed.emit(current, maximum)
 	damaged.emit(event)

@@ -11,6 +11,7 @@ var _buttons: Dictionary = {}
 var _build_buttons: Dictionary = {}
 var _ready_buttons: Dictionary = {}
 var _build_notes: Dictionary = {}
+var _sheet: BuildSheet
 
 func setup() -> void:
 	var top := MarginContainer.new()
@@ -79,7 +80,7 @@ func _add_card(parent: GridContainer, player: PenguinPlayer) -> void:
 	var choices := HBoxContainer.new()
 	content.add_child(choices)
 	_buttons[id] = []
-	for index: int in range(RunProgression.OPTIONS.size()):
+	for index: int in range(3):
 		var button := Button.new()
 		button.focus_mode = Control.FOCUS_NONE
 		button.add_theme_font_size_override("font_size", 13)
@@ -106,6 +107,18 @@ func _add_card(parent: GridContainer, player: PenguinPlayer) -> void:
 	note.add_theme_font_size_override("font_size", 11)
 	actions.add_child(note)
 	_build_notes[id] = note
+	var sheet_button := Button.new()
+	sheet_button.text = "Stats / more upgrades"
+	sheet_button.focus_mode = Control.FOCUS_NONE
+	sheet_button.pressed.connect(func() -> void:
+		if is_instance_valid(_sheet):
+			return
+		_sheet = BuildSheet.new()
+		_sheet.player = player
+		_sheet.progression = progression
+		add_child(_sheet)
+		_sheet.setup())
+	content.add_child(sheet_button)
 
 func _process(_delta: float) -> void:
 	if _status == null:

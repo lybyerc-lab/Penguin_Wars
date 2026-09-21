@@ -9,6 +9,7 @@ damage = 22.0
 cooldown = 1.05
 reach = 105.0
 pattern = 1
+damage_kind = 0
 arc_degrees = 140.0
 knockback = 320.0
 tint = Color(1, 0.8, 0.47, 1)

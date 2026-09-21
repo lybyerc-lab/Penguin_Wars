@@ -15,6 +15,7 @@ func _ready() -> void:
 	assert(identity != null, "Set identity before adding a player to the tree")
 	input_source.identity = identity
 	weapon.wielder = self
+	health.defenses = stats
 	health.changed.connect(_on_health_changed)
 	health.died.connect(_on_died)
 
@@ -28,6 +29,8 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	global_position = global_position.clamp(arena_bounds.position, arena_bounds.end)
 	queue_redraw()
+	if health.is_alive() and stats.regeneration > 0.0:
+		health.heal(stats.regeneration * delta)
 
 func apply_upgrade(upgrade: UpgradeDefinition) -> void:
 	match upgrade.stat:
@@ -40,6 +43,11 @@ func apply_upgrade(upgrade: UpgradeDefinition) -> void:
 			health.heal(maxf(0.0, upgrade.amount))
 		UpgradeDefinition.Stat.HARVEST:
 			stats.harvest_multiplier = maxf(1.0, stats.harvest_multiplier + upgrade.amount)
+		_:
+			var fields: Dictionary = {UpgradeDefinition.Stat.ARMOR: "armor", UpgradeDefinition.Stat.REGENERATION: "regeneration", UpgradeDefinition.Stat.DAMAGE_PERCENT: "damage_percent", UpgradeDefinition.Stat.MELEE_DAMAGE: "melee_damage", UpgradeDefinition.Stat.RANGED_DAMAGE: "ranged_damage", UpgradeDefinition.Stat.ATTACK_SPEED: "attack_speed", UpgradeDefinition.Stat.CRITICAL_CHANCE: "critical_chance", UpgradeDefinition.Stat.DODGE: "dodge_chance", UpgradeDefinition.Stat.PICKUP_RANGE: "pickup_bonus", UpgradeDefinition.Stat.ENGINEERING: "engineering", UpgradeDefinition.Stat.RANGE: "range_bonus"}
+			if fields.has(upgrade.stat):
+				var field: String = fields[upgrade.stat]
+				stats.set(field, float(stats.get(field)) + upgrade.amount)
 
 func _on_health_changed(_current: float, _maximum: float) -> void:
 	queue_redraw()

@@ -3,11 +3,15 @@ extends Node2D
 const PLAYER_SCENE: PackedScene = preload("res://scenes/actors/player.tscn")
 const COLORS: Array[Color] = [Color("58dfed"), Color("ffcb77"), Color("bc9aff"), Color("a9e886")]
 @export_range(1, 4) var player_count: int = 2
+@export var mobile_preview: bool = false
 @onready var party: PartyRoster = $Party
 @onready var encounter: EncounterDirector = $Encounter
 @onready var progression: RunProgression = $Progression
 
 func _ready() -> void:
+	mobile_preview = mobile_preview or OS.has_feature("android") or "--mobile" in OS.get_cmdline_user_args()
+	if mobile_preview:
+		player_count = 1
 	progression.party = party
 	progression.wallet = $Wallet
 	progression.encounter = encounter
@@ -29,6 +33,7 @@ func _ready() -> void:
 			return
 		progression.bind_player(player)
 	$Camera.party = party
+	$Camera.mobile_layout = mobile_preview
 	encounter.party = party
 	encounter.actor_root = $Actors
 	$Loot.party = party
@@ -48,7 +53,18 @@ func _ready() -> void:
 	$Builder.actor_root = $Actors
 	$Builder.encounter = encounter
 	$HUD.builder = $Builder
-	$HUD.setup()
+	if mobile_preview:
+		$HUD.queue_free()
+		var mobile_hud := MobileHUD.new()
+		mobile_hud.name = "MobileHUD"
+		mobile_hud.party = party
+		mobile_hud.encounter = encounter
+		mobile_hud.progression = progression
+		mobile_hud.builder = $Builder
+		add_child(mobile_hud)
+		mobile_hud.setup()
+	else:
+		$HUD.setup()
 	encounter.start()
 
 func _unhandled_input(event: InputEvent) -> void:

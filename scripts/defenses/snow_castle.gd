@@ -48,6 +48,9 @@ func _physics_process(delta: float) -> void:
 	snowball.position = position + _direction * 32
 	snowball.direction = _direction
 	snowball.source_player_id = player_id
+	for player: PenguinPlayer in party.members():
+		if player.identity.player_id == player_id:
+			snowball.damage = maxf(1.0, 8.0 + player.stats.engineering)
 	get_parent().add_child(snowball)
 	_cooldown = 0.9
 
