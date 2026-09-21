@@ -6,7 +6,7 @@ This is a direction document, not a promise of exact scheduling. The order matte
 
 Implementation baseline recorded here:
 
-`antigravity@20ed8f9`
+`antigravity@f05d804`
 
 At that point the project has:
 
@@ -21,15 +21,15 @@ At that point the project has:
 - current prototype economy/upgrades/castles
 - Android/mobile support path
 
-A doorway **art polish** pass is the active presentation task immediately after this baseline.
+The first doorway art-polish pass is complete. Human playtest now decides whether presentation is locked or needs another targeted pass before Snow pickups.
 
 ## Phase 0 — Presentation lock
 
 Goal: make the current slice look like a game, not a systems prototype.
 
-### 0.1 Doorway art polish
+### 0.1 Doorway art polish — IMPLEMENTED at `f05d804`
 
-Keep mechanics. Improve:
+Implemented targets:
 
 - Kelphollow cave mouth
 - side doorway silhouettes
