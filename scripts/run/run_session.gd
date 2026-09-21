@@ -70,8 +70,8 @@ func spawn_party(count: int, entry: Vector2) -> bool:
 		if character != null:
 			player.identity.tint = character.tint
 			player.identity.character_id = character.id
-			if character.starting_weapon != null:
-				player.get_node("Weapon").definition = character.starting_weapon
+			if not character.starting_weapons.is_empty() and character.starting_weapons[0] != null:
+				player.get_node("Weapon").definition = character.starting_weapons[0]
 		player.position = _slot(entry, index, count)
 		actor_root.add_child(player)
 		if not party.register(player):
@@ -79,9 +79,40 @@ func spawn_party(count: int, entry: Vector2) -> bool:
 			player.queue_free()
 			return false
 		progression.bind_player(player)
+		if character != null:
+			_apply_character(player, character)
 		if modifiers.starting_snowflakes > 0:
 			wallet.credit(player.identity.player_id, modifiers.starting_snowflakes)
 	return true
+
+## Body, opening stats and rule-changing traits. Runs after the penguin is in
+## the tree, so its own @onready nodes exist and apply_upgrade() works.
+static func _apply_character(player: PenguinPlayer, character: CharacterDefinition) -> void:
+	if not is_equal_approx(character.body_scale, 1.0):
+		_scale_body(player, character.body_scale)
+	for upgrade: UpgradeDefinition in character.starting_stats:
+		if upgrade != null:
+			player.apply_upgrade(upgrade)
+	for scene: PackedScene in character.traits:
+		if scene == null:
+			continue
+		var rule := scene.instantiate() as CharacterTrait
+		if rule == null:
+			push_error("Character '%s' has a trait that is not a CharacterTrait" % character.id)
+			continue
+		player.add_child(rule)
+		rule.setup(player)
+
+static func _scale_body(player: PenguinPlayer, scale: float) -> void:
+	var visual: Node2D = player.get_node_or_null("CharacterVisual") as Node2D
+	if visual != null:
+		visual.scale = Vector2.ONE * scale
+	var collision: CollisionShape2D = player.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision != null and collision.shape is CircleShape2D:
+		# The scene's shape is shared between instances; resize a copy.
+		var body: CircleShape2D = collision.shape.duplicate()
+		body.radius *= scale
+		collision.shape = body
 
 ## Players keep their health, stats, levels and wallets across a room change.
 ## Enemies, shots, drops and built structures belong to the room they were in.

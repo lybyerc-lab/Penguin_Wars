@@ -7,6 +7,8 @@ var actor_root: Node2D
 var encounter: EncounterDirector
 ## Room-owned placement area; defaults to the original centered arena.
 var build_bounds := Rect2(-500, -220, 1000, 440)
+## The room's full rect, passed to each castle for its projectiles.
+var room_bounds := Rect2(-540, -260, 1080, 520)
 var castles: Dictionary = {}
 var last_result: Dictionary = {}
 
@@ -33,6 +35,7 @@ func build(player_id: int) -> bool:
 		castle.party = party
 		castle.player_id = player_id
 		castle.tint = player.identity.tint
+		castle.room_bounds = room_bounds
 		castle.position = actor_root.to_local(point)
 		actor_root.add_child(castle)
 		castles[player_id] = castle

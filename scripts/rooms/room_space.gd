@@ -19,6 +19,9 @@ static func apply(room: RoomDefinition, party: PartyRoster = null, encounter: En
 		for node: Node in actor_root.get_children():
 			if node is ArenaEnemy:
 				node.arena_bounds = room.bounds
+				node.room_bounds = room.bounds
+			elif node is SnowCastle:
+				node.room_bounds = room.bounds
 	if encounter != null:
 		encounter.actor_bounds = room.bounds
 		encounter.spawn_ring = room.spawn_ring
@@ -28,6 +31,7 @@ static func apply(room: RoomDefinition, party: PartyRoster = null, encounter: En
 			encounter.definition = room.encounter
 	if builder != null:
 		builder.build_bounds = room.build_bounds()
+		builder.room_bounds = room.bounds
 	if loot != null:
 		loot.supply_points = room.supply_points
 	if camera != null:

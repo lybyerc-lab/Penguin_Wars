@@ -15,6 +15,7 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 			var snowball := EnemySnowball.new()
 			snowball.party = enemy.party
 			snowball.damage = enemy.projectile_damage
+			snowball.room_bounds = enemy.room_bounds
 			snowball.direction = direction
 			snowball.position = enemy.position + direction * 28.0
 			enemy.get_parent().add_child(snowball)

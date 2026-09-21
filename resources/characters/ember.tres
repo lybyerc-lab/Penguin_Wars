@@ -1,11 +1,14 @@
 [gd_resource type="Resource" script_class="CharacterDefinition" format=3]
 
-[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_i0c3u"]
-[ext_resource type="Resource" path="res://resources/weapons/fish_cleaver.tres" id="2_k7sla"]
+[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_yevbg"]
+[ext_resource type="Script" path="res://scripts/data/upgrade_definition.gd" id="2_wm3c1"]
+[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="3_nnaaf"]
+[ext_resource type="Resource" path="res://resources/weapons/fish_cleaver.tres" id="4_vdrwu"]
 
 [resource]
-script = ExtResource("1_i0c3u")
+script = ExtResource("1_yevbg")
 id = &"ember"
 display_name = "Ember"
+tagline = "Has opinions about fish, and a cleaver."
 tint = Color(1, 0.79607844, 0.46666667, 1)
-starting_weapon = ExtResource("2_k7sla")
+starting_weapons = Array[ExtResource("3_nnaaf")]([ExtResource("4_vdrwu")])

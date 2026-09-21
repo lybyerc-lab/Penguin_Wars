@@ -1,11 +1,14 @@
 [gd_resource type="Resource" script_class="CharacterDefinition" format=3]
 
-[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_ph22b"]
-[ext_resource type="Resource" path="res://resources/weapons/fish_cleaver.tres" id="2_tt7am"]
+[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_x51bq"]
+[ext_resource type="Script" path="res://scripts/data/upgrade_definition.gd" id="2_s8t46"]
+[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="3_esaj3"]
+[ext_resource type="Resource" path="res://resources/weapons/fish_cleaver.tres" id="4_ndltw"]
 
 [resource]
-script = ExtResource("1_ph22b")
+script = ExtResource("1_x51bq")
 id = &"sorrel"
 display_name = "Sorrel"
+tagline = "Cheerful. Nobody has worked out why."
 tint = Color(0.6627451, 0.9098039, 0.5254902, 1)
-starting_weapon = ExtResource("2_tt7am")
+starting_weapons = Array[ExtResource("3_esaj3")]([ExtResource("4_ndltw")])

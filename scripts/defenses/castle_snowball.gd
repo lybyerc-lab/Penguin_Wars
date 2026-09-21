@@ -5,6 +5,8 @@ var damage: float = 8.0
 var source_player_id: int = 1
 var _remaining: float = 1.5
 var _spent: bool = false
+## Room rect this shot lives inside, handed over by the castle that fired it.
+var room_bounds := Rect2(-540, -260, 1080, 520)
 
 func _physics_process(delta: float) -> void:
 	if _spent:
@@ -29,7 +31,8 @@ func _physics_process(delta: float) -> void:
 	if target != null:
 		target.health.take_damage(DamageEvent.new(damage, source_player_id, direction * 45))
 	_remaining -= delta
-	if target != null or not wall.is_empty() or _remaining <= 0.0:
+	var outside: bool = room_bounds.has_area() and not room_bounds.grow(EnemySnowball.WALL_MARGIN).has_point(global_position)
+	if target != null or not wall.is_empty() or _remaining <= 0.0 or outside:
 		_expire()
 
 func _expire() -> void:

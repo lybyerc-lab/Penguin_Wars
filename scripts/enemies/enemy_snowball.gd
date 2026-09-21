@@ -1,12 +1,18 @@
 class_name EnemySnowball
 extends Node2D
 ## Swept hit test avoids tunneling. Each shot can hit one living party member.
+
+## How far past the room a shot may travel before it is removed.
+const WALL_MARGIN: float = 50.0
 var party: PartyRoster
 var direction := Vector2.RIGHT
 var speed: float = 230.0
 var damage: float = 10.0
 var lifetime: float = 3.0
 var spent: bool = false
+## Room rect this shot lives inside, handed over by whatever fired it. The
+## default reproduces the original arena, so an unset shot behaves as before.
+var room_bounds := Rect2(-540, -260, 1080, 520)
 
 func _ready() -> void:
 	add_to_group("enemy_projectiles")
@@ -40,9 +46,13 @@ func _physics_process(delta: float) -> void:
 		_expire()
 		return
 	lifetime -= delta
-	if not wall.is_empty() or lifetime <= 0.0 or absf(global_position.x) > 590 or absf(global_position.y) > 310:
+	if not wall.is_empty() or lifetime <= 0.0 or _left_the_room():
 		_expire()
 	queue_redraw()
+
+## Past the painted wall lip, so a shot clears the edge before it vanishes.
+func _left_the_room() -> bool:
+	return room_bounds.has_area() and not room_bounds.grow(WALL_MARGIN).has_point(global_position)
 
 func _expire() -> void:
 	spent = true

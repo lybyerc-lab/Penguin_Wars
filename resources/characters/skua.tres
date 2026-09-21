@@ -1,11 +1,14 @@
 [gd_resource type="Resource" script_class="CharacterDefinition" format=3]
 
-[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_y4elg"]
-[ext_resource type="Resource" path="res://resources/weapons/ice_lance.tres" id="2_fli6a"]
+[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_4cryd"]
+[ext_resource type="Script" path="res://scripts/data/upgrade_definition.gd" id="2_4u5do"]
+[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="3_jjepi"]
+[ext_resource type="Resource" path="res://resources/weapons/ice_lance.tres" id="4_w778q"]
 
 [resource]
-script = ExtResource("1_y4elg")
+script = ExtResource("1_4cryd")
 id = &"skua"
 display_name = "Skua"
+tagline = "Points the sharp end away from friends. Usually."
 tint = Color(0.34509805, 0.8745098, 0.92941177, 1)
-starting_weapon = ExtResource("2_fli6a")
+starting_weapons = Array[ExtResource("3_jjepi")]([ExtResource("4_w778q")])

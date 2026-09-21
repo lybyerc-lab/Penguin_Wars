@@ -13,7 +13,12 @@ signal defeated(enemy: ArenaEnemy, event: DamageEvent)
 ## Scales incoming knockback. Below 1.0 an enemy cannot be pushed around,
 ## which is what stops heavy weapons stun-locking a large target.
 @export var knockback_multiplier: float = 1.0
+## Movement clamp. A large body may be inset from the room so it cannot
+## overhang the wall, which is why this is not always the room rect.
 @export var arena_bounds := Rect2(-540, -260, 1080, 520)
+## The room's own rect. Anything that needs the room rather than this actor's
+## movement box — projectiles, for one — reads this.
+@export var room_bounds := Rect2(-540, -260, 1080, 520)
 var party: PartyRoster
 var _attack_remaining: float = 0.0
 var _knockback := Vector2.ZERO

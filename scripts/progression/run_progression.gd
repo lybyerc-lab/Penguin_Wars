@@ -31,11 +31,13 @@ func _on_level_up(_level: int, player_id: int) -> void:
 	choice_pending.emit(player_id)
 
 func choose(player_id: int, option: int) -> bool:
-	if option < 0 or option >= OPTIONS.size() or not shop_open():
+	if option < 0 or option >= OPTIONS.size():
 		return false
 	for player: PenguinPlayer in party.members(true):
 		if player.identity.player_id == player_id:
 			var free_choice: bool = pending.get(player_id, 0) > 0
+			if not _offers_open(free_choice):
+				return false
 			if not free_choice:
 				if wallet == null or not wallet.try_spend(player_id, price(player_id, option)):
 					return false
@@ -54,10 +56,23 @@ func price(player_id: int, option: int) -> int:
 	return OPTIONS[option].snowflake_cost + int(purchases.get(player_id, 0)) * 3
 
 func can_choose(player_id: int, option: int) -> bool:
-	return shop_open() and option >= 0 and option < OPTIONS.size() and (pending.get(player_id, 0) > 0 or (wallet != null and wallet.balance(player_id) >= price(player_id, option)))
+	if option < 0 or option >= OPTIONS.size():
+		return false
+	var free_choice: bool = pending.get(player_id, 0) > 0
+	if not _offers_open(free_choice):
+		return false
+	return free_choice or (wallet != null and wallet.balance(player_id) >= price(player_id, option))
 
+## Whether the shop takes waves-cleared offers at all right now.
 func shop_open() -> bool:
 	return in_town or encounter == null or encounter.state in [EncounterDirector.State.INTERMISSION, EncounterDirector.State.COMPLETE]
+
+## Township spends choices earned underground, but does not sell: paid offers
+## belong to the between-wave field shop, which Township deliberately is not.
+func _offers_open(free_choice: bool) -> bool:
+	if in_town:
+		return free_choice
+	return shop_open()
 
 func collect_materials(_collector_id: int, amount: int) -> void:
 	var players: Array[PenguinPlayer] = party.members(true)

@@ -3,6 +3,8 @@ extends Node2D
 var player_id: int = 1
 var party: PartyRoster
 var tint := Color("8fffd0")
+## Room rect handed down by the builder, for the shots this castle fires.
+var room_bounds := Rect2(-540, -260, 1080, 520)
 var _cooldown: float = 0.0
 var _direction := Vector2.RIGHT
 var _barrel: Line2D
@@ -48,6 +50,7 @@ func _physics_process(delta: float) -> void:
 	snowball.position = position + _direction * 32
 	snowball.direction = _direction
 	snowball.source_player_id = player_id
+	snowball.room_bounds = room_bounds
 	for player: PenguinPlayer in party.members():
 		if player.identity.player_id == player_id:
 			snowball.damage = maxf(1.0, 8.0 + player.stats.engineering)

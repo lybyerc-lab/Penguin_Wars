@@ -78,6 +78,13 @@ func _run() -> void:
 	check(boss.hit_radius == 40.0, "a boss may set its own body in configure")
 	check(director.actor_bounds.encloses(boss.arena_bounds), "a boss is bounded inside the room")
 
+	var felled: Array[BossActor] = []
+	director.boss_defeated.connect(func(fallen: BossActor) -> void: felled.append(fallen))
+	check(boss.phase() == "", "a boss reports no phase by default")
+	var announcements: Array[int] = [0]
+	boss.presentation_changed.connect(func() -> void: announcements[0] += 1)
+	boss.announce()
+	check(announcements[0] == 1, "a boss can tell a bar its presentation changed")
 	var before_one: int = wallet.balance(1)
 	var before_two: int = wallet.balance(2)
 	boss.health.take_damage(DamageEvent.new(100000, 1))
@@ -88,6 +95,30 @@ func _run() -> void:
 	check(wallet.balance(2) == before_two + data.reward, "every living penguin is paid")
 	boss.health.take_damage(DamageEvent.new(100, 1))
 	check(wallet.balance(1) == before_one + data.reward, "a dead boss cannot pay twice")
+	check(felled.size() == 1 and felled[0] == boss, "boss_defeated announces the boss once")
+
+	# The scaling contract: the director applies room and run difficulty AFTER
+	# configure, so a boss that reapplied them would land here at double.
+	var loaded := RunModifiers.new()
+	loaded.enemy_health_scale = 2.0
+	loaded.enemy_damage_scale = 2.0
+	director.reset()
+	director.modifiers = loaded
+	director.definition = encounter_with(boss_data("res://tests/stub_boss.tscn"), 1.5)
+	director.auto_advance = true
+	director.start()
+	await drive(director, [EncounterDirector.State.BOSS, EncounterDirector.State.COMPLETE])
+	var scaled_boss: BossActor = director.active_boss
+	check(is_instance_valid(scaled_boss), "the scaled boss spawned")
+	check(is_equal_approx(scaled_boss.health_after_configure, 450.0), "configure sees base values, not scaled ones")
+	check(is_equal_approx(scaled_boss.health.maximum, 450.0 * 3.0), "the director applies room and run scaling exactly once")
+	check(is_equal_approx(scaled_boss.contact_damage, 16.0 * 3.0), "boss damage is scaled once, by the director")
+	check(is_equal_approx(scaled_boss.projectile_damage, 16.0 * 3.0), "boss projectile damage is scaled once")
+	check(scaled_boss.room_bounds == director.actor_bounds, "a boss keeps the whole room for its shots")
+	check(director.actor_bounds.encloses(scaled_boss.arena_bounds), "a large body is inset from the wall")
+	scaled_boss.health.take_damage(DamageEvent.new(100000, 1))
+	director._physics_process(0.1)
+	director.modifiers = RunModifiers.new()
 
 	# A boss that cannot be built must not leave an uncompletable room.
 	director.reset()
@@ -102,6 +133,37 @@ func _run() -> void:
 	director.start()
 	await drive(director, [EncounterDirector.State.COMPLETE])
 	check(director.state == EncounterDirector.State.COMPLETE, "a room with no boss completes on its last wave")
+
+	# =================================================================
+	# Boss schedule: selection only
+	# =================================================================
+	var ladder := BossSchedule.new()
+	check(ladder.boss_for(5) == null and ladder.problems().is_empty(), "an empty schedule selects nothing and is not broken")
+	var small := boss_data("res://tests/stub_boss.tscn")
+	var large := boss_data("res://tests/stub_boss.tscn")
+	large.id = &"stub_large"
+	var low := BossTier.new()
+	low.every = 5
+	low.boss = small
+	var high := BossTier.new()
+	high.every = 20
+	high.boss = large
+	var rungs: Array[BossTier] = [low, high]
+	ladder.tiers = rungs
+	check(ladder.boss_for(4) == null, "an ordinary index carries no boss")
+	check(ladder.boss_for(5) == small, "a milestone selects its rung")
+	check(ladder.boss_for(20) == large, "the larger interval outranks the smaller one")
+	check(ladder.boss_for(40) == large, "precedence holds on later cycles")
+	check(ladder.boss_for(0) == null and ladder.boss_for(-5) == null, "non-positive indexes carry no boss")
+	check(ladder.is_milestone(10) and not ladder.is_milestone(11), "milestones are reported")
+	check(ladder.milestones(20) == PackedInt32Array([5, 10, 15, 20]), "the ladder lists its milestones")
+	check(ladder.problems().is_empty(), "a well-formed ladder reports nothing")
+	var clash := BossTier.new()
+	clash.every = 5
+	clash.boss = null
+	var bad: Array[BossTier] = [low, clash]
+	ladder.tiers = bad
+	check(ladder.problems().size() >= 2, "a duplicate interval and a missing boss are both reported")
 
 	# =================================================================
 	# Run modifiers seam
@@ -123,6 +185,7 @@ func _run() -> void:
 	check(spawned != null, "an enemy spawned under modifiers")
 	check(spawned != null and is_equal_approx(spawned.health.maximum, 28.0 * 3.0), "run modifiers scale enemy health")
 	check(spawned != null and is_equal_approx(spawned.contact_damage, 8.0 * 4.5), "run modifiers scale enemy damage")
+	check(spawned != null and spawned.room_bounds == director.actor_bounds, "a spawned enemy carries the room's own rect")
 	arena.free()
 	await process_frame
 
@@ -161,7 +224,8 @@ func _run() -> void:
 	solo.id = &"test_penguin"
 	solo.display_name = "Test Penguin"
 	solo.tint = Color("ff00ff")
-	solo.starting_weapon = load("res://resources/weapons/fish_cleaver.tres")
+	var solo_loadout: Array[WeaponDefinition] = [load("res://resources/weapons/fish_cleaver.tres")]
+	solo.starting_weapons = solo_loadout
 	var picks: Array[CharacterDefinition] = [solo]
 	var chosen: Node2D = load("res://scenes/run/expedition.tscn").instantiate()
 	chosen.roster = picks
@@ -172,7 +236,7 @@ func _run() -> void:
 	for player: PenguinPlayer in picked:
 		check(player.identity.tint == Color("ff00ff"), "a chosen character supplies the tint")
 		check(player.identity.character_id == &"test_penguin", "a chosen character is recorded on the slot")
-		check(player.weapon.definition == solo.starting_weapon, "a chosen character supplies the weapon")
+		check(player.weapon.definition == solo.starting_weapons[0], "a chosen character supplies the weapon")
 	var locked := CharacterDefinition.new()
 	locked.id = &"locked_penguin"
 	locked.unlocked_by_default = false
@@ -181,6 +245,132 @@ func _run() -> void:
 	check(not locked.selectable(progress), "a locked character needs an unlock")
 	progress.unlock(&"locked_penguin")
 	check(locked.selectable(progress), "unlocking makes a character selectable")
+
+	# =================================================================
+	# Rule-changing characters
+	# =================================================================
+	var odd := CharacterDefinition.new()
+	odd.id = &"stub_character"
+	odd.display_name = "Stub"
+	odd.tint = Color("00ffcc")
+	odd.body_scale = 0.5
+	var odd_stats: Array[UpgradeDefinition] = [load("res://resources/upgrades/vitality.tres")]
+	odd.starting_stats = odd_stats
+	var odd_traits: Array[PackedScene] = [load("res://tests/stub_trait.tscn")]
+	odd.traits = odd_traits
+	check(odd.problems().is_empty(), "a well-formed character reports nothing")
+	var odd_roster: Array[CharacterDefinition] = [odd]
+	var strange: Node2D = load("res://scenes/run/expedition.tscn").instantiate()
+	strange.roster = odd_roster
+	strange.player_count = 1
+	root.add_child(strange)
+	await process_frame
+	var oddity: PenguinPlayer = strange.party.members()[0]
+	var rule: CharacterTrait = null
+	for node: Node in oddity.get_children():
+		if node is CharacterTrait:
+			rule = node
+	check(rule != null, "a character's trait is added to its penguin")
+	check(rule != null and rule.player == oddity, "a trait knows the penguin it belongs to")
+	check(rule != null and rule.setups == 1, "a trait is set up exactly once")
+	check(is_equal_approx(oddity.speed, rule.speed_before * 2.0), "a trait can change a rule on its own penguin")
+	check(is_equal_approx(oddity.stats.armor, 5.0), "a trait can change stats without Player.gd knowing the character")
+	check(oddity.health.maximum > 100.0, "starting stats apply through the ordinary upgrade seam")
+	check(is_equal_approx(oddity.get_node("CharacterVisual").scale.x, 0.5), "body scale reaches the art")
+	var body: CollisionShape2D = oddity.get_node("CollisionShape2D")
+	check(body.shape is CircleShape2D and is_equal_approx((body.shape as CircleShape2D).radius, 8.0), "body scale reaches the collision body")
+	var other: PenguinPlayer = load("res://scenes/actors/player.tscn").instantiate()
+	other.identity = PlayerIdentity.new()
+	root.add_child(other)
+	await process_frame
+	check(is_equal_approx((other.get_node("CollisionShape2D").shape as CircleShape2D).radius, 16.0), "resizing one body does not resize the shared shape")
+	other.free()
+	strange.free()
+	await process_frame
+
+	# =================================================================
+	# Township is a hub, not the field shop
+	# =================================================================
+	var hub: Node2D = load("res://scenes/run/expedition.tscn").instantiate()
+	root.add_child(hub)
+	await process_frame
+	var town_purse: RunWallet = hub.get_node("Wallet")
+	check(hub.progression.in_town, "the party starts in Township")
+	town_purse.credit(1, 500)
+	check(not hub.progression.can_choose(1, 0), "Township does not sell field-shop offers")
+	check(not hub.progression.choose(1, 0), "a paid offer is refused in Township")
+	check(town_purse.balance(1) == 500, "a refused offer costs nothing")
+	hub.party.members()[0].experience.grant(99)
+	check(hub.progression.pending.get(1, 0) > 0, "levelling grants a free choice")
+	check(hub.progression.can_choose(1, 0), "a choice earned underground is spendable in Township")
+	check(hub.progression.choose(1, 0), "Township spends free choices")
+
+	# =================================================================
+	# Room-bounded projectiles
+	# =================================================================
+	var actors: Node2D = hub.get_node("Actors")
+	var pocket := Rect2(600, -120, 240, 240)
+	var stray := EnemySnowball.new()
+	stray.party = hub.party
+	stray.room_bounds = pocket
+	stray.direction = Vector2.RIGHT
+	stray.speed = 4000.0
+	stray.position = Vector2(720, 0)
+	actors.add_child(stray)
+	stray._physics_process(0.5)
+	check(stray.spent, "an enemy shot dies once it leaves its room")
+	var kept := EnemySnowball.new()
+	kept.party = hub.party
+	kept.room_bounds = pocket
+	kept.direction = Vector2.RIGHT
+	kept.speed = 100.0
+	kept.position = Vector2(700, 0)
+	actors.add_child(kept)
+	kept._physics_process(0.1)
+	check(not kept.spent, "a shot still inside its room keeps flying")
+	kept.queue_free()
+	await process_frame
+
+	var thrower: ArenaEnemy = load("res://scenes/actors/snowball_thrower.tscn").instantiate()
+	thrower.party = hub.party
+	thrower.room_bounds = pocket
+	thrower.position = Vector2(700, 0)
+	actors.add_child(thrower)
+	thrower.set_physics_process(false)
+	var aimed: PenguinPlayer = hub.party.members()[0]
+	aimed.position = Vector2(860, 0)
+	var ranged := thrower.behavior as RangedBehavior
+	ranged.movement(thrower, aimed, 1.0)
+	ranged.movement(thrower, aimed, 1.0)
+	var fired: EnemySnowball = null
+	for node: Node in get_nodes_in_group("enemy_projectiles"):
+		fired = node as EnemySnowball
+	check(fired != null, "the thrower fired")
+	check(fired != null and fired.room_bounds == pocket, "a shooter hands its own room to its shot")
+	# Clear the field: a castle shot expires on contact too, so nothing else
+	# may be standing in the way when bounds is the thing under test.
+	thrower.queue_free()
+	if fired != null:
+		fired.queue_free()
+	await process_frame
+
+	# The same rule, and the same pair of deltas, for friendly fire.
+	var loose := CastleSnowball.new()
+	loose.room_bounds = pocket
+	loose.direction = Vector2.RIGHT
+	loose.position = Vector2(720, 0)
+	actors.add_child(loose)
+	loose._physics_process(1.0)
+	check(bool(loose.get("_spent")), "a castle shot dies once it leaves its room")
+	var held := CastleSnowball.new()
+	held.room_bounds = Rect2(-3000, -3000, 6000, 6000)
+	held.direction = Vector2.RIGHT
+	held.position = Vector2(720, 0)
+	actors.add_child(held)
+	held._physics_process(1.0)
+	check(not bool(held.get("_spent")), "the same shot inside a larger room keeps flying")
+	hub.free()
+	await process_frame
 
 	# =================================================================
 	# Campaign and save seams

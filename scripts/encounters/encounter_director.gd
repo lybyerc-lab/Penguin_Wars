@@ -7,6 +7,7 @@ signal loot_available(location: Vector2)
 signal completed
 signal wave_cleared(wave_number: int)
 signal boss_started(boss: BossActor)
+signal boss_defeated(boss: BossActor)
 signal boss_reward(amount: int)
 
 enum State { READY, SPAWNING, CLEARING, INTERMISSION, COMPLETE, FAILED, BOSS }
@@ -107,6 +108,7 @@ func _spawn_enemy() -> void:
 	var enemy := selected.instantiate() as ArenaEnemy
 	enemy.party = party
 	enemy.arena_bounds = actor_bounds
+	enemy.room_bounds = actor_bounds
 	_apply_scaling(enemy)
 	# Pick the safest of several perimeter points to avoid spawning on a player.
 	var safest := Vector2.ZERO
@@ -155,6 +157,9 @@ func _begin_boss() -> void:
 	boss.party = party
 	boss.configure(boss_data, party.members().size())
 	_apply_scaling(boss)
+	# A large body is inset so it cannot overhang the wall, but its shots still
+	# belong to the whole room.
+	boss.room_bounds = actor_bounds
 	boss.arena_bounds = actor_bounds.grow(-boss.hit_radius)
 	var best: float = -1.0
 	for corner: Vector2 in [boss.arena_bounds.position, boss.arena_bounds.end, Vector2(boss.arena_bounds.position.x, boss.arena_bounds.end.y), Vector2(boss.arena_bounds.end.x, boss.arena_bounds.position.y)]:
@@ -164,7 +169,9 @@ func _begin_boss() -> void:
 			best = distance
 			boss.position = corner
 	boss.defeated.connect(_on_enemy_defeated)
-	boss.defeated.connect(func(_actor: ArenaEnemy, _event: DamageEvent) -> void: boss_reward.emit(boss_data.reward))
+	boss.defeated.connect(func(actor: ArenaEnemy, _event: DamageEvent) -> void:
+		boss_defeated.emit(actor as BossActor)
+		boss_reward.emit(boss_data.reward))
 	actor_root.add_child(boss)
 	active_boss = boss
 	alive_count = 1

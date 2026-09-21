@@ -1,5 +1,24 @@
 # Verification record
 
+## Integration base for the boss port
+
+September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb. Branch `integration/adventure-base`, cut from `c61d924`.
+
+Prepares the architecture to receive boss content and the next design direction without giving either a reason to reach into `Expedition`, `RoomDefinition` or `RunSession`. No boss content was written here.
+
+- **The boss scaling contract is now explicit and pinned.** Every combat value on `BossDefinition` is a base; `EncounterDirector` applies room difficulty and the run's `RunModifiers` after `configure()` returns, and boss content must never apply either itself. Party-size scaling is the boss's own and lives in `BossDefinition.scaled_health()`. The seam test pins the arithmetic: 300 base health, 0.5 party scaling, two penguins, room difficulty 1.5 and a 2.0 run modifier must read 450 after configure and 1350 after the director — a boss that reapplied would read 4050.
+- **`BossDefinition` gained gameplay-facing fields** — `damage`, `visual_scale`, `tint`, `rank` — alongside the architectural ones. The director still reads only `scene`, `display_name` and `reward`.
+- **Presentation signals for a boss bar**: `boss_started`, the new `boss_defeated`, `boss_reward`, plus `BossActor.presentation_changed`, `title()` and `phase()`. A bar needs no polling and no knowledge of combat.
+- **`BossSchedule` and `BossTier`** are selection only: given a milestone index, which boss belongs there. They never spawn, place, scale or pay. Escalating difficulty is deliberately left to `RunModifiers`.
+- **Projectiles are room-bounded through one explicit chain.** `EnemySnowball` previously expired at a hardcoded 590/310 — the original arena's rect — so in the smaller cave rooms a shot flew well past the wall before dying. `room_bounds` now travels from `RoomDefinition` through `RoomSpace`, the director or the castle builder, the shooter, and into the shot. `ArenaEnemy` carries `arena_bounds` for movement and `room_bounds` for the room, because a large body insets the former.
+- **`CharacterTrait`** is the seam for characters that change rules rather than numbers: a scene added as a child of one penguin at spawn. `Player.gd` names no character, and the planned roster maps onto traits, `starting_stats` and `body_scale` with no special cases.
+- **Township is not the field shop.** `RunProgression._offers_open()` now allows only free choices in town; paid offers stay in the between-wave shop. This is a behaviour change from the previous pass, made to protect the stated direction.
+
+- Seven headless suites passed with zero failures: foundation, combat feel, enemy behavior, economy, stats/mobile, town/cave and seams. Six render runs passed: arena, enemy, economy, mobile normal and wide, and town.
+- One defect was found by the new tests and fixed: the castle-shot bounds checks were being satisfied by a collision with a test thrower rather than by the bounds rule, so the pair now runs on a cleared field.
+
+Limitations: no human playthrough. No room ships with a boss, so the phase is proven only against `tests/stub_boss.gd`. `BossSchedule` is not called by anything yet — it is a home, not a running system. The named characters are verified as supportable by the trait seam, not implemented. `ProfileStore` still does no file I/O by design. Android packaging was not re-run.
+
 ## Adventure foundation hardened into seams
 
 September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb.
