@@ -1,28 +1,46 @@
 # Penguin Wars: town and branching cave direction
 
-Design direction from the September 21 conversation, not an implemented hub scene.
+Design direction from the September 21 conversation. The town, the services and the first branching cave are now built in `scenes/run/expedition.tscn`; this note records what the direction asked for, what was delivered, and what it deliberately left open.
+
+## What is built
+
+- **Kelphollow**, with the shop, nurse, blacksmith and town hall as positional zones. No new input bindings: the wave-shop keys pick service offers while a penguin stands in a zone.
+- **The Hollow Shelf**, a four-room cave with one branch — a quiet supply seam against a louder gallery — that rejoins at a final room and leads home.
+- **Room-owned space.** `RoomDefinition` supplies bounds, spawn ring, supply points, entry point, palette, encounter and exits; `RoomSpace.apply()` hands them to the party, director, builder, loot, camera and backdrop. `RoomExit` targets a room by id and `CaveDefinition` owns the route graph.
+- **A run root.** `Expedition` keeps wallets, stats, levels and purchases across a room change; the room's own actors go with the room. `RunSession` holds the wiring the arena slice uses too.
+- **Revival**, as the nurse's service, through a `Health.revive()` operation separate from healing.
+- **A run journal**, so the town hall meeting changes once the party has been down a cave.
+
+## What is still open
+
+- Persistence. The journal, wallets and stats reset with the run; save data and unlocks between runs do not exist.
+- The permanent-versus-temporary split for the blacksmith. Everything it sells is currently run power only.
+- Touch. Service panels are keyboard and gamepad only; the Android layout still covers the arena slice.
+- Room geometry. Bounds are a rectangle with no interior collision, so no doors, walls or irregular rooms.
+- More caves, secrets and puzzles. One cave exists and its layout table lives in code, not data, because one town exists.
+- Balance. Every price, revival fraction and encounter value is a first pass for playtesting.
 
 ## What stays central
 
 Brotato-like combat, build variety and repeatable runs remain the core. A small penguin town gives those runs context. Caves branching off the town supply exploration through rooms, route choices, secrets and occasional simple puzzles. This avoids requiring a large overworld before the combat/build loop is proven.
 
-## Proposed town loop
+## The town loop
 
-Town hall conversation → prepare in town → choose a cave entrance → combat rooms and branching routes → rewards/return → changed town conversation.
+Town hall conversation → prepare in town → choose a cave entrance → combat rooms and branching routes → rewards/return → changed town conversation. This is the loop the expedition scene now runs.
 
-- **Shop:** supplies and run preparation.
-- **Penguin nurse:** healing and recovery services. Costs and whether this restores a failed run's characters are still design decisions.
-- **Penguin blacksmith:** weapon and armor upgrades. The split between permanent unlocks and temporary run power needs to be decided before adding persistence.
-- **Town hall:** short, characterful meetings about penguin life, the current problems and what cave runs changed. These can provide objectives without interrupting combat.
-- **Cave entrances:** visible side routes with different risks and rewards. A compact first dungeon can use one combat room, a branch between supplies and a harder encounter, and a final room.
+- **Shop** — *Fisher's Stall.* Rations, maximum health and a Harvest charm.
+- **Penguin nurse** — *Nurse's Hut.* Mending, a regeneration tonic, and rousing a downed penguin at 40% health for 14 snowflakes. A downed penguin cannot pay for its own revival. A total party wipe still ends the run; nothing restores a failed run's characters.
+- **Penguin blacksmith** — *Cold Forge.* Weapon damage, attack speed and trading lance for cleaver. Everything it sells is run power; the permanent-unlock split is still undecided, which is why nothing here persists.
+- **Town hall** — *Elder Bramblefoot.* A short meeting that reads the run journal, so the elder says something different before and after a cave. It never interrupts combat, because there is none in town.
+- **Cave entrances.** One so far: the Hollow Shelf, as an entrance fight, a branch between supplies and a harder encounter, and a final room.
 
 ## How the current systems carry forward
 
-The town should own a session/party and transition into a dungeon run. Run wallets, player stats, loot and defenses currently reset with the arena and should become children of a run root. Individual rooms should own their encounter, spawn markers, exits, bounds and supply placements. An encounter completion signal can unlock the exit and open the upgrade phase.
+The town owns the session and transitions into a cave run. Run wallets, player stats, loot and defences are now children of the `Expedition` run root rather than resetting with an arena, and each room owns its encounter, spawn ring, exits, bounds and supply placements. The director's `completed` signal unlocks the room's routes. Castles are room-scoped: a castle belongs to the room it was built in, and its owner may build again in the next one — whether defences should persist across rooms is still undecided.
 
 PlayerStats is the initial seam for future skills. Harvest is implemented as a personal income multiplier, with fractional gains retained. A future skill system can modify these stats or grant actions without placing logic inside the HUD.
 
-Snow castles are player-built supporting defenses in the current slice. They persist until restart, cost personal snowflakes and are capped at one per player. They are not destructible and enemies still target penguins. Room persistence, enemy targeting of castles, upgrading them and a dedicated engineering stat are later decisions.
+Snow castles are player-built supporting defences. They cost personal snowflakes and are capped at one per player at a time. They are not destructible and enemies still target penguins. Enemy targeting of castles, upgrading them and a dedicated engineering stat are later decisions.
 
 ## Economy implemented now
 

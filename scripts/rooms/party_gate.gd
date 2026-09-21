@@ -10,6 +10,8 @@ const RADIUS: float = 64.0
 ## How long the whole party must hold the pad. Long enough to be deliberate,
 ## short enough not to feel like a chore between rooms.
 const DWELL: float = 1.0
+## Wider than the pad, so a long route name is never truncated.
+const CAPTION_WIDTH: float = 360.0
 
 var exit: RoomExit
 var party: PartyRoster
@@ -67,10 +69,12 @@ func _draw() -> void:
 	if not locked:
 		draw_arc(Vector2.ZERO, RADIUS - 10, -PI * 0.5, -PI * 0.5 + TAU * progress(), 48, Color("e8fff8"), 5)
 	draw_set_transform(Vector2.ZERO)
+	# Captions are wider than the pad so a route name is never clipped.
 	var font: Font = ThemeDB.fallback_font
-	var caption: String = label() if not locked else "%s — %s" % [label(), lock_reason]
-	draw_string(font, Vector2(-RADIUS - 40, -RADIUS * 0.5 - 22), caption, HORIZONTAL_ALIGNMENT_CENTER, (RADIUS + 40) * 2.0, 15, Color("dff3f7"))
-	if not hint().is_empty():
-		draw_string(font, Vector2(-RADIUS - 40, -RADIUS * 0.5 - 6), hint(), HORIZONTAL_ALIGNMENT_CENTER, (RADIUS + 40) * 2.0, 12, Color(accent, 0.95))
+	var origin: float = -CAPTION_WIDTH * 0.5
+	draw_string(font, Vector2(origin, -RADIUS * 0.5 - 24), label(), HORIZONTAL_ALIGNMENT_CENTER, CAPTION_WIDTH, 15, Color("dff3f7"))
+	var subtitle: String = lock_reason if locked else hint()
+	if not subtitle.is_empty():
+		draw_string(font, Vector2(origin, -RADIUS * 0.5 - 8), subtitle, HORIZONTAL_ALIGNMENT_CENTER, CAPTION_WIDTH, 12, Color(accent, 0.95))
 	if not locked and missing() > 0:
-		draw_string(font, Vector2(-RADIUS - 40, RADIUS * 0.5 + 18), "Waiting for %d more" % missing(), HORIZONTAL_ALIGNMENT_CENTER, (RADIUS + 40) * 2.0, 12, Color("bcd6df"))
+		draw_string(font, Vector2(origin, RADIUS * 0.5 + 18), "Waiting for %d more" % missing(), HORIZONTAL_ALIGNMENT_CENTER, CAPTION_WIDTH, 12, Color("bcd6df"))

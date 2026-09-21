@@ -1,5 +1,17 @@
 # Verification record
 
+## Town, services and the first branching cave
+
+September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb. This is the first run of the suites outside Windows; all previously recorded results reproduced.
+
+- Six headless integration suites passed with zero failures: foundation, combat feel, enemy behavior, economy, stats/mobile, and the new town/cave suite. The five pre-existing suites were run before and after each change in this work, including the move of arena bounds into room data and the move of the arena onto the shared `RunSession` wiring.
+- `town_cave_test.gd` walks the real expedition scene end to end: cave route resolution and the empty-cave case, town composition, per-room bounds and spawn rings, every service purchase and each refusal path (empty wallet, unknown offer, full health, a downed penguin trading for itself, nobody to rouse), revival and the collision layers it restores, the locked-route rule, a supply room stocking without a wave, prop and wallet behaviour across a transition, the journal, and leak checks on teardown. The harness was negative-controlled: an intentionally false check produced a failure and a nonzero exit.
+- Five OpenGL render runs passed: arena, enemy, economy, mobile (normal and wide) and the new town run. `town-preview.png`, `cave-entrance.png`, `cave-branch.png` and `cave-supply-room.png` were written from the live viewport and visually inspected for building art and labels, service panels with their keys and costs, the town-hall meeting text, locked and unlocked route captions, the party-count prompt, room palettes and per-room framing.
+- The rendered arena is unchanged by the bounds refactor: `arena-preview.png` was regenerated, compared against the committed image and reverted, since the backdrop now derives the same shapes from the room bounds.
+- Two presentation defects were found by inspecting those screenshots and fixed: route captions were clipped to the pad width, and town building labels sat under the penguins standing at them.
+
+Limitations: no human playthrough. Travel and room clearing are driven programmatically in both new suites, which proves the transition wiring and the gate rule, not pacing or balance. Every price, the 40% revival fraction and the three new encounter definitions are first values. Service panels have no touch controls, so the town is keyboard and gamepad only. Android packaging was not re-run in this environment; the arena slice remains the project's main scene and the exported one.
+
 ## Android APK build resolved
 
 September 21, 2026: installed portable Java 17 and Android SDK build packages, configured normal/workspace Godot paths, generated a local debug key, enabled ETC2/ASTC imports, added a penguin launcher icon, and explicitly selected Compatibility for the mobile renderer. SDK 36 matches the actual installed Godot 4.7.2 template (the general export guide listed older package versions).

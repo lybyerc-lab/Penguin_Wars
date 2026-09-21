@@ -1,6 +1,8 @@
 # Penguin Wars
 
-A Godot 4.7 foundation for a 1–4 player, top-down co-op action roguelite. Open `project.godot` and press **F6** on the test arena or **F5** to run the project. No plugins, external assets, or dependencies are required.
+A Godot 4.7 foundation for a 1–4 player, top-down co-op action roguelite. Open `project.godot` and press **F5** to run the project. No plugins, external assets, or dependencies are required.
+
+There are two runnable scenes. `scenes/arena/test_arena.tscn` is the single-arena combat slice and the project's main scene. `scenes/run/expedition.tscn` is the town-and-caves loop described under [Town and caves](#town-and-caves); press **F6** on it, or run `godot --path . scenes/run/expedition.tscn`. Both share the same party, combat, economy and defence systems.
 
 ## Play the test arena
 
@@ -29,7 +31,7 @@ The Android debug APK now builds and passes signing/alignment checks. Find it lo
 
 **Snow castles are player-built defenses.** Spend **10 personal snowflakes** to place one on open ice in front of your penguin. Each player can build one per run. It fires friendly snowballs for **8 damage every 0.9 seconds**, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves and reset with the run; they are currently indestructible support structures, with enemies continuing to target penguins.
 
-The town, nurse, blacksmith, town-hall stories and branching caves are recorded as the next design direction in [hub-and-dungeons.md](docs/hub-and-dungeons.md). Those locations and services are not implemented yet.
+The town, nurse, blacksmith, town hall and branching caves are now built; see [Town and caves](#town-and-caves) below and [hub-and-dungeons.md](docs/hub-and-dungeons.md) for what the direction still leaves open. In the arena slice a castle lasts the run; in a cave it belongs to the room it was built in.
 
 ### Combat slice
 
@@ -45,9 +47,38 @@ Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability du
 
 The cleaver's strong knockback interrupts charger windups/rushes and thrower windups. The lance still pushes enemies but does not interrupt these attacks. Dash immunity blocks a snowball and consumes that shot. Enemy counts and the existing dash/weapon tuning are unchanged; mixed roles make positioning more important. These are initial encounter balance values for playtesting.
 
-Three seeded encounters scale enemy count with party size. Collected materials and end-of-wave income grant XP; each player chooses upgrades independently. Downed players stop moving/attacking and are excluded from enemy targeting. Revival is not implemented. The arena uses original illustrated SVG penguins, seal raiders and visible held weapons, with a procedural ice-island backdrop.
+Three seeded encounters scale enemy count with party size. Collected materials and end-of-wave income grant XP; each player chooses upgrades independently. Downed players stop moving/attacking and are excluded from enemy targeting. Revival exists only as the nurse's service in town, through `Health.revive()`; nothing revives a penguin mid-fight. The arena uses original illustrated SVG penguins, seal raiders and visible held weapons, with a procedural ice-island backdrop.
 
 Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keyboard controls; slots 3 and 4 require gamepads. Slot indices map directly to Godot device IDs 0–3; a lobby/device assignment screen is a future extension. Keyboard and gamepad can control the same assigned slot. Physical keyboard bindings are intentionally fixed for this test scene.
+
+## Town and caves
+
+![The town of Kelphollow](docs/town-preview.png)
+
+The party starts in **Kelphollow**. Services are entered by standing at them, so the town adds no bindings to learn: the same keys that pick wave-shop upgrades pick that service's three offers (P1 **Q/E/T**, P2 **Enter/Shift/Period**, gamepad **A/B/RB**). Step away and the panel closes.
+
+| Building | Keeper | Offers · cost in snowflakes |
+| --- | --- | --- |
+| Fisher's Stall | Marra | Herring ration, 40 health · **4** — Packed snow, +12 maximum health · **8** — Traveller's charm, +0.25 Harvest · **11** |
+| Nurse's Hut | Sister Pell | Warm compress, full health · **6** — Rouse a fallen friend, revive at 40% · **14** — Kelp tonic, +0.4 regeneration · **10** |
+| Cold Forge | Odda | Hone the edge, +4 weapon damage · **9** — Rebalance the haft, +10% attack speed · **9** — Trade weapon, lance for cleaver and back · **6** |
+| Town Hall | Elder Bramblefoot | No purchases. A short meeting that reads the run journal and changes once the party has been down a cave. |
+
+Rousing a downed penguin is the first revival in the game. `Health.revive()` is deliberately a separate operation from healing, which still cannot raise the dead; the player restores the collision layers it recorded when it entered the tree. A downed penguin cannot buy its own revival — someone still standing has to pay for it.
+
+### The Hollow Shelf
+
+![Branching routes out of the entrance room](docs/cave-branch.png)
+
+The first cave is four rooms: an entrance fight, then a choice between the quiet **Glitter Seam** — four snowmen and no enemies — and the louder **Cracked Gallery**, with more enemies and faster spawns. Both meet at the **Black Ledge**, and the ledge leads home. Each room owns its own bounds, spawn ring, supply points and palette.
+
+Routes stay shut until the room is cleared, then open only while **every living penguin stands on the pad together** for one second. Stepping off cancels it. Branching therefore needs no new input binding, and one player cannot drag the party through a door.
+
+What crosses a room boundary: wallets, stats, levels, purchase counts, carried weapons and current health. What does not: enemies, projectiles, uncollected snowflakes, snowmen and built castles. A castle belongs to the room it was built in, and its owner may build another in the next room — room persistence for defences remains an open decision.
+
+Returning to town records the cave in the run journal and the elder's meeting changes. The journal is run-scoped: **R** restarts the run and the town forgets. Save data, persistent unlocks, and the split between permanent and temporary blacksmith power are still open design questions. Service panels are keyboard and gamepad only; the Android touch layout covers the arena slice, not the town.
+
+These are first values for playtesting, not final balance.
 
 ## Structure
 
@@ -64,6 +95,9 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 | `scripts/data`, `resources` | Typed weapon, upgrade and encounter definitions |
 | `scripts/encounters` | Seeded spawn and encounter state machine |
 | `scripts/enemies` | Replaceable charge/ranged behaviors and enemy snowballs |
+| `scripts/rooms`, `resources/rooms` | Room-owned bounds and prop placement; shared party gates |
+| `scripts/run`, `scenes/run`, `resources/caves` | Run session, run journal and the town-and-caves root |
+| `scripts/town` | Town buildings, service prices and effects |
 | `scripts/camera`, `scripts/ui` | Shared view and test HUD |
 | `scripts/arena` | Small composition root |
 | `scripts/visuals`, `assets` | Character animation, held weapons, illustrated SVGs and ice arena art |
@@ -85,7 +119,11 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 
 **Enemy behavior.** `ArenaEnemy` remains the shared health, contact and knockback actor. Optional `EnemyBehavior` children supply movement and attack state; inherited charger/thrower scenes configure those strategies. `EnemyAttackVisual` reads state to display warnings without controlling damage. New encounter Resource fields select the charger and ranged scenes; the director owns their introduction cadence. `EnemySnowball` uses swept segment hits against living party members and a layer-1 world ray, with no friendly fire. Shots can outlive their shooter but are cleared at wave completion or party wipe and freed with the run. Current arena clamping and projectile bounds must move to room-owned bounds when exploration lands.
 
-**Exploration and camera.** The camera frames the bounded arena and living party, with margin and smoothing. Players are clamped to this arena. For Zelda-style rooms, introduce a region/room scene owning bounds, spawn markers, exits and encounters; gate exits on `completed`. Decide party tethering and room transitions before permitting independent exploration. No split-screen is implemented.
+**Rooms.** `RoomDefinition` owns bounds, the spawn ring, supply points, the entry point, a backdrop palette, an encounter and its exits. `RoomExit` names its target by id rather than holding a reference, so room resources never form a cycle and `CaveDefinition` is the only place a route graph lives; `CaveDefinition.unresolved_exits()` turns a broken route into a test failure instead of a dead session. `RoomSpace.apply()` hands that space to the party, director, builder, loot, camera and backdrop — systems receive their space from the composition root and none reaches for a global current room. Room bounds are still a rectangle with no interior world collision; navigation, doors and irregular rooms need real geometry.
+
+**Runs and places.** `RunSession` holds the wiring both runnable scenes use, so the arena slice and the expedition cannot drift apart. `Expedition` is the run root: wallets, stats, levels and purchases live there and survive a room change, while the room's own actors are removed with it. `PartyGate` is the shared travel rule — cleared, whole party, one second — used by cave routes and town cave mouths alike. `TownService` zones are positional and `TownMarket` owns prices and effects; it reaches players only through the wallet and their own health, stat and weapon interfaces, which is where a later item or skill layer hooks in. `TownHub.SERVICES` is a layout table because one town exists; a second town moves it into room data. `RunJournal` records what the town knows and resets with the run.
+
+**Exploration and camera.** The camera frames the current room and living party, with margin and smoothing; `framed_size` follows the room and `bottom_reserve` lets a scene keep space for panels drawn over the world. Players are clamped to the room's bounds. Party tethering is currently absolute — the gate rule keeps the party together at transitions, and nothing prevents separation inside a room. No split-screen is implemented.
 
 **Progression.** `Experience` handles XP overflow and emits one event per level; `RunProgression` owns team reward policy and queued personal choices. Downed players receive no XP. A new arena instance starts a fresh run. Save data, unlocks, inventory, bosses, interaction and run route selection are deliberately left to subsequent layers.
 
@@ -107,8 +145,12 @@ godot --path . --script res://tests/enemy_render_smoke.gd
 godot --path . --script res://tests/economy_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd -- --wide
+godot --headless --path . --script res://tests/town_cave_test.gd
+godot --path . --script res://tests/town_render_smoke.gd
 ```
 
 The integration test fails with a nonzero exit code on failed assertions. It covers party IDs/capacity, movement/bounds, death/retargeting, XP overflow, queued upgrades and resource isolation, actual weapon kills/rewards, encounter completion, party wipe and scene cleanup. The renderer test writes `docs/arena-preview.png` using the live viewport. See `docs/verification.md` for actual results and limitations.
 
 The combat test checks dash speed, immunity windows, cooldown, death gating and player isolation; cleaver multi-target coverage, rear/range exclusions and knockback; weapon cooldown and long-range single-target lance behavior. The renderer test includes a controlled combat pose to inspect effects reliably. Physical input and subjective combat feel still need human playtesting.
+
+The town and cave test walks the whole loop against the real expedition scene: cave route integrity, service purchases and every refusal path, revival and the collision layers it restores, the locked-route rule, per-room bounds and spawn rings, supply rooms stocking without a wave, and exactly what does and does not survive a room change. `town_render_smoke.gd` writes `town-preview.png`, `cave-entrance.png`, `cave-branch.png` and `cave-supply-room.png` from the live viewport.
