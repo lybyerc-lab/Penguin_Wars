@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BossDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/boss_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/actors/boss.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"mondo"
+display_name = "Mondo, the War King"
+scene = ExtResource("2")
+reward = 60
+maximum_health = 2400.0
+party_health_scaling = 0.65
+damage = 28.0
+hit_radius = 57.0
+visual_scale = 2.7
+tint = Color(1.0, 0.796, 0.467, 1)
+rank = 3

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BossDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/boss_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/actors/boss.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"glacier_warden"
+display_name = "Glacier Warden"
+scene = ExtResource("2")
+reward = 30
+maximum_health = 1100.0
+party_health_scaling = 0.65
+damage = 22.0
+hit_radius = 46.0
+visual_scale = 2.2
+tint = Color(0.502, 0.824, 0.910, 1)
+rank = 2

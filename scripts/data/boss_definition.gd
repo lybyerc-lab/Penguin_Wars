@@ -31,6 +31,8 @@ extends Resource
 @export_range(0.0, 4.0) var party_health_scaling: float = 0.65
 ## Base contact and projectile damage before room and run scaling.
 @export var damage: float = 16.0
+## Target, collision and combat hit radius. Independent of presentation visual_scale.
+@export var hit_radius: float = 38.0
 
 # --- Presentation: read by boss content and a boss HUD ------------------
 @export var visual_scale: float = 1.8

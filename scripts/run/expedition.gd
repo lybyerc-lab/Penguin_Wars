@@ -70,6 +70,12 @@ func _ready() -> void:
 	$HUD.progression = progression
 	$HUD.builder = $Builder
 	$HUD.setup()
+	var boss_hud := BossHUD.new()
+	boss_hud.name = "BossHUD"
+	boss_hud.encounter = encounter
+	boss_hud.party = party
+	add_child(boss_hud)
+	boss_hud.setup()
 	overlay = ExpeditionOverlay.new()
 	overlay.name = "Overlay"
 	overlay.party = party

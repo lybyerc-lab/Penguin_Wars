@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="BossSchedule" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/boss_schedule.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/boss_tier.gd" id="2"]
+[ext_resource type="Resource" path="res://resources/bosses/mini.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/bosses/warden.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/bosses/mondo.tres" id="5"]
+
+[sub_resource type="Resource" id="Wave5Interval"]
+script = ExtResource("2")
+every = 5
+boss = ExtResource("3")
+
+[sub_resource type="Resource" id="Wave10Interval"]
+script = ExtResource("2")
+every = 10
+boss = ExtResource("4")
+
+[sub_resource type="Resource" id="Wave15Exact"]
+script = ExtResource("2")
+at = 15
+boss = ExtResource("3")
+
+[sub_resource type="Resource" id="Wave20Interval"]
+script = ExtResource("2")
+every = 20
+boss = ExtResource("5")
+
+[resource]
+script = ExtResource("1")
+id = &"twenty_waves"
+tiers = [SubResource("Wave5Interval"), SubResource("Wave10Interval"), SubResource("Wave15Exact"), SubResource("Wave20Interval")]
