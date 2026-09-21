@@ -6,7 +6,7 @@ extends RefCounted
 ## for a global current room — the composition root still does the wiring.
 
 ## Camera framing keeps a margin around the playable bounds.
-const VIEW_MARGIN := Vector2(160, 140)
+const VIEW_MARGIN := Vector2(60, 50)
 
 static func apply(room: RoomDefinition, party: PartyRoster = null, encounter: EncounterDirector = null, builder: CastleBuilder = null, loot: ArenaLoot = null, camera: PartyCamera = null, visual: RoomVisual = null, actor_root: Node = null) -> void:
 	if room == null:

@@ -13,9 +13,9 @@ var _active_boss: BossActor
 func setup() -> void:
 	_root = VBoxContainer.new()
 	_root.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	_root.offset_left = -275
-	_root.offset_right = 275
-	_root.offset_top = 392.0 if party != null and party.members().size() > 2 else 228.0
+	_root.offset_left = -260
+	_root.offset_right = 260
+	_root.offset_top = 64.0
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.visible = false
 	add_child(_root)

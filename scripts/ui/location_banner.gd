@@ -5,8 +5,8 @@ extends Control
 
 ## Sits in the gap between the player cards and the room, never over the play
 ## area: a room's fight can begin the moment the party arrives.
-const TOP_OFFSET: float = 226.0
-const WIDE_PARTY_TOP_OFFSET: float = 390.0
+const TOP_OFFSET: float = 124.0
+const WIDE_PARTY_TOP_OFFSET: float = 124.0
 
 var location_name: String = "Frostfall Bay"
 var wide_party: bool = false

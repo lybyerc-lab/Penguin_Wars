@@ -64,7 +64,7 @@ func _ready() -> void:
 		return
 	if not session.spawn_party(player_count, region.town.entry_point):
 		return
-	$Camera.bottom_reserve = PANEL_RESERVE
+	$Camera.bottom_reserve = 0.0
 	$HUD.party = party
 	$HUD.encounter = encounter
 	$HUD.progression = progression
