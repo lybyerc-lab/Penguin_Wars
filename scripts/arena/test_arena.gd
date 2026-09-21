@@ -4,6 +4,8 @@ const PLAYER_SCENE: PackedScene = preload("res://scenes/actors/player.tscn")
 const COLORS: Array[Color] = [Color("58dfed"), Color("ffcb77"), Color("bc9aff"), Color("a9e886")]
 @export_range(1, 4) var player_count: int = 2
 @export var mobile_preview: bool = false
+## The room owns bounds, the spawn ring and prop placement.
+@export var room: RoomDefinition = preload("res://resources/rooms/frostfall_arena.tres")
 @onready var party: PartyRoster = $Party
 @onready var encounter: EncounterDirector = $Encounter
 @onready var progression: RunProgression = $Progression
@@ -25,7 +27,7 @@ func _ready() -> void:
 		player.identity.tint = COLORS[index]
 		if index % 2 == 1:
 			player.get_node("Weapon").definition = preload("res://resources/weapons/fish_cleaver.tres")
-		player.position = Vector2((index - (player_count - 1) * 0.5) * 80.0, 40.0)
+		player.position = room.entry_point + Vector2((index - (player_count - 1) * 0.5) * 80.0, 0.0)
 		$Actors.add_child(player)
 		if not party.register(player):
 			push_error("Cannot register party member %d" % player.identity.player_id)
@@ -53,6 +55,7 @@ func _ready() -> void:
 	$Builder.actor_root = $Actors
 	$Builder.encounter = encounter
 	$HUD.builder = $Builder
+	RoomSpace.apply(room, party, encounter, $Builder, $Loot, $Camera, $IceArenaVisual, $Actors)
 	if mobile_preview:
 		$HUD.queue_free()
 		var mobile_hud := MobileHUD.new()

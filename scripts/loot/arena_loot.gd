@@ -6,6 +6,8 @@ var wallet: RunWallet
 var progression: RunProgression
 var actor_root: Node2D
 var encounter: EncounterDirector
+## Room-owned snowman placement; defaults to the original centered arena.
+var supply_points: Array[Vector2] = [Vector2(-330, 110), Vector2(330, 110)]
 var _supplied_wave: int = 0
 
 func on_encounter_changed() -> void:
@@ -13,7 +15,7 @@ func on_encounter_changed() -> void:
 		return
 	_supplied_wave = encounter.wave
 	# Replace only missing snowmen; intact supply props persist between waves.
-	for point: Vector2 in [Vector2(-330, 110), Vector2(330, 110)]:
+	for point: Vector2 in supply_points:
 		var occupied: bool = false
 		for node: Node in actor_root.get_children():
 			if node is SupplySnowman and node.health.is_alive() and node.position.distance_to(point) < 10:

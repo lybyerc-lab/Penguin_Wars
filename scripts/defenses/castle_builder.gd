@@ -5,6 +5,8 @@ var party: PartyRoster
 var wallet: RunWallet
 var actor_root: Node2D
 var encounter: EncounterDirector
+## Room-owned placement area; defaults to the original centered arena.
+var build_bounds := Rect2(-500, -220, 1000, 440)
 var castles: Dictionary = {}
 var last_result: Dictionary = {}
 
@@ -17,7 +19,7 @@ func build(player_id: int) -> bool:
 	for player: PenguinPlayer in party.members(true):
 		if player.identity.player_id != player_id:
 			continue
-		var point: Vector2 = (player.global_position + player.dash.facing * 65).clamp(Vector2(-500, -220), Vector2(500, 220))
+		var point: Vector2 = (player.global_position + player.dash.facing * 65).clamp(build_bounds.position, build_bounds.end)
 		if point.distance_to(player.global_position) < 40:
 			return _reject(player_id, "Face toward open ice")
 		for node: Node in actor_root.get_children():

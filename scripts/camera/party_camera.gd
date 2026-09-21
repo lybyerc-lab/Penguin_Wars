@@ -3,6 +3,8 @@ extends Camera2D
 ## Bounded arena: keep all living players visible, including extreme separation.
 var party: PartyRoster
 var mobile_layout: bool = false
+## Room-owned area the camera must keep on screen.
+var framed_size := Vector2(1240, 660)
 
 func _process(delta: float) -> void:
 	if party == null:
@@ -23,7 +25,7 @@ func _process(delta: float) -> void:
 		top_margin = 140.0
 		bottom_margin = 55.0
 	var usable := Vector2(viewport.x - 40.0, maxf(100.0, viewport.y - top_margin - bottom_margin))
-	var required := Vector2(1240, 660) + position.abs() * 2.0
+	var required: Vector2 = framed_size + position.abs() * 2.0
 	var fit: float = minf(usable.x / required.x, usable.y / required.y)
 	zoom = Vector2.ONE * fit
 	offset = Vector2(0, -(top_margin - bottom_margin) * 0.5 / fit)

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/data/room_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/encounters/ice_field.tres" id="2"]
+[resource]
+script = ExtResource("1")
+id = &"frostfall_bay"
+display_name = "Frostfall Bay"
+kind = 0
+palette = 0
+bounds = Rect2(-540, -260, 1080, 520)
+spawn_ring = Vector2(515, 235)
+supply_points = Array[Vector2]([Vector2(-330, 110), Vector2(330, 110)])
+entry_point = Vector2(0, 40)
+encounter = ExtResource("2")
+arrival_line = ""
