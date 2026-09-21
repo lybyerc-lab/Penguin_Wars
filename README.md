@@ -1,0 +1,60 @@
+# Penguin Wars
+
+A Godot 4.7 foundation for a 1–4 player, top-down co-op action roguelite. Open `project.godot` and press **F6** on the test arena or **F5** to run the project. No plugins, external assets, or dependencies are required.
+
+## Play the test arena
+
+- Player 1: **WASD**, **Q / E** to spend level-up choices.
+- Player 2: **Arrow keys**, **Enter / Shift** to spend choices.
+- Each assigned gamepad: **left stick**, **A / B** to spend choices.
+- Attacks automatically strike the nearest enemy within weapon range.
+- **R** restarts the run, including after victory or a party wipe.
+- Upgrade buttons can also be clicked. Choices queue without pausing other players.
+
+Three seeded encounters scale enemy count with party size. Kills give all living players XP; each player chooses damage or movement upgrades independently. Downed players stop moving/attacking and are excluded from enemy targeting. Revival is not implemented. The arena currently uses programmer-drawn penguins and enemies.
+
+Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keyboard controls; slots 3 and 4 require gamepads. Slot indices map directly to Godot device IDs 0–3; a lobby/device assignment screen is a future extension. Keyboard and gamepad can control the same assigned slot. Physical keyboard bindings are intentionally fixed for this test scene.
+
+## Structure
+
+| Location | Responsibility |
+| --- | --- |
+| `scenes/actors` | Reusable player and enemy scenes |
+| `scripts/actors` | Character motion and enemy behavior |
+| `scripts/party` | Stable player identity and party queries |
+| `scripts/input` | Local movement input adapter |
+| `scripts/combat` | Health, damage messages, weapon runtime |
+| `scripts/progression` | Per-player XP and run reward/choice policy |
+| `scripts/data`, `resources` | Typed weapon, upgrade and encounter definitions |
+| `scripts/encounters` | Seeded spawn and encounter state machine |
+| `scripts/camera`, `scripts/ui` | Shared view and test HUD |
+| `scripts/arena` | Small composition root and arena drawing |
+| `tests` | Engine integration and renderer smoke tests |
+
+## Extension points and boundaries
+
+**Party and networking.** `PlayerIdentity.player_id` is a unique run slot (1–4). `owner_peer_id` is a separate future connection mapping; multiple local slots may share the same peer. `PartyRoster` is session-owned and rejects duplicate IDs. There are no global singleton player references. This is playable local co-op, **not online multiplayer**: there are no RPCs, authority enforcement, replicated spawns, prediction, reconnect, or serialization yet. Before online play, introduce a host-owned simulation, validated input commands, stable enemy IDs and authoritative rewards; route all actor spawning, damage and upgrade choices through it. The seed makes spawn selection repeatable for the same simulation state, not lockstep deterministic.
+
+**Input.** The player consumes `LocalPlayerInput.movement()`. Replace that adapter with remappable actions, recorded commands, or network commands. Move ownership checks to the future session layer. Gamepads have a radial dead zone. Hot-plug lobby assignment and physical controller testing remain future work.
+
+**Damage.** `Health.take_damage(DamageEvent)` is the shared damage interface; `changed` and `died` are the output hooks. Damage events retain the source party ID for future credit/assist logic. Dead actors reject further damage and healing; use a separate explicit revive operation later. The current weapon is an instantaneous ranged strike with a brief tracer. Add projectile scenes, hitboxes, teams, invulnerability and status effects around this interface.
+
+**Data.** Add `.tres` resources using `WeaponDefinition`, `UpgradeDefinition`, or `EncounterDefinition`. Shared resources are definitions and must remain immutable during play. Runtime cooldowns and damage bonuses belong to each weapon instance. `PenguinPlayer.apply_upgrade()` is the initial stat application seam; move into a dedicated stat aggregator when stacking rules grow. `RunProgression.OPTIONS` is the test catalog, ready to replace with weighted offers and unlock filters.
+
+**Encounters.** `EncounterDirector` emits state changes, kill events and completion. Spawn placement currently assumes this centered bounded arena and chooses the safest perimeter candidate. Replace this method with region spawn markers/navigation for real maps. Enemy movement is direct pursuit with world collision support, not pathfinding. Actors do not block one another. External despawns need an explicit director cancellation/despawn path so enemy counts remain correct.
+
+**Exploration and camera.** The camera frames the bounded arena and living party, with margin and smoothing. Players are clamped to this arena. For Zelda-style rooms, introduce a region/room scene owning bounds, spawn markers, exits and encounters; gate exits on `completed`. Decide party tethering and room transitions before permitting independent exploration. No split-screen is implemented.
+
+**Progression.** `Experience` handles XP overflow and emits one event per level; `RunProgression` owns team reward policy and queued personal choices. Downed players receive no XP. A new arena instance starts a fresh run. Save data, unlocks, inventory, bosses, interaction and run route selection are deliberately left to subsequent layers.
+
+## Verification
+
+From this directory, with `godot` available:
+
+```powershell
+godot --headless --path . --editor --import --quit
+godot --headless --path . --script res://tests/foundation_test.gd
+godot --path . --script res://tests/render_smoke.gd
+```
+
+The integration test fails with a nonzero exit code on failed assertions. It covers party IDs/capacity, movement/bounds, death/retargeting, XP overflow, queued upgrades and resource isolation, actual weapon kills/rewards, encounter completion, party wipe and scene cleanup. The renderer test writes `docs/arena-preview.png` using the live viewport. See `docs/verification.md` for actual results and limitations.
