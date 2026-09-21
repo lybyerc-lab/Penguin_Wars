@@ -28,3 +28,11 @@ Physical dash buttons and gamepad mappings still require hands-on acceptance. No
 - Live OpenGL render: **PASS**. Inspected idle and controlled-attack screenshots with visible held weapons, illustrated penguins/seal raiders, the ice-island backdrop, team cards and HUD-safe camera framing.
 - Dash timings, immunity, knockback strengths, weapon damage/ranges/cooldowns and collision shapes were preserved. Visual aim updates between attacks; weapon sprites do not determine hits.
 - This is an initial illustrated art pass, not final animation or art approval. Physical controller and human co-op acceptance remain separate from automated checks.
+
+## Charging seals and snowball throwers
+
+- All three engine integration suites passed: foundation, combat feel and enemy behavior.
+- Enemy tests cover locked charge direction, recovery contact gating, light/heavy knockback interactions, ranged spacing and warnings, non-homing shots, swept nearest-player damage, single-hit consumption, dash immunity, projectile expiry, mixed wave composition, party-wipe cleanup and restart cleanup.
+- `enemy_render_smoke.gd` ran through OpenGL. `enemy-warnings.png` and `enemy-attacks.png` were visually inspected for the charger lane, dotted ranged aim, distinct headgear and moving snowball. These screenshots are controlled two-enemy fixtures, not balance proof.
+- The main scene ran for 900 frames without gameplay script errors. The existing environment certificate-store message remains.
+- Human co-op balance and gamepad acceptance remain outstanding; the player-approved dash and weapon damage/cooldown/knockback values were preserved.

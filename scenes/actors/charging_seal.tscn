@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://scenes/actors/enemy.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/enemies/charge_behavior.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/visuals/enemy_attack_visual.gd" id="3"]
+[node name="ChargingSeal" instance=ExtResource("1")]
+speed = 66.0
+contact_damage = 14.0
+[node name="Health" parent="." index="1"]
+maximum = 44.0
+[node name="Behavior" type="Node" parent="."]
+script = ExtResource("2")
+[node name="AttackVisual" type="Node2D" parent="."]
+script = ExtResource("3")

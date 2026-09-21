@@ -14,6 +14,7 @@ var wave: int = 0
 var alive_count: int = 0
 var _left: int = 0
 var _timer: float = 0.0
+var _spawn_index: int = 0
 var _rng := RandomNumberGenerator.new()
 
 func start() -> void:
@@ -23,6 +24,7 @@ func start() -> void:
 
 func _begin_wave() -> void:
 	wave += 1
+	_spawn_index = 0
 	_left = definition.base_count + (wave - 1) * 2 + maxi(0, party.members().size() - 1) * 2
 	_timer = 1.0
 	state = State.SPAWNING
@@ -33,6 +35,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if party.members(true).is_empty():
 		state = State.FAILED
+		_clear_projectiles()
 		state_changed.emit()
 		return
 	_timer -= delta
@@ -43,6 +46,7 @@ func _physics_process(delta: float) -> void:
 		if _left == 0:
 			state = State.CLEARING
 	elif state == State.CLEARING and alive_count == 0:
+		_clear_projectiles()
 		if wave >= definition.wave_count:
 			state = State.COMPLETE
 			completed.emit()
@@ -54,7 +58,14 @@ func _physics_process(delta: float) -> void:
 		_begin_wave()
 
 func _spawn_enemy() -> void:
-	var enemy := definition.enemy_scene.instantiate() as ArenaEnemy
+	var selected: PackedScene = definition.enemy_scene
+	# Fixed introduction cadence is predictable; placement remains seeded.
+	if wave >= 2 and _spawn_index % 4 == 3 and definition.ranged_scene != null:
+		selected = definition.ranged_scene
+	elif _spawn_index % 3 == 2 and definition.charger_scene != null:
+		selected = definition.charger_scene
+	_spawn_index += 1
+	var enemy := selected.instantiate() as ArenaEnemy
 	enemy.party = party
 	# Pick the safest of several perimeter points to avoid spawning on a player.
 	var safest := Vector2.ZERO
@@ -75,3 +86,8 @@ func _spawn_enemy() -> void:
 func _on_enemy_defeated(_enemy: ArenaEnemy, event: DamageEvent) -> void:
 	alive_count -= 1
 	enemy_defeated.emit(event)
+
+func _clear_projectiles() -> void:
+	for node: Node in actor_root.get_children():
+		if node is EnemySnowball:
+			node._expire()
