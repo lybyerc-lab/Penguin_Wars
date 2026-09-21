@@ -113,6 +113,7 @@ func enter_town() -> void:
 				"position": gate.position,
 				"target_id": gate.exit.target_id,
 			})
+	$Backdrop.room_kind = int(room.kind)
 	$Backdrop.doorways = doors
 	overlay.banner = "Step up to a building to trade.  Head through a passage to set out."
 
@@ -200,6 +201,7 @@ func _add_gate(spec: RoomExit) -> PartyGate:
 	gate.exit = spec
 	gate.party = party
 	gate.position = spec.position
+	gate.palette = int(room.palette) if room != null else 0
 	gate.travelled.connect(_on_gate_travelled)
 	$Places.add_child(gate)
 	_gates.append(gate)

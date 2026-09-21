@@ -4,25 +4,28 @@ extends Node2D
 ## enters the doorway together, so branching adds no new input binding and one
 ## player cannot drag the party through a door alone.
 ##
-## Presentation: a rectangular passage cut into the room wall, inspired by
-## classic top-down Zelda dungeons.
+## Presentation: chunky, physical cave openings carved into the room walls,
+## inspired by classic top-down adventure games.
 
 signal travelled(gate: PartyGate)
 
 ## Doorway threshold dimensions: 90px deep into room × 130px wide/tall along wall.
 const THRESHOLD_DEPTH: float = 90.0
 const THRESHOLD_WIDTH: float = 130.0
+## Grand expedition cave mouth in town.
+const TOWN_MOUTH_WIDTH: float = 210.0
 ## Deliberate dwell time for passing through a doorway.
 const DWELL: float = 0.4
 ## Visual depth of the passage "tunnel" drawn beyond the room edge.
-const PASSAGE_DEPTH: float = 50.0
+const PASSAGE_DEPTH: float = 55.0
 ## Width reserved for caption text.
-const CAPTION_WIDTH: float = 360.0
+const CAPTION_WIDTH: float = 240.0
 ## Pillar width flanking the passage opening.
-const PILLAR_WIDTH: float = 14.0
+const PILLAR_WIDTH: float = 22.0
 
 var exit: RoomExit
 var party: PartyRoster
+var palette: int = 0
 var locked: bool = true:
 	set(value):
 		locked = value
@@ -52,26 +55,33 @@ func is_horizontal() -> bool:
 	var s: int = side()
 	return s == RoomExit.Side.LEFT or s == RoomExit.Side.RIGHT
 
+func is_town_mouth() -> bool:
+	return exit != null and exit.target_id == &"hollow_shelf"
+
+func gate_width() -> float:
+	return TOWN_MOUTH_WIDTH if is_town_mouth() else THRESHOLD_WIDTH
+
 ## Position this gate flush against the specified room boundary wall.
 ## Threshold rectangle is oriented to extend THRESHOLD_DEPTH into the room
-## and THRESHOLD_WIDTH along the wall.
+## and gate_width() along the wall.
 func place_at_wall(bounds: Rect2) -> void:
 	if exit == null:
 		return
 	position = RoomExit.wall_position(bounds, exit.side)
+	var w: float = gate_width()
 	match exit.side:
 		RoomExit.Side.LEFT:
 			# Wall at left; threshold extends into the room to the right (+x).
-			threshold = Rect2(-15.0, -THRESHOLD_WIDTH * 0.5, THRESHOLD_DEPTH + 15.0, THRESHOLD_WIDTH)
+			threshold = Rect2(-15.0, -w * 0.5, THRESHOLD_DEPTH + 15.0, w)
 		RoomExit.Side.RIGHT:
 			# Wall at right; threshold extends into the room to the left (-x).
-			threshold = Rect2(-THRESHOLD_DEPTH, -THRESHOLD_WIDTH * 0.5, THRESHOLD_DEPTH + 15.0, THRESHOLD_WIDTH)
+			threshold = Rect2(-THRESHOLD_DEPTH, -w * 0.5, THRESHOLD_DEPTH + 15.0, w)
 		RoomExit.Side.TOP:
 			# Wall at top; threshold extends into the room downwards (+y).
-			threshold = Rect2(-THRESHOLD_WIDTH * 0.5, -15.0, THRESHOLD_WIDTH, THRESHOLD_DEPTH + 15.0)
+			threshold = Rect2(-w * 0.5, -15.0, w, THRESHOLD_DEPTH + 15.0)
 		RoomExit.Side.BOTTOM:
 			# Wall at bottom; threshold extends into the room upwards (-y).
-			threshold = Rect2(-THRESHOLD_WIDTH * 0.5, -THRESHOLD_DEPTH, THRESHOLD_WIDTH, THRESHOLD_DEPTH + 15.0)
+			threshold = Rect2(-w * 0.5, -THRESHOLD_DEPTH, w, THRESHOLD_DEPTH + 15.0)
 
 ## Count of living party members inside the threshold rectangle.
 func standing() -> int:
@@ -120,178 +130,337 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	var s: int = side()
-	var accent: Color = Color("5a6b7d") if locked else Color("7fe0c4")
 	_draw_passage(s)
-	_draw_captions(s, accent)
+	_draw_captions(s)
+
+func _get_palette_theme() -> Dictionary:
+	match palette:
+		1:  # CAVE
+			return {
+				"mouth": Color("221834"), "mid": Color("140c20"), "deep": Color("07040d"),
+				"rock": Color("2e1f40"), "rock_light": Color("4a3560"), "bevel": Color("181024"),
+				"highlight": Color("8b5cf6"), "frost": Color("c3b0e9"),
+			}
+		2:  # DEEP
+			return {
+				"mouth": Color("12272e"), "mid": Color("08171d"), "deep": Color("030b0e"),
+				"rock": Color("1a3840"), "rock_light": Color("2d5560"), "bevel": Color("0c1a20"),
+				"highlight": Color("3fae9d"), "frost": Color("8fe6cf"),
+			}
+		_:  # 0: ICE
+			return {
+				"mouth": Color("142e3d"), "mid": Color("0c1c26"), "deep": Color("050e14"),
+				"rock": Color("244050"), "rock_light": Color("3b6074"), "bevel": Color("14222c"),
+				"highlight": Color("4a7890"), "frost": Color("a0d8e8"),
+			}
 
 func _draw_passage(s: int) -> void:
 	var target: StringName = exit.target_id if exit != null else &""
 	var is_glitter: bool = target == &"glitter_seam"
 	var is_cracked: bool = target == &"cracked_gallery"
+	var is_town: bool = is_town_mouth()
+	var is_boss: bool = (exit != null and exit.leads_outside() and palette == 2)
 
-	# Tunnel depth box extending into the wall / beyond room boundary.
-	var tunnel_rect: Rect2
-	var half_w: float = THRESHOLD_WIDTH * 0.5
-	match s:
-		RoomExit.Side.LEFT:
-			tunnel_rect = Rect2(-PASSAGE_DEPTH, -half_w, PASSAGE_DEPTH, THRESHOLD_WIDTH)
-		RoomExit.Side.RIGHT:
-			tunnel_rect = Rect2(0.0, -half_w, PASSAGE_DEPTH, THRESHOLD_WIDTH)
-		RoomExit.Side.TOP:
-			tunnel_rect = Rect2(-half_w, -PASSAGE_DEPTH, THRESHOLD_WIDTH, PASSAGE_DEPTH)
-		RoomExit.Side.BOTTOM:
-			tunnel_rect = Rect2(-half_w, 0.0, THRESHOLD_WIDTH, PASSAGE_DEPTH)
-
-	# 1. Dark recessed tunnel void.
-	var tunnel_bg: Color = Color("050c12")
+	var theme: Dictionary = _get_palette_theme()
 	if is_glitter:
-		tunnel_bg = Color("071620")
+		theme["mouth"] = Color("0d2836")
+		theme["mid"] = Color("071a24")
+		theme["deep"] = Color("030d14")
+		theme["highlight"] = Color("7fe0c4")
+		theme["frost"] = Color("e8fff8")
 	elif is_cracked:
-		tunnel_bg = Color("0a0514")
-	draw_rect(tunnel_rect, tunnel_bg)
+		theme["mouth"] = Color("1e122c")
+		theme["mid"] = Color("12091c")
+		theme["deep"] = Color("08040e")
+		theme["rock"] = Color("281838")
+		theme["highlight"] = Color("a855f7")
 
-	# Subtle interior tunnel perspective lines.
-	var inner_color := Color(tunnel_bg.lightened(0.12), 0.7)
-	match s:
-		RoomExit.Side.LEFT, RoomExit.Side.RIGHT:
-			draw_line(Vector2(tunnel_rect.position.x, tunnel_rect.position.y),
-					  Vector2(tunnel_rect.end.x, tunnel_rect.position.y), inner_color, 1.5)
-			draw_line(Vector2(tunnel_rect.position.x, tunnel_rect.end.y),
-					  Vector2(tunnel_rect.end.x, tunnel_rect.end.y), inner_color, 1.5)
-		RoomExit.Side.TOP, RoomExit.Side.BOTTOM:
-			draw_line(Vector2(tunnel_rect.position.x, tunnel_rect.position.y),
-					  Vector2(tunnel_rect.position.x, tunnel_rect.end.y), inner_color, 1.5)
-			draw_line(Vector2(tunnel_rect.end.x, tunnel_rect.position.y),
-					  Vector2(tunnel_rect.end.x, tunnel_rect.end.y), inner_color, 1.5)
+	var w: float = gate_width()
+	var half_w: float = w * 0.5
 
-	# 2. Threshold floor lip continuing slightly into room.
-	var threshold_tint: Color = Color(0.1, 0.25, 0.35, 0.20)
-	if is_glitter:
-		threshold_tint = Color(0.1, 0.45, 0.48, 0.25)
+	# 1. Layered Nested Recessed Tunnel Interior (No flat black!).
+	_draw_recessed_tunnel(s, half_w, theme, is_town)
+
+	# 2. Chunky Carved Stone/Ice Pillars & Arch Frame.
+	if is_town:
+		_draw_town_expedition_mouth(half_w, theme)
+	elif is_glitter:
+		_draw_glitter_arch(s, half_w, theme)
 	elif is_cracked:
-		threshold_tint = Color(0.25, 0.12, 0.35, 0.25)
-	draw_rect(threshold, threshold_tint)
+		_draw_cracked_arch(s, half_w, theme)
+	else:
+		_draw_standard_arch(s, half_w, theme)
 
-	# 3. Flanking stone/ice pillars and archway.
-	_draw_archway(s, half_w, is_glitter, is_cracked)
-
-	# 4. Barricade or open passage.
+	# 3. Barricade or Open Passage.
 	if open_ratio < 1.0:
-		_draw_barricade(s, tunnel_rect, half_w, is_cracked)
+		_draw_chunky_barricade(s, half_w, theme, is_cracked, is_boss)
 
-	# 5. Dwell progress indicator (when standing in threshold).
+	# 4. Dwell Progress Indicator along inner threshold lip.
 	if not locked and progress() > 0.0:
 		_draw_progress(s, half_w)
 
-func _draw_archway(s: int, half_w: float, is_glitter: bool, is_cracked: bool) -> void:
-	var pillar_color := Color("244050")
-	var highlight_color := Color("4a7890")
+## Draws 3 nested, arched receding tunnel layers into the wall depth.
+func _draw_recessed_tunnel(s: int, half_w: float, theme: Dictionary, is_town: bool) -> void:
+	var mouth_color: Color = theme["mouth"]
+	var mid_color: Color = theme["mid"]
+	var deep_color: Color = theme["deep"]
 
-	if is_glitter:
-		pillar_color = Color("1e4a58")
-		highlight_color = Color("7fe0c4")
-	elif is_cracked:
-		pillar_color = Color("2e1f40")
-		highlight_color = Color("8b5cf6")
+	# Layer 1: Outer tunnel cavity
+	var rect_outer: Rect2
+	var rect_mid: Rect2
+	var rect_deep: Rect2
 
+	match s:
+		RoomExit.Side.LEFT:
+			rect_outer = Rect2(-PASSAGE_DEPTH, -half_w, PASSAGE_DEPTH + 10.0, half_w * 2.0)
+			rect_mid = Rect2(-PASSAGE_DEPTH, -half_w + 12.0, PASSAGE_DEPTH - 10.0, half_w * 2.0 - 24.0)
+			rect_deep = Rect2(-PASSAGE_DEPTH, -half_w + 24.0, PASSAGE_DEPTH - 22.0, half_w * 2.0 - 48.0)
+		RoomExit.Side.RIGHT:
+			rect_outer = Rect2(-10.0, -half_w, PASSAGE_DEPTH + 10.0, half_w * 2.0)
+			rect_mid = Rect2(10.0, -half_w + 12.0, PASSAGE_DEPTH - 10.0, half_w * 2.0 - 24.0)
+			rect_deep = Rect2(22.0, -half_w + 24.0, PASSAGE_DEPTH - 22.0, half_w * 2.0 - 48.0)
+		RoomExit.Side.TOP:
+			rect_outer = Rect2(-half_w, -PASSAGE_DEPTH, half_w * 2.0, PASSAGE_DEPTH + 10.0)
+			rect_mid = Rect2(-half_w + 14.0, -PASSAGE_DEPTH, half_w * 2.0 - 28.0, PASSAGE_DEPTH - 10.0)
+			rect_deep = Rect2(-half_w + 28.0, -PASSAGE_DEPTH, half_w * 2.0 - 56.0, PASSAGE_DEPTH - 22.0)
+		RoomExit.Side.BOTTOM:
+			var depth: float = PASSAGE_DEPTH + (20.0 if is_town else 0.0)
+			rect_outer = Rect2(-half_w, -10.0, half_w * 2.0, depth + 10.0)
+			rect_mid = Rect2(-half_w + 14.0, 10.0, half_w * 2.0 - 28.0, depth - 10.0)
+			rect_deep = Rect2(-half_w + 28.0, 22.0, half_w * 2.0 - 56.0, depth - 22.0)
+
+	draw_rect(rect_outer, mouth_color)
+	draw_rect(rect_mid, mid_color)
+	draw_rect(rect_deep, deep_color)
+
+	# Faint perspective depth lines in tunnel ceiling/corners.
+	var line_color := Color(deep_color.lightened(0.18), 0.6)
+	match s:
+		RoomExit.Side.LEFT:
+			draw_line(Vector2(0, -half_w), Vector2(-PASSAGE_DEPTH, -half_w + 24.0), line_color, 1.5)
+			draw_line(Vector2(0, half_w), Vector2(-PASSAGE_DEPTH, half_w - 24.0), line_color, 1.5)
+		RoomExit.Side.RIGHT:
+			draw_line(Vector2(0, -half_w), Vector2(PASSAGE_DEPTH, -half_w + 24.0), line_color, 1.5)
+			draw_line(Vector2(0, half_w), Vector2(PASSAGE_DEPTH, half_w - 24.0), line_color, 1.5)
+		RoomExit.Side.TOP:
+			draw_line(Vector2(-half_w, 0), Vector2(-half_w + 28.0, -PASSAGE_DEPTH), line_color, 1.5)
+			draw_line(Vector2(half_w, 0), Vector2(half_w - 28.0, -PASSAGE_DEPTH), line_color, 1.5)
+		RoomExit.Side.BOTTOM:
+			draw_line(Vector2(-half_w, 0), Vector2(-half_w + 28.0, PASSAGE_DEPTH), line_color, 1.5)
+			draw_line(Vector2(half_w, 0), Vector2(half_w - 28.0, PASSAGE_DEPTH), line_color, 1.5)
+
+## Chunky carved rock/ice arch for standard cave doorways.
+func _draw_standard_arch(s: int, half_w: float, theme: Dictionary) -> void:
+	var rock: Color = theme["rock"]
+	var rock_light: Color = theme["rock_light"]
+	var bevel: Color = theme["bevel"]
+	var hl: Color = theme["highlight"]
+
+	var pw: float = PILLAR_WIDTH
 	var p1: Rect2
 	var p2: Rect2
+
 	if is_horizontal():
-		p1 = Rect2(-10.0, -half_w - PILLAR_WIDTH, 20.0, PILLAR_WIDTH)
-		p2 = Rect2(-10.0, half_w, 20.0, PILLAR_WIDTH)
+		p1 = Rect2(-14.0, -half_w - pw, 28.0, pw)
+		p2 = Rect2(-14.0, half_w, 28.0, pw)
 	else:
-		p1 = Rect2(-half_w - PILLAR_WIDTH, -10.0, PILLAR_WIDTH, 20.0)
-		p2 = Rect2(half_w, -10.0, PILLAR_WIDTH, 20.0)
+		p1 = Rect2(-half_w - pw, -14.0, pw, 28.0)
+		p2 = Rect2(half_w, -14.0, pw, 28.0)
 
-	draw_rect(p1, pillar_color)
-	draw_rect(p2, pillar_color)
-	draw_rect(p1, highlight_color, false, 1.5)
-	draw_rect(p2, highlight_color, false, 1.5)
+	# Pillar bases with chunky stone block joints
+	_draw_chunky_pillar_blocks(p1, rock, rock_light, bevel, hl, is_horizontal())
+	_draw_chunky_pillar_blocks(p2, rock, rock_light, bevel, hl, is_horizontal())
 
-	# Hollow Shelf Environmental Storytelling:
-	# LEFT (Glitter Seam): Shimmering ice crystals on pillars & lintel.
-	if is_glitter:
-		_draw_crystal_cluster(p1.get_center(), Color("8fe6cf"), Color("f1ffff"))
-		_draw_crystal_cluster(p2.get_center(), Color("8fe6cf"), Color("f1ffff"))
-	# RIGHT (Cracked Gallery): Threatening fracture cracks radiating outward.
-	elif is_cracked:
-		_draw_fracture_cracks(p1.get_center(), p2.get_center(), s)
+## Glitter Seam: Faceted crystalline arch crowned with luminous ice crystals.
+func _draw_glitter_arch(s: int, half_w: float, theme: Dictionary) -> void:
+	var rock: Color = theme["rock"]
+	var rock_light: Color = theme["rock_light"]
+	var bevel: Color = theme["bevel"]
+	var hl: Color = theme["highlight"]
 
-func _draw_crystal_cluster(origin: Vector2, color_mid: Color, color_tip: Color) -> void:
-	# Small multi-faceted crystals crowning the doorway frame.
-	var poly1 := PackedVector2Array([
-		origin + Vector2(-6, 4), origin + Vector2(-3, -12),
-		origin + Vector2(2, -16), origin + Vector2(5, 4)
+	var pw: float = PILLAR_WIDTH
+	var p1 := Rect2(-14.0, -half_w - pw, 28.0, pw)
+	var p2 := Rect2(-14.0, half_w, 28.0, pw)
+
+	_draw_chunky_pillar_blocks(p1, rock, rock_light, bevel, hl, true)
+	_draw_chunky_pillar_blocks(p2, rock, rock_light, bevel, hl, true)
+
+	# Luminous crystal spires flanking the arch
+	_draw_faceted_crystal(p1.get_center() + Vector2(0, -4), 16.0, Color("8fe6cf"), Color("f1ffff"))
+	_draw_faceted_crystal(p1.get_center() + Vector2(10, 6), 10.0, Color("48a8b8"), Color("e8fff8"))
+	_draw_faceted_crystal(p2.get_center() + Vector2(0, 4), 16.0, Color("8fe6cf"), Color("f1ffff"))
+	_draw_faceted_crystal(p2.get_center() + Vector2(10, -6), 10.0, Color("48a8b8"), Color("e8fff8"))
+
+	# Clean crystalline lintel bevel
+	draw_line(Vector2(0, -half_w), Vector2(0, half_w), Color("7fe0c4", 0.4), 2.0)
+
+## Cracked Gallery: Broken asymmetrical obsidian arch with jagged cracks.
+func _draw_cracked_arch(s: int, half_w: float, theme: Dictionary) -> void:
+	var rock: Color = theme["rock"]
+	var rock_light: Color = theme["rock_light"]
+	var bevel: Color = theme["bevel"]
+	var hl: Color = theme["highlight"]
+
+	var pw: float = PILLAR_WIDTH
+	# Asymmetrical: Top pillar broken with dislodged rock slab
+	var p1 := Rect2(-16.0, -half_w - pw - 6.0, 32.0, pw + 6.0)
+	var p2 := Rect2(-14.0, half_w, 28.0, pw - 4.0)
+
+	_draw_chunky_pillar_blocks(p1, rock, rock_light, bevel, hl, true)
+	_draw_chunky_pillar_blocks(p2, rock, rock_light, bevel, hl, true)
+
+	# Dislodged jagged stone slab leaning into opening
+	var slab := PackedVector2Array([
+		Vector2(-12, -half_w - 4), Vector2(6, -half_w + 8),
+		Vector2(2, -half_w + 18), Vector2(-16, -half_w + 6)
 	])
-	draw_colored_polygon(poly1, color_mid)
-	draw_polyline(poly1, color_tip, 1.5, true)
-	var poly2 := PackedVector2Array([
-		origin + Vector2(2, 6), origin + Vector2(8, -8),
-		origin + Vector2(12, 6)
+	draw_colored_polygon(slab, rock_light)
+	draw_polyline(slab, hl, 1.5, true)
+
+	# Deep purple fracture cracks radiating into the room
+	var c1 := PackedVector2Array([
+		p1.get_center(), p1.get_center() + Vector2(-28, -16),
+		p1.get_center() + Vector2(-55, -8), p1.get_center() + Vector2(-75, -20)
 	])
-	draw_colored_polygon(poly2, color_mid.darkened(0.2))
+	var c2 := PackedVector2Array([
+		p2.get_center(), p2.get_center() + Vector2(-26, 18),
+		p2.get_center() + Vector2(-60, 12), p2.get_center() + Vector2(-80, 26)
+	])
+	draw_polyline(c1, Color("2a083d"), 3.5, true)
+	draw_polyline(c1, Color("c084fc", 0.8), 1.5, true)
+	draw_polyline(c2, Color("2a083d"), 3.5, true)
+	draw_polyline(c2, Color("c084fc", 0.8), 1.5, true)
 
-func _draw_fracture_cracks(p1_pos: Vector2, p2_pos: Vector2, s: int) -> void:
-	var crack_color := Color("c084fc", 0.75)
-	var crack_dark := Color("3b1458", 0.9)
-	# Jagged cracks cutting from pillars into the floor.
-	var offset_dir := Vector2(-25, 15) if s == RoomExit.Side.RIGHT else Vector2(25, 15)
-	var crack1 := PackedVector2Array([p1_pos, p1_pos + offset_dir * 0.5, p1_pos + offset_dir + Vector2(0, 10)])
-	var crack2 := PackedVector2Array([p2_pos, p2_pos + offset_dir * 0.5, p2_pos + offset_dir + Vector2(0, -10)])
-	draw_polyline(crack1, crack_dark, 3.0, true)
-	draw_polyline(crack1, crack_color, 1.5, true)
-	draw_polyline(crack2, crack_dark, 3.0, true)
-	draw_polyline(crack2, crack_color, 1.5, true)
+## Kelphollow Town: Broad natural expedition mouth with weathered timbers.
+func _draw_town_expedition_mouth(half_w: float, theme: Dictionary) -> void:
+	var rock: Color = Color("244050")
+	var rock_light: Color = Color("3b6074")
+	var timber: Color = Color("422f20")
+	var timber_hl: Color = Color("684b34")
+	var iron: Color = Color("2e3842")
+	var snow: Color = Color("dff2f8")
 
-func _draw_barricade(s: int, tunnel_rect: Rect2, half_w: float, is_cracked: bool) -> void:
-	var slab_color := Color("3d5a73", 0.92)
-	var ice_rim := Color("a0d8e8", 0.9)
-	if is_cracked:
-		slab_color = Color("402b48", 0.92)
-		ice_rim = Color("a882c0", 0.9)
+	# Heavy natural rock boulders framing the wide mouth
+	var boulder_left := Rect2(-half_w - 28.0, -18.0, 36.0, 36.0)
+	var boulder_right := Rect2(half_w - 8.0, -18.0, 36.0, 36.0)
+	draw_rect(boulder_left, rock)
+	draw_rect(boulder_right, rock)
+	draw_rect(boulder_left, rock_light, false, 2.0)
+	draw_rect(boulder_right, rock_light, false, 2.0)
 
-	# As open_ratio increases (combat cleared), the slab slides down/retracts into the threshold.
+	# Weathered wooden support guide posts flanking the entrance
+	var post_w: float = 14.0
+	var post_h: float = 46.0
+	var post_l := Rect2(-half_w + 4.0, -22.0, post_w, post_h)
+	var post_r := Rect2(half_w - 18.0, -22.0, post_w, post_h)
+	draw_rect(post_l, timber)
+	draw_rect(post_r, timber)
+	draw_rect(Rect2(post_l.position, Vector2(2, post_h)), timber_hl)
+	draw_rect(Rect2(post_r.position, Vector2(2, post_h)), timber_hl)
+
+	# Iron straps & bolts on timber posts
+	draw_rect(Rect2(post_l.position.x - 1, post_l.position.y + 10, post_w + 2, 4), iron)
+	draw_rect(Rect2(post_l.position.x - 1, post_l.position.y + 30, post_w + 2, 4), iron)
+	draw_rect(Rect2(post_r.position.x - 1, post_r.position.y + 10, post_w + 2, 4), iron)
+	draw_rect(Rect2(post_r.position.x - 1, post_r.position.y + 30, post_w + 2, 4), iron)
+
+	# Snow crust settled on boulder tops
+	draw_circle(boulder_left.get_center() + Vector2(0, -14), 14.0, snow)
+	draw_circle(boulder_right.get_center() + Vector2(0, -14), 14.0, snow)
+
+## Draws chunky stone blocks with bevels and mortar joints.
+func _draw_chunky_pillar_blocks(r: Rect2, rock: Color, rock_light: Color, bevel: Color, hl: Color, horizontal: bool) -> void:
+	draw_rect(r, rock)
+	draw_rect(r, bevel, false, 2.0)
+
+	# Inner carved bevel
+	if horizontal:
+		var mid_y: float = r.position.y + r.size.y * 0.5
+		draw_line(Vector2(r.position.x, mid_y), Vector2(r.end.x, mid_y), bevel, 2.0)
+		draw_line(Vector2(r.position.x, r.position.y), Vector2(r.end.x, r.position.y), rock_light, 1.5)
+		draw_line(Vector2(r.position.x, r.end.y), Vector2(r.end.x, r.end.y), hl, 1.5)
+	else:
+		var mid_x: float = r.position.x + r.size.x * 0.5
+		draw_line(Vector2(mid_x, r.position.y), Vector2(mid_x, r.end.y), bevel, 2.0)
+		draw_line(Vector2(r.position.x, r.position.y), Vector2(r.position.x, r.end.y), rock_light, 1.5)
+		draw_line(Vector2(r.end.x, r.position.y), Vector2(r.end.x, r.end.y), hl, 1.5)
+
+## Faceted crystalline gem spire.
+func _draw_faceted_crystal(origin: Vector2, size: float, mid_color: Color, tip_color: Color) -> void:
+	var h: float = size
+	var w: float = size * 0.4
+	var poly := PackedVector2Array([
+		origin + Vector2(-w, h * 0.5), origin + Vector2(0, -h),
+		origin + Vector2(w, h * 0.5)
+	])
+	draw_colored_polygon(poly, mid_color)
+	draw_polyline(poly, tip_color, 1.5, true)
+
+## Massive physical glacial rock/ice monolith barricade.
+func _draw_chunky_barricade(s: int, half_w: float, theme: Dictionary, is_cracked: bool, is_boss: bool) -> void:
+	var slab_base: Color = Color("2e4a5e") if not is_cracked else Color("321e3c")
+	var ice_rime: Color = Color("92d4ea") if not is_cracked else Color("9a78b5")
+	var frost_cap: Color = Color("e0f6fc")
+
+	# Retracts cleanly into the threshold floor as open_ratio advances.
+	var open_inv: float = 1.0 - open_ratio
+	var bar_w: float = half_w * 2.0 * open_inv
+	if bar_w < 6.0:
+		return
+
 	var slab_rect: Rect2
 	if is_horizontal():
-		var total_h: float = THRESHOLD_WIDTH * (1.0 - open_ratio)
-		slab_rect = Rect2(-12.0, -half_w + (THRESHOLD_WIDTH - total_h), 24.0, total_h)
+		var h: float = half_w * 2.0 * open_inv
+		slab_rect = Rect2(-14.0, -half_w + (half_w * 2.0 - h), 28.0, h)
 	else:
-		var total_w: float = THRESHOLD_WIDTH * (1.0 - open_ratio)
-		slab_rect = Rect2(-total_w * 0.5, -12.0, total_w, 24.0)
+		slab_rect = Rect2(-bar_w * 0.5, -14.0, bar_w, 28.0)
 
-	if slab_rect.size.x > 4 and slab_rect.size.y > 4:
-		draw_rect(slab_rect, slab_color)
-		draw_rect(slab_rect, ice_rim, false, 2.0)
-		# Cross-brace reinforcing the barricade.
-		var c: Vector2 = slab_rect.get_center()
-		draw_line(Vector2(slab_rect.position.x, c.y), Vector2(slab_rect.end.x, c.y), ice_rim, 1.5)
-		draw_line(Vector2(c.x, slab_rect.position.y), Vector2(c.x, slab_rect.end.y), ice_rim, 1.5)
+	# Main monolithic ice stone slab
+	draw_rect(slab_rect, slab_base)
+	draw_rect(slab_rect, ice_rime, false, 2.0)
 
+	# Heavy cross-braces and fracture joints
+	var c: Vector2 = slab_rect.get_center()
+	draw_line(Vector2(slab_rect.position.x, c.y), Vector2(slab_rect.end.x, c.y), ice_rime, 2.0)
+	draw_line(Vector2(c.x, slab_rect.position.y), Vector2(c.x, slab_rect.end.y), ice_rime, 2.0)
+
+	# Frost crust along upper seam
+	var cap_line := Vector2(slab_rect.position.x, slab_rect.position.y)
+	draw_line(cap_line, cap_line + Vector2(slab_rect.size.x, 0), frost_cap, 2.5)
+
+	# Extra boss glacial spikes if Frostbreaker exit
+	if is_boss and open_ratio < 0.2:
+		var spike1 := PackedVector2Array([Vector2(-20, -14), Vector2(-12, -28), Vector2(-4, -14)])
+		var spike2 := PackedVector2Array([Vector2(4, -14), Vector2(12, -32), Vector2(20, -14)])
+		draw_colored_polygon(spike1, ice_rime)
+		draw_colored_polygon(spike2, ice_rime)
+
+## Dwell progress bar along inner threshold lip.
 func _draw_progress(s: int, half_w: float) -> void:
 	var p: float = progress()
 	var bar_color := Color("e8fff8")
-	var bar_thickness: float = 5.0
+	var bar_thickness: float = 4.5
+	var w: float = gate_width()
+
 	match s:
 		RoomExit.Side.LEFT:
 			var start_x: float = threshold.end.x - bar_thickness
-			var bar := Rect2(start_x, -half_w, bar_thickness, THRESHOLD_WIDTH * p)
-			draw_rect(bar, bar_color)
+			draw_rect(Rect2(start_x, -half_w, bar_thickness, w * p), bar_color)
 		RoomExit.Side.RIGHT:
-			var bar := Rect2(threshold.position.x, -half_w, bar_thickness, THRESHOLD_WIDTH * p)
-			draw_rect(bar, bar_color)
+			draw_rect(Rect2(threshold.position.x, -half_w, bar_thickness, w * p), bar_color)
 		RoomExit.Side.TOP:
 			var start_y: float = threshold.end.y - bar_thickness
-			var bar := Rect2(-half_w, start_y, THRESHOLD_WIDTH * p, bar_thickness)
-			draw_rect(bar, bar_color)
+			draw_rect(Rect2(-half_w, start_y, w * p, bar_thickness), bar_color)
 		RoomExit.Side.BOTTOM:
-			var bar := Rect2(-half_w, threshold.position.y, THRESHOLD_WIDTH * p, bar_thickness)
-			draw_rect(bar, bar_color)
+			draw_rect(Rect2(-half_w, threshold.position.y, w * p, bar_thickness), bar_color)
 
-func _draw_captions(s: int, accent: Color) -> void:
+## Route captions & subtle co-op waiting text.
+func _draw_captions(s: int) -> void:
 	var font: Font = ThemeDB.fallback_font
 	var caption_offset: Vector2
-	var width: float = 240.0
+	var width: float = CAPTION_WIDTH
 	var align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_CENTER
+
 	match s:
 		RoomExit.Side.LEFT:
 			caption_offset = Vector2(THRESHOLD_DEPTH + 18.0, -22.0)
@@ -300,30 +469,35 @@ func _draw_captions(s: int, accent: Color) -> void:
 			caption_offset = Vector2(-THRESHOLD_DEPTH - width - 18.0, -22.0)
 			align = HORIZONTAL_ALIGNMENT_RIGHT
 		RoomExit.Side.TOP:
-			caption_offset = Vector2(-CAPTION_WIDTH * 0.5, THRESHOLD_DEPTH + 18.0)
-			width = CAPTION_WIDTH
+			caption_offset = Vector2(-width * 0.5, THRESHOLD_DEPTH + 18.0)
 			align = HORIZONTAL_ALIGNMENT_CENTER
 		RoomExit.Side.BOTTOM:
-			caption_offset = Vector2(-CAPTION_WIDTH * 0.5, -THRESHOLD_DEPTH - 54.0)
-			width = CAPTION_WIDTH
+			caption_offset = Vector2(-width * 0.5, -THRESHOLD_DEPTH - 52.0)
 			align = HORIZONTAL_ALIGNMENT_CENTER
 
 	var cx: float = caption_offset.x
 	var cy: float = caption_offset.y
 
-	# Route name.
-	draw_string(font, Vector2(cx, cy), label(), align, width, 15, Color("dff3f7"))
+	# 1. Route Name: Bold uppercase, prominent hierarchy
+	var title_text: String = label().to_upper()
+	draw_string(font, Vector2(cx, cy), title_text, align, width, 14, Color("e2f1f5"))
 
-	# Subtitle / Lock status.
+	# 2. Subtitle / Hint: Softer descriptive hierarchy
 	var subtitle: String = lock_reason if locked else hint()
 	if not subtitle.is_empty():
-		draw_string(font, Vector2(cx, cy + 18), subtitle, align, width, 12, Color(accent, 0.95))
+		var sub_color := Color("8ea8b8")
+		if not locked:
+			if exit != null and exit.target_id == &"glitter_seam":
+				sub_color = Color("7ec4b8")
+			elif exit != null and exit.target_id == &"cracked_gallery":
+				sub_color = Color("a088c0")
+		draw_string(font, Vector2(cx, cy + 16), subtitle, align, width, 11, sub_color)
 
-	# Co-op waiting feedback.
+	# 3. Co-op waiting feedback: Quiet, unobtrusive status cue
 	if not locked and missing() > 0:
 		var wait_text: String = _waiting_text()
 		if not wait_text.is_empty():
-			draw_string(font, Vector2(cx, cy + 36), wait_text, align, width, 12, Color("bcd6df"))
+			draw_string(font, Vector2(cx, cy + 32), wait_text, align, width, 10, Color("6c8896"))
 
 func _waiting_text() -> String:
 	if party == null:
