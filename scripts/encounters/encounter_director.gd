@@ -6,7 +6,7 @@ signal enemy_defeated(event: DamageEvent)
 signal loot_available(location: Vector2)
 signal completed
 signal wave_cleared(wave_number: int)
-signal boss_started(boss: ArenaBoss)
+signal boss_started(boss: BossActor)
 signal boss_reward(amount: int)
 
 enum State { READY, SPAWNING, CLEARING, INTERMISSION, COMPLETE, FAILED, BOSS }
@@ -19,10 +19,12 @@ var spawn_ring := Vector2(515.0, 235.0)
 var spawn_center := Vector2.ZERO
 ## Movement clamp handed to every enemy this director spawns.
 var actor_bounds := Rect2(-540, -260, 1080, 520)
+## Whole-run dials. Never null: an identity default means no run modifiers.
+var modifiers := RunModifiers.new()
 var state: State = State.READY
 var wave: int = 0
 var alive_count: int = 0
-var active_boss: ArenaBoss
+var active_boss: BossActor
 var _left: int = 0
 var _timer: float = 0.0
 var _spawn_index: int = 0
@@ -105,10 +107,7 @@ func _spawn_enemy() -> void:
 	var enemy := selected.instantiate() as ArenaEnemy
 	enemy.party = party
 	enemy.arena_bounds = actor_bounds
-	# Applied before the tree sets current from maximum.
-	enemy.get_node("Health").maximum *= definition.difficulty_multiplier
-	enemy.contact_damage *= definition.difficulty_multiplier
-	enemy.projectile_damage *= definition.difficulty_multiplier
+	_apply_scaling(enemy)
 	# Pick the safest of several perimeter points to avoid spawning on a player.
 	var safest := Vector2.ZERO
 	var best: float = -1.0
@@ -125,13 +124,37 @@ func _spawn_enemy() -> void:
 	actor_root.add_child(enemy)
 	alive_count += 1
 
+## Room and run scaling, applied identically to every enemy including a boss.
+## Called before the node enters the tree, where Health takes current from
+## maximum, so a scaled enemy starts at full scaled health.
+func _apply_scaling(enemy: ArenaEnemy) -> void:
+	var health: Health = enemy.get_node("Health")
+	health.maximum *= health_scale()
+	enemy.contact_damage *= damage_scale()
+	enemy.projectile_damage *= damage_scale()
+
+func health_scale() -> float:
+	return definition.difficulty_multiplier * modifiers.enemy_health_scale
+
+func damage_scale() -> float:
+	return definition.difficulty_multiplier * modifiers.enemy_damage_scale
+
 ## The boss enters alone, from the corner furthest from the living party, and
-## is the only thing standing between the room and its exit.
+## is the only thing standing between the room and its exit. The director knows
+## nothing about how a boss fights: it instances the scene the definition names,
+## hands it the definition and the party size, and treats it as one more enemy.
 func _begin_boss() -> void:
+	var boss_data: BossDefinition = definition.boss
+	var boss := boss_data.scene.instantiate() as BossActor if boss_data.scene != null else null
+	if boss == null:
+		# A room that cannot spawn its boss must still be completable.
+		push_error("Encounter boss '%s' does not instance a BossActor" % boss_data.id)
+		_finish()
+		return
 	state = State.BOSS
-	var boss := preload("res://scenes/actors/boss.tscn").instantiate() as ArenaBoss
 	boss.party = party
-	boss.configure(definition.boss, definition.difficulty_multiplier, party.members().size())
+	boss.configure(boss_data, party.members().size())
+	_apply_scaling(boss)
 	boss.arena_bounds = actor_bounds.grow(-boss.hit_radius)
 	var best: float = -1.0
 	for corner: Vector2 in [boss.arena_bounds.position, boss.arena_bounds.end, Vector2(boss.arena_bounds.position.x, boss.arena_bounds.end.y), Vector2(boss.arena_bounds.end.x, boss.arena_bounds.position.y)]:
@@ -141,7 +164,7 @@ func _begin_boss() -> void:
 			best = distance
 			boss.position = corner
 	boss.defeated.connect(_on_enemy_defeated)
-	boss.defeated.connect(func(_actor: ArenaEnemy, _event: DamageEvent) -> void: boss_reward.emit(definition.boss.reward))
+	boss.defeated.connect(func(_actor: ArenaEnemy, _event: DamageEvent) -> void: boss_reward.emit(boss_data.reward))
 	actor_root.add_child(boss)
 	active_boss = boss
 	alive_count = 1

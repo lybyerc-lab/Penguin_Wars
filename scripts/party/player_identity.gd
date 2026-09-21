@@ -6,3 +6,5 @@ extends Resource
 @export_range(0, 3) var local_slot: int = 0
 @export var device_id: int = -1
 @export var tint: Color = Color("58dfed")
+## Which CharacterDefinition filled this slot. Empty when none was used.
+@export var character_id: StringName = &""

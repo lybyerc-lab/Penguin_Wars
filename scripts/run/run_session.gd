@@ -6,8 +6,14 @@ extends RefCounted
 ## reference is handed in by the scene that owns it.
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/actors/player.tscn")
-const COLORS: Array[Color] = [Color("58dfed"), Color("ffcb77"), Color("bc9aff"), Color("a9e886")]
-const CLEAVER: WeaponDefinition = preload("res://resources/weapons/fish_cleaver.tres")
+## The roster a run uses when nothing else is chosen. A selection screen sets
+## `roster` instead; slot N takes roster[N].
+const DEFAULT_ROSTER: Array[CharacterDefinition] = [
+	preload("res://resources/characters/skua.tres"),
+	preload("res://resources/characters/ember.tres"),
+	preload("res://resources/characters/vesper.tres"),
+	preload("res://resources/characters/sorrel.tres"),
+]
 ## Spacing between penguins when the party is placed at a room entrance.
 const FORMATION: float = 80.0
 
@@ -20,8 +26,14 @@ var builder: CastleBuilder
 var camera: PartyCamera
 var actor_root: Node2D
 var mobile: bool = false
+## Whole-run dials, handed to the systems that read them. Never null.
+var modifiers := RunModifiers.new()
+## Ordered selection for slots 1..4. Shorter lists wrap.
+var roster: Array[CharacterDefinition] = DEFAULT_ROSTER.duplicate()
 
 func wire() -> void:
+	encounter.modifiers = modifiers
+	progression.modifiers = modifiers
 	progression.party = party
 	progression.wallet = wallet
 	progression.encounter = encounter
@@ -54,9 +66,12 @@ func spawn_party(count: int, entry: Vector2) -> bool:
 		player.identity.player_id = index + 1
 		player.identity.local_slot = index
 		player.identity.device_id = index
-		player.identity.tint = COLORS[index]
-		if index % 2 == 1:
-			player.get_node("Weapon").definition = CLEAVER
+		var character: CharacterDefinition = roster[index % roster.size()] if not roster.is_empty() else null
+		if character != null:
+			player.identity.tint = character.tint
+			player.identity.character_id = character.id
+			if character.starting_weapon != null:
+				player.get_node("Weapon").definition = character.starting_weapon
 		player.position = _slot(entry, index, count)
 		actor_root.add_child(player)
 		if not party.register(player):
@@ -64,6 +79,8 @@ func spawn_party(count: int, entry: Vector2) -> bool:
 			player.queue_free()
 			return false
 		progression.bind_player(player)
+		if modifiers.starting_snowflakes > 0:
+			wallet.credit(player.identity.player_id, modifiers.starting_snowflakes)
 	return true
 
 ## Players keep their health, stats, levels and wallets across a room change.

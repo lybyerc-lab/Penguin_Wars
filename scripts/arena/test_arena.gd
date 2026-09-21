@@ -44,12 +44,6 @@ func _ready() -> void:
 		mobile_hud.setup()
 	else:
 		$HUD.setup()
-	var boss_hud := BossHUD.new()
-	boss_hud.name = "BossHUD"
-	boss_hud.encounter = encounter
-	boss_hud.party = party
-	add_child(boss_hud)
-	boss_hud.setup()
 	encounter.start()
 
 func _unhandled_input(event: InputEvent) -> void:

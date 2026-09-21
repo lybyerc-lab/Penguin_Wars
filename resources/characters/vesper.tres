@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_qxv0i"]
+[ext_resource type="Resource" path="res://resources/weapons/ice_lance.tres" id="2_kj0xm"]
+
+[resource]
+script = ExtResource("1_qxv0i")
+id = &"vesper"
+display_name = "Vesper"
+tint = Color(0.7372549, 0.6039216, 1, 1)
+starting_weapon = ExtResource("2_kj0xm")

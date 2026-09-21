@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RunModifiers" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/run_modifiers.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"standard"
+display_name = "Standard"
+enemy_health_scale = 1.0
+enemy_damage_scale = 1.0
+income_scale = 1.0
+starting_snowflakes = 0

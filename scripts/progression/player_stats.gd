@@ -28,10 +28,12 @@ func damage_received(base: float, roll: float) -> float:
 		return 0.0
 	return base * 100.0 / (100.0 + maxf(0.0, armor) * 5.0)
 
-func harvest_yield(base_amount: int) -> int:
-	if base_amount <= 0:
+## external_scale is the run's income dial; it is applied before Harvest so a
+## fractional result is still carried forward rather than rounded away.
+func harvest_yield(base_amount: int, external_scale: float = 1.0) -> int:
+	if base_amount <= 0 or external_scale <= 0.0:
 		return 0
-	var total: float = base_amount * harvest_multiplier + income_fraction
+	var total: float = base_amount * harvest_multiplier * external_scale + income_fraction
 	var payout: int = floori(total)
 	income_fraction = total - payout
 	return payout

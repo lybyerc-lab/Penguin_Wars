@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_ph22b"]
+[ext_resource type="Resource" path="res://resources/weapons/fish_cleaver.tres" id="2_tt7am"]
+
+[resource]
+script = ExtResource("1_ph22b")
+id = &"sorrel"
+display_name = "Sorrel"
+tint = Color(0.6627451, 0.9098039, 0.5254902, 1)
+starting_weapon = ExtResource("2_tt7am")

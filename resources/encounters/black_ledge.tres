@@ -1,9 +1,8 @@
-[gd_resource type="Resource" script_class="EncounterDefinition" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="EncounterDefinition" load_steps=5 format=3]
 [ext_resource type="Script" path="res://scripts/data/encounter_definition.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/actors/enemy.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/actors/charging_seal.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/actors/snowball_thrower.tscn" id="4"]
-[ext_resource type="Resource" path="res://resources/bosses/mini.tres" id="5"]
 [resource]
 script = ExtResource("1")
 enemy_scene = ExtResource("2")
@@ -13,4 +12,3 @@ base_count = 9
 spawn_interval = 0.62
 wave_count = 2
 run_seed = 8811
-boss = ExtResource("5")

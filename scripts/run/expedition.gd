@@ -5,8 +5,6 @@ extends Node2D
 ## systems the arena slice uses — this adds places to use them in, not a second
 ## implementation of them.
 
-const TOWN_ROOM: RoomDefinition = preload("res://resources/rooms/penguin_town.tres")
-const CAVES: Array[CaveDefinition] = [preload("res://resources/caves/hollow_shelf.tres")]
 ## Horizontal spread when the town shows more than one cave mouth.
 const MOUTH_SPACING: float = 520.0
 ## Screen space the route banner needs below the world. Service panels are
@@ -15,6 +13,12 @@ const MOUTH_SPACING: float = 520.0
 const PANEL_RESERVE: float = 84.0
 
 @export_range(1, 4) var player_count: int = 2
+## The place this run operates out of: one town and the caves reachable from it.
+@export var region: RegionDefinition = preload("res://resources/regions/kelphollow.tres")
+## Whole-run dials. Null means the identity default: no modifiers.
+@export var modifiers: RunModifiers
+## Ordered character selection for slots 1..4. Empty uses RunSession's default.
+@export var roster: Array[CharacterDefinition] = []
 
 @onready var party: PartyRoster = $Party
 @onready var encounter: EncounterDirector = $Encounter
@@ -25,13 +29,24 @@ const PANEL_RESERVE: float = 84.0
 var session: RunSession
 var room: RoomDefinition
 var cave: CaveDefinition
+## Swap for a persistent subclass to keep progress between runs.
+var profile: ProfileStore
+var campaign: CampaignState
 var overlay: ExpeditionOverlay
 var _gates: Array[PartyGate] = []
 var _services: Array[TownService] = []
 var _routed: bool = false
 
 func _ready() -> void:
+	if profile == null:
+		profile = ProfileStore.new()
+	campaign = profile.load_campaign()
+	journal.campaign = campaign
 	session = RunSession.new()
+	if modifiers != null:
+		session.modifiers = modifiers
+	if not roster.is_empty():
+		session.roster = roster
 	session.party = party
 	session.wallet = $Wallet
 	session.progression = progression
@@ -43,7 +58,11 @@ func _ready() -> void:
 	session.wire()
 	market.party = party
 	market.wallet = $Wallet
-	if not session.spawn_party(player_count, TOWN_ROOM.entry_point):
+	var problems: PackedStringArray = region.problems() if region != null else PackedStringArray(["no region"])
+	if not problems.is_empty():
+		push_error("Region is unplayable: %s" % ", ".join(problems))
+		return
+	if not session.spawn_party(player_count, region.town.entry_point):
 		return
 	$Camera.bottom_reserve = PANEL_RESERVE
 	$HUD.party = party
@@ -58,12 +77,6 @@ func _ready() -> void:
 	overlay.journal = journal
 	add_child(overlay)
 	overlay.setup()
-	var boss_hud := BossHUD.new()
-	boss_hud.name = "BossHUD"
-	boss_hud.encounter = encounter
-	boss_hud.party = party
-	add_child(boss_hud)
-	boss_hud.setup()
 	encounter.completed.connect(_on_room_cleared)
 	encounter.state_changed.connect(_on_encounter_state)
 	enter_town()
@@ -72,15 +85,16 @@ func _ready() -> void:
 
 func enter_town() -> void:
 	cave = null
-	_load_room(TOWN_ROOM)
+	_load_room(region.town)
 	_services = TownHub.build($Places, party)
 	overlay.services = _services
-	for index: int in range(CAVES.size()):
+	var mouths: Array[CaveDefinition] = region.caves
+	for index: int in range(mouths.size()):
 		var spec := RoomExit.new()
-		spec.target_id = CAVES[index].id
-		spec.label = CAVES[index].display_name
-		spec.hint = CAVES[index].signpost
-		spec.position = Vector2((index - (CAVES.size() - 1) * 0.5) * MOUTH_SPACING, 165.0)
+		spec.target_id = mouths[index].id
+		spec.label = mouths[index].display_name
+		spec.hint = mouths[index].signpost
+		spec.position = Vector2((index - (mouths.size() - 1) * 0.5) * MOUTH_SPACING, 165.0)
 		_add_gate(spec).locked = false
 	overlay.banner = "Step up to a building to trade.  Gather the whole party on a cave mouth to set out."
 
@@ -138,6 +152,11 @@ func _add_gate(spec: RoomExit) -> PartyGate:
 	_gates.append(gate)
 	return gate
 
+## Hand campaign state to the profile store. The in-memory default returns
+## false, so a caller can tell a real save from a held one.
+func save_profile() -> bool:
+	return profile.save_campaign(campaign) if profile != null else false
+
 ## The current room's gates and buildings. The expedition owns both lists; the
 ## overlay and the tests read them rather than searching the tree.
 func gates() -> Array[PartyGate]:
@@ -159,14 +178,15 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 		return
 	# A town exit names a cave; a cave exit names a room inside that cave.
 	if room.kind == RoomDefinition.Kind.TOWN:
-		for candidate: CaveDefinition in CAVES:
-			if candidate.id == spec.target_id:
-				enter_cave(candidate)
-				return
-		push_error("Town has no cave named %s" % spec.target_id)
+		var chosen: CaveDefinition = region.cave(spec.target_id)
+		if chosen == null:
+			push_error("Region %s has no cave named %s" % [region.id, spec.target_id])
+			return
+		enter_cave(chosen)
 		return
 	if spec.leads_outside():
 		journal.record_cave(cave)
+		save_profile()
 		enter_town()
 		return
 	var next: RoomDefinition = cave.room(spec.target_id)
@@ -185,6 +205,7 @@ func _on_encounter_state() -> void:
 		return
 	_routed = true
 	journal.record_rout()
+	save_profile()
 	overlay.banner = "The party went down in %s.  R starts a new run." % room.display_name
 
 # --- input --------------------------------------------------------------

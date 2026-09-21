@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_definition.gd" id="1_y4elg"]
+[ext_resource type="Resource" path="res://resources/weapons/ice_lance.tres" id="2_fli6a"]
+
+[resource]
+script = ExtResource("1_y4elg")
+id = &"skua"
+display_name = "Skua"
+tint = Color(0.34509805, 0.8745098, 0.92941177, 1)
+starting_weapon = ExtResource("2_fli6a")

@@ -11,11 +11,16 @@ var caves_cleared: PackedStringArray = PackedStringArray()
 var expeditions: int = 0
 var routs: int = 0
 var deepest_room: String = ""
+## Optional. When set, results that should outlive this run are recorded here
+## too; the journal's own counters stay run-scoped either way.
+var campaign: CampaignState
 
 func begin_expedition(cave: CaveDefinition) -> void:
 	expeditions += 1
 	if cave != null and deepest_room.is_empty():
 		deepest_room = cave.display_name
+	if campaign != null:
+		campaign.runs_started += 1
 	changed.emit()
 
 func record_room(room: RoomDefinition) -> void:
@@ -23,6 +28,9 @@ func record_room(room: RoomDefinition) -> void:
 		return
 	rooms_cleared += 1
 	deepest_room = room.display_name
+	if campaign != null:
+		campaign.deepest_room = room.display_name
+		campaign.mark(&"rooms_cleared")
 	changed.emit()
 
 func record_cave(cave: CaveDefinition) -> void:
@@ -30,10 +38,14 @@ func record_cave(cave: CaveDefinition) -> void:
 		changed.emit()
 		return
 	caves_cleared.append(String(cave.id))
+	if campaign != null:
+		campaign.record_cave(cave.id)
 	changed.emit()
 
 func record_rout() -> void:
 	routs += 1
+	if campaign != null:
+		campaign.runs_lost += 1
 	changed.emit()
 
 func cleared(cave: CaveDefinition) -> bool:

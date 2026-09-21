@@ -1,5 +1,27 @@
 # Verification record
 
+## Adventure foundation hardened into seams
+
+September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb.
+
+This pass makes the room and run architecture the source of truth and gives other work defined places to plug into. `architecture.md` states the contract and every extension point.
+
+**Boss content was removed from this branch, on purpose.** The previous pass merged the Antigravity boss implementation here; bosses belong to the gameplay lane, and two implementations of the same feature is the problem this split exists to avoid. What remains is the phase and its contract: `EncounterDefinition.boss` is optional, the director runs a boss phase after the final wave, the room's exits stay shut until the boss falls, and `BossActor` is the class boss content subclasses. The director reads exactly three fields from `BossDefinition` — `scene`, `display_name`, `reward` — so new boss content needs no director change. The removed content remains on the `antigravity` branch and at commit 0663092.
+
+Seams added, each an interface or a small data resource rather than the feature behind it:
+
+- **Run modifiers.** `RunModifiers` holds whole-run dials and composes with, rather than replaces, `EncounterDefinition.difficulty_multiplier`. The identity default means a run that names none behaves exactly as before.
+- **Character selection.** `CharacterDefinition` plus `RunSession.roster`. The default roster reproduces the original four penguins exactly — the resources were generated through Godot so the tints round-trip bit-for-bit rather than being hand-written floats.
+- **Campaign and milestones.** `CampaignState` for what outlives a run; `RunJournal` stays run-scoped and reports into it.
+- **Save and permanent unlocks.** `ProfileStore`, whose default holds state in memory and reports `is_persistent()` false, so nothing promises a save that does not exist.
+- **Regions.** `RegionDefinition` replaces `Expedition`'s town and cave constants, so a second cave is a list entry and a second region is a resource.
+
+- Seven headless suites passed with zero failures: foundation, combat feel, enemy behavior, economy, stats/mobile, town/cave and the new seam suite. Six render runs passed: arena, enemy, economy, mobile normal and wide, and town.
+- `seams_test.gd` drives the boss phase with `tests/stub_boss.gd`, a boss with no attacks, art or telegraphs, so the contract is verified without this branch owning boss content. It checks that `configure()` runs once, with the party size, before the node enters the tree where Health takes current from maximum; that run and room scaling compose and are applied to a boss identically to any other enemy; that `boss_started` announces once and the reward reaches every living penguin and cannot be claimed twice; and that a boss whose scene is missing completes the room rather than stranding the party. It was negative-controlled: altering the expected scaled health and the reward assertion produced two failures and a nonzero exit.
+- Two defects were found and fixed while writing that suite: assigning an untyped array to a typed `Array[CharacterDefinition]` export failed at runtime, and hand-written colour floats in the character resources did not compare equal to `Color(hex)`.
+
+Limitations: no human playthrough of this pass. The seams are exercised programmatically, which proves the contracts hold, not that the features built on them will feel right. `ProfileStore` does no file I/O by design, so save durability is untested because there is nothing yet to test. No room ships with a boss, so the phase is proven only against the stub. Android packaging was not re-run; the arena slice remains the main scene.
+
 ## Boss phase and enemy data, merged from the Antigravity branch
 
 September 21, 2026: verified in a Linux container with Godot **4.7.2 stable**, compatibility rendering, OpenGL through Xvfb.

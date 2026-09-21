@@ -31,7 +31,7 @@ The Android debug APK now builds and passes signing/alignment checks. Find it lo
 
 **Snow castles are player-built defenses.** Spend **10 personal snowflakes** to place one on open ice in front of your penguin. Each player can build one per run. It fires friendly snowballs for **8 damage every 0.9 seconds**, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves and reset with the run; they are currently indestructible support structures, with enemies continuing to target penguins.
 
-The town, nurse, blacksmith, town hall and branching caves are now built; see [Town and caves](#town-and-caves) below and [hub-and-dungeons.md](docs/hub-and-dungeons.md) for what the direction still leaves open. In the arena slice a castle lasts the run; in a cave it belongs to the room it was built in.
+The architecture contract and every extension point are written up in [architecture.md](docs/architecture.md). The town, nurse, blacksmith, town hall and branching caves are built; see [Town and caves](#town-and-caves) below and [hub-and-dungeons.md](docs/hub-and-dungeons.md) for what the direction still leaves open. In the arena slice a castle lasts the run; in a cave it belongs to the room it was built in.
 
 ### Combat slice
 
@@ -44,9 +44,7 @@ Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability du
 - **Seal raider:** the original pursuing contact enemy.
 - **Charging seal:** orange armored brow, 44 HP. Marks an orange lane for 0.75 seconds, rushes straight along that lane, then recovers for 1.1 seconds with contact damage disabled. Step sideways or dash across the lane, then punish its recovery. Introduced as the third spawn in wave 1.
 - **Snowball thrower:** blue winter cap and visible snowball, 28 HP. Maintains distance, marks its locked aim with a dotted line for 0.7 seconds, then fires a non-homing snowball. Snowballs deal 10 damage, hit at most one player, and expire after three seconds. Close the gap to force it to retreat. Introduced in wave 2.
-- **Boss:** a crowned, oversized seal at the end of a room that carries one. See [Town and caves](#town-and-caves).
-
-Contact reach, target size, projectile damage and knockback resistance are per-enemy exported values rather than shared constants, which is what lets a boss be a larger, steadier target without a second combat path.
+Contact reach, target size, projectile damage and knockback resistance are per-enemy exported values rather than shared constants, which is what lets a larger, steadier enemy exist without a second combat path.
 
 The cleaver's strong knockback interrupts charger windups/rushes and thrower windups. The lance still pushes enemies but does not interrupt these attacks. Dash immunity blocks a snowball and consumes that shot. Enemy counts and the existing dash/weapon tuning are unchanged; mixed roles make positioning more important. These are initial encounter balance values for playtesting.
 
@@ -75,11 +73,7 @@ Rousing a downed penguin is the first revival in the game. `Health.revive()` is 
 
 The first cave is four rooms: an entrance fight, then a choice between the quiet **Glitter Seam** — four snowmen and no enemies — and the louder **Cracked Gallery**, with more enemies, faster spawns and a **1.25 difficulty multiplier** that raises every spawned enemy's health and damage. Both meet at the **Black Ledge**, and the ledge leads home. Each room owns its own bounds, spawn ring, supply points and palette.
 
-![The mini-boss on the Black Ledge](docs/cave-boss.png)
-
-The Black Ledge ends in a **boss**. When the last wave of a room with a boss is cleared, the boss enters alone from the corner furthest from the living party, and the way home stays shut until it is down. **Frostbreaker**, the rank-one mini-boss, has 500 health scaled by **+65% per extra penguin** — 825 for a pair — and pays **15 snowflakes to every living penguin**, through each one's own Harvest.
-
-Bosses telegraph like the charger and thrower do: the charge lane, the radial volley and the slam are all drawn during a windup that lands no damage, and contact only hurts during the rush itself. Unlike ordinary enemies a boss does **not** drop its windup when hit, and its `knockback_multiplier` of 0.08 means heavy weapons cannot shove it around — a cleaver cannot stun-lock the fight. Rank two adds the volley, rank three adds the slam and enrages below half health. `resources/bosses/` holds all three; only the mini-boss is placed so far.
+A room may also end in a **boss**: when its `EncounterDefinition` names one, the boss enters alone after the final wave and the room's exits stay shut until it is down. The phase, the placement and the reward live here; **boss content does not** — see [architecture.md](docs/architecture.md) for the `BossActor` seam. No room ships with a boss yet.
 
 Routes stay shut until the room is cleared, then open only while **every living penguin stands on the pad together** for one second. Stepping off cancels it. Branching therefore needs no new input binding, and one player cannot drag the party through a door.
 
@@ -104,9 +98,10 @@ These are first values for playtesting, not final balance.
 | `scripts/data`, `resources` | Typed weapon, upgrade and encounter definitions |
 | `scripts/encounters` | Seeded spawn and encounter state machine |
 | `scripts/enemies` | Replaceable charge/ranged behaviors and enemy snowballs |
-| `scripts/bosses`, `resources/bosses` | Boss actor, telegraphed behavior and boss data |
 | `scripts/rooms`, `resources/rooms` | Room-owned bounds and prop placement; shared party gates |
-| `scripts/run`, `scenes/run`, `resources/caves` | Run session, run journal and the town-and-caves root |
+| `scripts/run`, `scenes/run` | Run session, run journal, campaign state, profile store and the town-and-caves root |
+| `resources/caves`, `resources/regions` | Cave route graphs and the regions that hold them |
+| `resources/characters`, `resources/modifiers` | Selectable penguins and whole-run difficulty dials |
 | `scripts/town` | Town buildings, service prices and effects |
 | `scripts/camera`, `scripts/ui` | Shared view and test HUD |
 | `scripts/arena` | Small composition root |
@@ -127,7 +122,7 @@ These are first values for playtesting, not final balance.
 
 **Encounters.** `EncounterDirector` emits state changes, kill events and completion. Spawn placement currently assumes this centered bounded arena and chooses the safest perimeter candidate. Replace this method with region spawn markers/navigation for real maps. Enemy movement is direct pursuit with world collision support, not pathfinding. Actors do not block one another. External despawns need an explicit director cancellation/despawn path so enemy counts remain correct.
 
-**Enemy behavior.** `ArenaEnemy` remains the shared health, contact and knockback actor, and now exports `contact_radius`, `hit_radius`, `projectile_damage` and `knockback_multiplier` so size, reach and steadiness are per-enemy data. `ArenaBoss` is an ordinary enemy with those values turned up and a `BossBehavior`; it dies, drops and pays through the same interfaces, so nothing else in combat knows a boss is special. `EncounterDefinition.difficulty_multiplier` scales spawned enemy health and damage, which is how one room is harder than another without a second set of enemy scenes. Boss placement and the boss phase live in `EncounterDirector`; a room without `EncounterDefinition.boss` still completes when its waves do. Optional `EnemyBehavior` children supply movement and attack state; inherited charger/thrower scenes configure those strategies. `EnemyAttackVisual` reads state to display warnings without controlling damage. New encounter Resource fields select the charger and ranged scenes; the director owns their introduction cadence. `EnemySnowball` uses swept segment hits against living party members and a layer-1 world ray, with no friendly fire. Shots can outlive their shooter but are cleared at wave completion or party wipe and freed with the run; projectiles expire on a lifetime rather than on bounds, so they need no room data of their own.
+**Enemy behavior.** `ArenaEnemy` remains the shared health, contact and knockback actor, and exports `contact_radius`, `hit_radius`, `projectile_damage` and `knockback_multiplier` so size, reach and steadiness are per-enemy data. `BossActor` is the contract for the optional boss phase: an ordinary enemy that the director spawns one of, configures and treats like any other target. `EncounterDefinition.difficulty_multiplier` scales spawned enemy health and damage, composed with the run's `RunModifiers`, which is how one room is harder than another without a second set of enemy scenes. A room without `EncounterDefinition.boss` completes when its waves do. Optional `EnemyBehavior` children supply movement and attack state; inherited charger/thrower scenes configure those strategies. `EnemyAttackVisual` reads state to display warnings without controlling damage. New encounter Resource fields select the charger and ranged scenes; the director owns their introduction cadence. `EnemySnowball` uses swept segment hits against living party members and a layer-1 world ray, with no friendly fire. Shots can outlive their shooter but are cleared at wave completion or party wipe and freed with the run; projectiles expire on a lifetime rather than on bounds, so they need no room data of their own.
 
 **Rooms.** `RoomDefinition` owns bounds, the spawn ring, supply points, the entry point, a backdrop palette, an encounter and its exits. `RoomExit` names its target by id rather than holding a reference, so room resources never form a cycle and `CaveDefinition` is the only place a route graph lives; `CaveDefinition.unresolved_exits()` turns a broken route into a test failure instead of a dead session. `RoomSpace.apply()` hands that space to the party, director, builder, loot, camera and backdrop — systems receive their space from the composition root and none reaches for a global current room. Room bounds are still a rectangle with no interior world collision; navigation, doors and irregular rooms need real geometry.
 
@@ -156,9 +151,8 @@ godot --path . --script res://tests/economy_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd -- --wide
 godot --headless --path . --script res://tests/town_cave_test.gd
-godot --headless --path . --script res://tests/boss_test.gd
+godot --headless --path . --script res://tests/seams_test.gd
 godot --path . --script res://tests/town_render_smoke.gd
-godot --path . --script res://tests/boss_render_smoke.gd
 ```
 
 The integration test fails with a nonzero exit code on failed assertions. It covers party IDs/capacity, movement/bounds, death/retargeting, XP overflow, queued upgrades and resource isolation, actual weapon kills/rewards, encounter completion, party wipe and scene cleanup. The renderer test writes `docs/arena-preview.png` using the live viewport. See `docs/verification.md` for actual results and limitations.
@@ -167,4 +161,4 @@ The combat test checks dash speed, immunity windows, cooldown, death gating and 
 
 The town and cave test walks the whole loop against the real expedition scene: cave route integrity, service purchases and every refusal path, revival and the collision layers it restores, the locked-route rule, per-room bounds and spawn rings, supply rooms stocking without a wave, castles being refused in town but built in a fight, a free choice earned underground being spendable at home, and exactly what does and does not survive a room change. `town_render_smoke.gd` writes `town-preview.png`, `cave-entrance.png`, `cave-branch.png` and `cave-supply-room.png` from the live viewport.
 
-The boss test walks the cave to the Black Ledge and checks that the boss follows the final wave rather than replacing it, that health scales with party size, that routes stay shut while it lives, that each telegraph is harmless and direction-locked, that a heavy hit cannot cancel a windup, and that the reward is paid once to every living penguin and cannot be claimed twice. `boss_render_smoke.gd` writes `cave-boss.png`.
+The seam test covers the extension points other work plugs into: the optional boss phase, driven with a stub boss that has no attacks or art, so the phase is verified without this branch owning boss content; run modifiers composing with per-room difficulty; the character roster; campaign and profile state; and region validation. See [architecture.md](docs/architecture.md) for what each seam is and how to extend it.

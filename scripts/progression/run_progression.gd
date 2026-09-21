@@ -18,6 +18,8 @@ var _paid_wave: int = 0
 ## Town has no encounter, so without this a choice earned in a cave could not
 ## be spent until the next room's intermission.
 var in_town: bool = false
+## Whole-run dials. Never null: an identity default means no run modifiers.
+var modifiers := RunModifiers.new()
 
 func bind_player(player: PenguinPlayer) -> void:
 	pending[player.identity.player_id] = 0
@@ -69,7 +71,7 @@ func collect_materials(_collector_id: int, amount: int) -> void:
 		_grant_income(player, 1)
 
 func _grant_income(player: PenguinPlayer, amount: int) -> void:
-	var income: int = player.stats.harvest_yield(amount)
+	var income: int = player.stats.harvest_yield(amount, modifiers.income_scale)
 	wallet.credit(player.identity.player_id, income)
 	player.experience.grant(income)
 
