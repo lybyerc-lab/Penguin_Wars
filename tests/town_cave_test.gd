@@ -105,9 +105,9 @@ func _run() -> void:
 	check(players[0].weapon.definition != carried, "the trade changes the carried weapon")
 	check(market.buy(1, TownService.Kind.BLACKSMITH, 2), "weapon traded back")
 	check(players[0].weapon.definition == carried, "trading twice returns the original weapon")
-	var damage_before: float = players[0].weapon.damage_bonus
+	var damage_before: float = players[0].stats.flat_weapon_damage
 	check(market.buy(1, TownService.Kind.BLACKSMITH, 0), "edge honed")
-	check(players[0].weapon.damage_bonus == damage_before + 4.0, "honing raises weapon damage")
+	check(players[0].stats.flat_weapon_damage == damage_before + 4.0, "honing raises every weapon's damage")
 	check(market.offers(TownService.Kind.TOWN_HALL).is_empty(), "the town hall sells nothing")
 
 	# --- town is a shop, not a building site ----------------------------

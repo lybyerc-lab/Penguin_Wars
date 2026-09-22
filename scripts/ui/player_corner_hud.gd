@@ -118,6 +118,17 @@ func setup(corner: int, inset: Vector2 = Vector2(18, 18)) -> void:
 		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		empty.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		frame.add_child(empty)
+		var tier := Label.new()
+		tier.name = "Tier"
+		tier.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		tier.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+		tier.add_theme_font_size_override("font_size", 11)
+		tier.add_theme_color_override("font_color", Color.WHITE)
+		tier.add_theme_color_override("font_outline_color", Color("102c41"))
+		tier.add_theme_constant_override("outline_size", 2)
+		tier.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tier.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		frame.add_child(tier)
 		_weapon_row.add_child(frame)
 		_weapon_slots.append(frame)
 
@@ -152,7 +163,10 @@ func _process(_delta: float) -> void:
 		frame.tooltip_text = definition.display_name if occupied else "Empty weapon slot %d" % (slot + 1)
 		var icon := frame.get_node_or_null("Icon") as TextureRect
 		var empty := frame.get_node_or_null("Empty") as Label
+		var tier := frame.get_node_or_null("Tier") as Label
 		if icon != null:
 			icon.texture = definition.held_texture if occupied else null
 		if empty != null:
 			empty.visible = not occupied
+		if tier != null:
+			tier.text = definition.tier_label() if occupied else ""

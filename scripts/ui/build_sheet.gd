@@ -59,7 +59,12 @@ func _process(_delta: float) -> void:
 	for slot: int in range(player.weapon_rack.capacity()):
 		var definition: WeaponDefinition = player.weapon_rack.weapon_at(slot)
 		rack_text.append(definition.display_name if definition != null else "Empty")
-	_summary.text = "HP %.0f/%.0f · Armor %.0f · Regen %.1f/s · Dodge %.0f%% · Speed %.0f\nWeapons %d/%d: %s\nDamage +%.0f%% · Melee +%.0f · Ranged +%.0f · Attack speed +%.0f%% · Crit %.0f%% (x1.5)\nHarvest x%.2f · Engineering +%.0f · Pickup +%.0f · Range +%.0f\nSnow %d · Free choices %d · %s" % [player.health.current, player.health.maximum, stats.armor, stats.regeneration, minf(stats.dodge_chance, 60), player.speed, player.weapon_rack.occupied_count(), player.weapon_rack.capacity(), " | ".join(rack_text), stats.damage_percent, stats.melee_damage, stats.ranged_damage, stats.attack_speed, minf(stats.critical_chance, 100), stats.harvest_multiplier, stats.engineering, stats.pickup_bonus, stats.range_bonus, progression.wallet.balance(id), progression.pending.get(id, 0), "Choose an upgrade" if progression.shop_open() else "Shop opens after this wave"]
+	var class_text := PackedStringArray()
+	for class_id: StringName in WeaponClasses.ALL:
+		var count: int = player.weapon_rack.class_count(class_id)
+		if count > 0:
+			class_text.append("%s ×%d" % [String(class_id).capitalize(), count])
+	_summary.text = "HP %.0f/%.0f · Armor %.0f · Regen %.1f/s · Dodge %.0f%% · Speed %.0f\nWeapons %d/%d: %s\nClasses: %s\nDamage +%.0f%% · Flat +%.0f · Melee +%.0f · Ranged +%.0f · Attack speed +%.0f%% · Crit %.0f%% (x1.5)\nHarvest x%.2f · Engineering +%.0f · Pickup +%.0f · Range +%.0f\nSnow %d · Free choices %d · %s" % [player.health.current, player.health.maximum, stats.armor, stats.regeneration, minf(stats.dodge_chance, 60), player.speed, player.weapon_rack.occupied_count(), player.weapon_rack.capacity(), " | ".join(rack_text), " · ".join(class_text) if not class_text.is_empty() else "None", stats.damage_percent, stats.flat_weapon_damage, stats.melee_damage, stats.ranged_damage, stats.attack_speed, minf(stats.critical_chance, 100), stats.harvest_multiplier, stats.engineering, stats.pickup_bonus, stats.range_bonus, progression.wallet.balance(id), progression.pending.get(id, 0), "Choose an upgrade" if progression.shop_open() else "Shop opens after this wave"]
 	for index: int in range(_offers.size()):
 		var price: String = "FREE" if progression.pending.get(id, 0) > 0 else "%d Snow" % progression.price(id, index)
 		_offers[index].text = "%s   /   %s" % [RunProgression.OPTIONS[index].display_name, price]

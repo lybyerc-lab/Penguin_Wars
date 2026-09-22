@@ -32,7 +32,7 @@ Enemy defeats drop **2 snowflakes** rather than immediately granting XP. Either 
 
 **Harvest** starts at x1.00 and upgrades by +0.25. It multiplies that player's income and corresponding XP, including the **5 base income** paid after each completed wave. Fractional earnings are retained so small drops still benefit. This multiplier is our chosen variation, not an exact copy of Brotato's flat harvesting stat.
 
-XP still grants free stat choices. Extra upgrades cost **6 snowflakes**, increasing by **3 per personal paid purchase**. Shopping happens between waves; a purchase clears that player's ready status. The character sheet now offers 15 upgrades, including armor, regeneration, typed damage, critical hits, dodge, Engineering and Harvest. The original three remain quick shortcuts. Randomized items, rerolls, weapon merging and a full skill system are future work.
+XP still grants free stat choices. Extra upgrades cost **6 snowflakes**, increasing by **3 per personal paid purchase**. Shopping happens between waves; a purchase clears that player's ready status. The character sheet now offers 15 upgrades, including armor, regeneration, typed damage, critical hits, dodge, Engineering and Harvest. The original three remain quick shortcuts. Randomized items, rerolls and a full skill system are future work; weapon tier merging is now a rack API for the future Field Shop and inventory UI.
 
 ### Android and character stats
 
@@ -48,7 +48,7 @@ The architecture contract and every extension point are written up in [architect
 
 P1 (and P3) carries the **Ice Lance**: a fast single-target strike with 240-pixel range, 14 damage and a 0.42-second cooldown. P2 (and P4) carries the **Fish Cleaver**: a 140-degree sweep that damages every enemy in its 105-pixel reach for 22 damage, with a 1.05-second cooldown and stronger knockback. Both aim automatically at the nearest enemy. These are initial tuning values, not final balance.
 
-Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability during that burst. The 1.1-second cooldown starts when the dash begins. Move to set direction, or dash along the last movement direction when stationary. Holding the button does not repeat dashes. Each player owns a six-slot personal weapon rack; the default loadout occupies slot 0 and the HUD shows its five remaining empty slots beside level, health and personal Snow. Hit flashes, floating damage, expanding impact rings, dash trails and cleaver arcs make combat events visible. No global hit pause or camera shake disrupts the other player's view.
+Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability during that burst. The 1.1-second cooldown starts when the dash begins. Move to set direction, or dash along the last movement direction when stationary. Holding the button does not repeat dashes. Each player owns a six-slot personal weapon rack; the default loadout occupies slot 0 and the HUD shows its five remaining empty slots beside level, health and personal Snow. Ice Lance and Fish Cleaver have immutable Tier I–IV definition chains; matching copies merge through the rack and the HUD marks occupied-slot tiers. Hit flashes, floating damage, expanding impact rings, dash trails and cleaver arcs make combat events visible. No global hit pause or camera shake disrupts the other player's view.
 
 ### Enemy roles
 
@@ -73,7 +73,7 @@ The party starts in **Kelphollow**. Services are entered by standing at them, so
 | --- | --- | --- |
 | Fisher's Stall | Marra | Herring ration, 40 health · **4** — Packed snow, +12 maximum health · **8** — Traveller's charm, +0.25 Harvest · **11** |
 | Nurse's Hut | Sister Pell | Warm compress, full health · **6** — Rouse a fallen friend, revive at 40% · **14** — Kelp tonic, +0.4 regeneration · **10** |
-| Cold Forge | Odda | Hone the edge, +4 weapon damage · **9** — Rebalance the haft, +10% attack speed · **9** — Trade weapon, lance for cleaver and back · **6** |
+| Cold Forge | Odda | Hone the edge, +4 damage to every weapon · **9** — Rebalance the haft, +10% attack speed · **9** — Trade weapon, lance for cleaver and back · **6** |
 | Town Hall | Elder Bramblefoot | No purchases. A short meeting that reads the run journal and changes once the party has been down a cave. |
 
 Township is a pre-run and meta hub, not the between-wave shop. Standing in town you can spend a **free** stat choice earned underground — one is never stranded — but paid field-shop offers are only sold between waves, in a room. The four buildings above are transitional prototypes: paid run power belongs in the field shop, not in town.
@@ -130,7 +130,7 @@ These are first values for playtesting, not final balance.
 
 **Damage.** `Health.take_damage(DamageEvent)` is the shared damage interface; `changed`, `damaged` and `died` are the output hooks. Damage events retain the source party ID and a knockback impulse. Dead actors reject further damage and healing; use a separate explicit revive operation later. `HitFeedback` listens to accepted damage and creates short-lived world effects which survive enemy deletion. `DashController` owns per-player burst/cooldown state; the player applies its motion and invulnerability. Weapons currently use instantaneous single-target or arc attacks. Add projectile scenes, teams and status effects around these interfaces. Before adding other immunity sources, replace the single invulnerability flag with a composed immunity policy.
 
-**Data.** Add `.tres` resources using `WeaponDefinition`, `UpgradeDefinition`, or `EncounterDefinition`. Shared resources are definitions and must remain immutable during play. Runtime cooldowns and damage bonuses belong to each weapon instance. `PenguinPlayer.apply_upgrade()` is the initial stat application seam; move into a dedicated stat aggregator when stacking rules grow. `RunProgression.OPTIONS` is the test catalog, ready to replace with weighted offers and unlock filters.
+**Data.** Add `.tres` resources using `WeaponDefinition`, `UpgradeDefinition`, or `EncounterDefinition`. Shared resources are definitions and must remain immutable during play. `WeaponDefinition` carries family, tier, next-tier and canonical class tags; runtime cooldowns belong to each weapon controller, while player-wide flat weapon damage belongs to that player's `PlayerStats`. `PenguinPlayer.apply_upgrade()` is the initial stat application seam; move into a dedicated stat aggregator when stacking rules grow. `RunProgression.OPTIONS` is the test catalog, ready to replace with weighted offers and unlock filters.
 
 **Visuals.** `CharacterVisual` creates character sprites, team scarves and cosmetic movement bobbing. `WeaponVisual` reads the weapon's presentation aim/attack phase to place its art beside the player and animate a thrust or sweep. Each weapon Resource supplies `held_texture` and `visual_scale`; add right-facing art with its handle on the left. Damage timing remains in `WeaponController`, independent of sprite motion. Idle weapons face the player's last movement direction; in-range targets drive aim between attacks. Attack tracers retain their actual impact position. `IceArenaVisual` owns purely decorative seeded ice, crystals and snow; these props do not block movement. The camera fills the screen with the room; only the mobile layout reserves space, for its touch controls. All assets in `assets/` were authored for this project; no Brotato assets were imported.
 
@@ -160,8 +160,10 @@ godot --headless --path . --script res://tests/enemy_behavior_test.gd
 godot --headless --path . --script res://tests/economy_test.gd
 godot --headless --path . --script res://tests/stats_mobile_test.gd
 godot --headless --path . --script res://tests/weapon_rack_test.gd
+godot --headless --path . --script res://tests/weapon_tiers_test.gd
 godot --path . --script res://tests/render_smoke.gd
 godot --path . --script res://tests/weapon_rack_render_smoke.gd
+godot --path . --script res://tests/weapon_tiers_render_smoke.gd
 godot --path . --script res://tests/enemy_render_smoke.gd
 godot --path . --script res://tests/economy_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd

@@ -43,7 +43,7 @@ func offers(kind: TownService.Kind) -> Array[Offer]:
 			]
 		TownService.Kind.BLACKSMITH:
 			return [
-				Offer.new(&"hone", "Hone the edge", "+4 weapon damage", 9),
+				Offer.new(&"hone", "Hone the edge", "+4 damage to every weapon", 9),
 				Offer.new(&"rebalance", "Rebalance the haft", "+10% attack speed", 9),
 				Offer.new(&"swap", "Trade weapon", "Lance for cleaver, or back", 6),
 			]
@@ -86,9 +86,7 @@ func buy(player_id: int, kind: TownService.Kind, index: int) -> bool:
 		&"tonic":
 			buyer.stats.regeneration += 0.4
 		&"hone":
-			var active_weapon := buyer.weapon_rack.controller_at(0)
-			if active_weapon != null:
-				active_weapon.damage_bonus += 4.0
+			buyer.stats.flat_weapon_damage += 4.0
 		&"rebalance":
 			buyer.stats.attack_speed += 10.0
 		&"swap":
