@@ -104,6 +104,7 @@ func setup(corner: int, inset: Vector2 = Vector2(18, 18)) -> void:
 		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var icon := TextureRect.new()
 		icon.name = "Icon"
+		icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -120,15 +121,23 @@ func setup(corner: int, inset: Vector2 = Vector2(18, 18)) -> void:
 		frame.add_child(empty)
 		var tier := Label.new()
 		tier.name = "Tier"
-		tier.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		tier.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+		tier.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		tier.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		tier.add_theme_font_size_override("font_size", 11)
-		tier.add_theme_color_override("font_color", Color.WHITE)
+		tier.add_theme_color_override("font_color", Color("fff5be"))
 		tier.add_theme_color_override("font_outline_color", Color("102c41"))
 		tier.add_theme_constant_override("outline_size", 2)
 		tier.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tier.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		frame.add_child(tier)
+		tier.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		tier.offset_left = -16
+		tier.offset_top = -14
+		tier.offset_right = 0
+		tier.offset_bottom = 0
+		var tier_style := StyleBoxFlat.new()
+		tier_style.bg_color = Color(0.04, 0.12, 0.18, 0.88)
+		tier_style.set_corner_radius_all(3)
+		tier.add_theme_stylebox_override("normal", tier_style)
+		icon.add_child(tier)
 		_weapon_row.add_child(frame)
 		_weapon_slots.append(frame)
 
@@ -163,7 +172,7 @@ func _process(_delta: float) -> void:
 		frame.tooltip_text = definition.display_name if occupied else "Empty weapon slot %d" % (slot + 1)
 		var icon := frame.get_node_or_null("Icon") as TextureRect
 		var empty := frame.get_node_or_null("Empty") as Label
-		var tier := frame.get_node_or_null("Tier") as Label
+		var tier := icon.get_node_or_null("Tier") as Label if icon != null else null
 		if icon != null:
 			icon.texture = definition.held_texture if occupied else null
 		if empty != null:

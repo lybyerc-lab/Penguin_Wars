@@ -1,5 +1,36 @@
 # Verification record
 
+## Build intensity baseline integration
+
+September 22, 2026. `integration/build-intensity-baseline` starts at canonical
+`main@4dad4a0d051d40ac597c7a2ae4ae38688aa98154`, then cherry-picks weapon
+tiers/classes `86256d65ac74e9a842f785fcfa89edd1119908bb` followed by chunky
+Snow pickup feel `52d29de1fa49e4523d5ba52f35b5cd1863d82488`. No cherry-pick
+conflicts occurred.
+
+The combined branch carries immutable Tier I–IV weapon data and mechanical
+rack evolution primitives alongside chunky physical world Snow. The approved
+direction is **Acquire → Commit → Survive → Mature**: merge APIs are internal
+mechanics, duplicate weapons remain independently firing commitments, and no
+automatic merge, player-facing merge command, or maturation trigger exists.
+Current XP/stat choices and paid upgrades remain transitional prototype code.
+
+All 13 combined headless suites passed with zero assertion failures:
+foundation, combat feel, enemy behavior, economy, stats/mobile, seams,
+town/cave, boss, fullscreen HUD, doorway, weapon rack, weapon tiers, and Snow
+pickup. The seams suite emitted its expected invalid-boss-stub diagnostic while
+validating its negative path.
+
+All 11 real OpenGL renderer smokes passed: arena, enemy, economy, mobile normal
+and wide, town, boss, doorway, weapon rack, weapon tiers, and Snow pickup.
+Visual inspection confirmed the Tier II badge and Build Sheet class line, four
+distinct Snow value silhouettes, health-versus-Snow contrast, and no HUD
+collision in the relevant captures.
+
+Automated checks verify behavior and renderer output; human playtesting must
+still accept Snow landing weight, magnet speed, collection pop, value-size
+readability, combat clutter, and jackpot excitement.
+
 ## Weapon tiers, merging, and classes
 
 September 22, 2026. `feature/weapon-tiers-classes` starts from

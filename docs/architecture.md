@@ -313,17 +313,20 @@ validation entry points; both are asserted in tests.
 
 ## Township is not the field shop
 
-Township is a pre-run, meta and setup hub. The field shop is where paid run
-power is bought, between waves. They are different things and stay different.
+Township is a pre-run, meta and setup hub. The future field shop is between
+waves and is for weapons, items/relics/passives, build identity, rerolls, locks,
+and personal Snow spending. They are different things and stay different.
 
 The current healing, revival and blacksmith services in `TownMarket` are
 **transitional prototypes**. Do not grow them into a second paid run shop —
-new paid run power belongs in the field shop, not in town.
+new paid run power belongs in the field shop, not in town. The current paid
+upgrade catalogue is transitional prototype infrastructure rather than the
+future Field Shop's purpose.
 
 `RunProgression` keeps the two apart:
 
 - **In a room**, `shop_open()` follows the encounter state, and offers are both
-  free (earned by levelling) and paid.
+  free (earned by levelling) and paid as a temporary prototype.
 - **In Township**, `in_town` is set and only **free** choices can be spent. A
   choice earned underground is never stranded, but Township does not sell
   field-shop offers.
@@ -340,10 +343,9 @@ are documented separately below.
 | --- | --- |
 | 20-wave run structure | `EncounterDefinition.wave_count`, already ranged to 20. The director's wave loop needs no change. |
 | Run/wave plan | Reserved and approved, not built. A lightweight data layer owned by `Expedition` that describes a run — which waves happen where, and which milestone bosses `BossSchedule` picks — and writes the result into `EncounterDefinition`. It describes; it must never move the party, or it becomes the second journey manager the contract forbids. |
-| Field shop: four offers, reroll, lock | `RunProgression`. `OPTIONS` is today's fixed catalogue and `choose(player_id, index)` indexes straight into it — both are the thing an offer system replaces. Expect to keep `pending`, `purchases`, `price()` and the wallet, and to change what an "index" means. |
+| Field shop: acquisition, reroll, lock | `RunProgression` currently owns a fixed temporary upgrade catalogue. Its future replacement must acquire weapons and items/relics/passives, express class and slot commitment, and retain wallet/ready-up seams without becoming a god object. |
 | Personal builds per co-op player | Already true: `PlayerStats` is one instance per penguin and `RunWallet` is per player. Keep it that way. |
 | Harvest as compounding wave-end economy | `PlayerStats.harvest_yield()` is the single place income is computed, and `RunProgression.finish_wave()` the single place a wave pays. Change those two, not the call sites. |
-| Snow pickups as irregular blobs | `RunPickup` and its `_draw`. Presentation only; `RunPickup.Kind` stays. |
 | Storm difficulty | `RunModifiers` resources in `resources/modifiers/`, chosen by `Expedition.modifiers`. |
 | Horizontal unlocks | `CampaignState.unlocked` plus `CharacterDefinition.unlocked_by_default`. Prefer unlocking options over inflating stats. |
 
@@ -354,17 +356,38 @@ are documented separately below.
 `problems()` validates that the chain and tags agree. `WeaponController` reads
 one definition and has no merge or class policy.
 
-`WeaponRack` owns all runtime merge policy for one player. `can_merge_slots()`
+`WeaponRack` owns all runtime merge and evolution primitives for one player. `can_merge_slots()`
 and `merge_slots()` retain the first slot, consume the second, and leave every
 other slot in place. `find_merge_slot()` and
 `merge_definition_into_slot()` are the equivalent seam for future inventory or
-shop delivery without adding a seventh slot. Its class aggregation is based on
-occupied definitions, once per weapon; future class bonuses should write their
-resulting modifiers through `PlayerStats`, not mutate definitions.
+shop delivery without adding a seventh slot. It does **not** decide when
+maturation occurs: a future progression policy may invoke these primitives, but
+no policy or player-facing merge command is implemented. Its class aggregation
+is based on occupied definitions, once per weapon; future class bonuses should
+write their resulting modifiers through `PlayerStats`, not mutate definitions.
 
 Sharp Ice and Cold Forge Hone write `PlayerStats.flat_weapon_damage`, which is
 read by every equipped controller. This makes flat damage player-wide for both
-current and later-equipped weapons.
+current and later-equipped weapons. It is simulation state, not a commitment to
+player-facing stat shopping.
+
+### Snow pickup presentation
+
+`RunPickup` owns world-Snow presentation and value-tier selection; `ArenaLoot`,
+`RunWallet`, and `RunProgression` retain drop allocation and economy policy.
+SMALL, CHUNKY, BIG, and JACKPOT chunks change visuals and pickup motion only;
+they do not alter the amount awarded. `RunPickup.Kind.SNOWFLAKE` remains an
+internal compatibility name while player-facing copy says Snow. Its cosmetic
+shape variant currently includes `get_instance_id()`, so cross-run visual
+replay is not guaranteed; no gameplay state depends on it.
+
+### Transitional progression
+
+`PlayerStats` remains the player simulation/state seam. `RunProgression`'s
+level-up choices and paid upgrades are functional transitional prototypes and
+must not become the future Field Shop god object. A future progression/evolution
+policy decides when accumulated build commitment matures, but no new manager,
+evolution checkpoint, or maturation trigger is implemented here.
 
 ## Working alongside this branch
 

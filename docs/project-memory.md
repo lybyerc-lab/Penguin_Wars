@@ -2,7 +2,7 @@
 
 > Durable project context for future sessions and AI handoffs.
 >
-> Current development baseline: `feature/weapon-tiers-classes`, above `origin/main@4dad4a0d051d40ac597c7a2ae4ae38688aa98154`, which already combines `cleanup/pre-brotato@8f778b0` and `codex/weapon-rack-foundation@44296b8` above `antigravity@46efa8d`.
+> Canonical development authority: `main`. Current integration baseline: `integration/build-intensity-baseline`, layering `feature/weapon-tiers-classes@86256d6` and `feature/snow-pickup-feel@52d29de` above `main@4dad4a0d051d40ac597c7a2ae4ae38688aa98154`.
 
 ## North-star concept
 
@@ -19,7 +19,7 @@ Core inspirations:
 Working rhythm:
 
 ```
-Explore → discover → fight swarm → choose upgrade → shop/build → unlock route → secret → boss → deeper
+Explore → discover → fight swarm → collect Snow / XP → acquire build pieces → commit → survive → mature → push deeper → boss
 ```
 
 Persistent design anchor:
@@ -40,7 +40,9 @@ Current important lineage:
 - `antigravity@f05d804`: chunky carved cave mouths, palette-aware tunnel depth, environmental route framing, wider Kelphollow expedition mouth and polished barricade presentation.
 - `antigravity@46efa8d`: current gameplay authority before the six-slot rack branch.
 - `cleanup/pre-brotato@8f778b0`: doorway offset and presentation data, corrected render fixtures and viewport verification.
-- `integration/pre-brotato-rack`: current combined cleanup and six-slot rack baseline.
+- `integration/pre-brotato-rack`: cleanup and six-slot rack baseline.
+- `main@4dad4a0`: canonical development authority for this integration.
+- `integration/build-intensity-baseline`: combined Tier I–IV weapon, chunky Snow, and progression-direction baseline.
 
 Current implemented slice includes:
 
@@ -51,8 +53,9 @@ Current implemented slice includes:
 - Personal six-slot `WeaponRack` runtimes; standard loadouts begin in slot 0.
 - Immutable Ice Lance and Fish Cleaver Tier I–IV chains, rack merge APIs, and canonical weapon-class aggregation.
 - Player-wide flat weapon damage used by Sharp Ice and Cold Forge Hone.
+- Chunky physical Snow loot: SMALL, CHUNKY, BIG, and JACKPOT value tiers with landing, wobble, magnet suction, and collection puff presentation.
 - Manual movement and dodge.
-- Personal health, XP, wallet and upgrade choices.
+- Personal health, XP, wallet, and transitional upgrade choices.
 - Snow-castle defense prototype.
 - Seal raider, charging seal and snowball thrower.
 - Kelphollow prototype town.
@@ -191,9 +194,43 @@ Cleaver (Fish + Blade). Sharp Ice and Cold Forge Hone write
 `PlayerStats.flat_weapon_damage`, so every present and later-equipped weapon
 for that player reads the same flat damage bonus.
 
+Merging is an internal evolution primitive, not a player-facing ordinary-run
+command or automatic duplicate policy. Duplicate weapons remain independently
+firing rack occupants and are themselves a six-slot commitment choice.
+Future progression policy decides if and when it invokes rack primitives; the
+timing of maturation is intentionally undecided.
+
+## Progression direction
+
+The approved direction is **Acquire → Commit → Survive → Mature**. Players
+acquire weapons and future items/relics, commit scarce rack capacity and build
+identity, then resolve that accumulated commitment only at future meaningful
+maturation moments. Direct weapon or skill upgrading during an expedition is
+not the intended mature loop.
+
+Current XP level-up choices, paid `UpgradeDefinition` offers, Sharp Ice, and
+Cold Forge Hone are transitional prototype infrastructure. `PlayerStats` and
+its player-wide flat-damage seam remain useful simulation state; this decision
+changes how players acquire modifiers, not whether the simulation can express
+them. Exact evolution timing and the eventual role of XP or Expedition Rank are
+unresolved. The future Field Shop is for weapons, items/relics/passives, build
+identity, rerolls, locks, and personal Snow spending rather than generic stat
+shopping.
+
+## Snow pickup presentation
+
+World Snow uses physical chunky loot rather than literal six-spoke snowflakes.
+Its visual tier follows value without changing economy semantics: SMALL is 1–2,
+CHUNKY 3–5, BIG 6–9, and JACKPOT 10+. Snow lands with an arc, squash and rebound,
+wobbles while grounded, accelerates toward a living player within that player's
+pickup radius, and finishes with a short collection puff. The HUD may continue
+to use the ❄ symbol and the player-facing name remains Snow. `RunPickup.Kind`
+keeps its current internal `SNOWFLAKE` name for compatibility.
+
 Known limits deliberately left for later systems work:
 
 - each equipped controller scans target groups independently, so 4 players × 6 weapons needs profiling before mobile-scale content expands.
+- Snow's cosmetic shape selection includes `get_instance_id()`, so it is not guaranteed reproducible across separate runs; this is not gameplay state.
 
 ## Boss architecture and content
 

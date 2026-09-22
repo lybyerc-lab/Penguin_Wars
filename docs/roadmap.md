@@ -6,7 +6,7 @@ This is a direction document, not a promise of exact scheduling. The order matte
 
 Implementation baseline recorded here:
 
-`integration/pre-brotato-rack` (cleanup `8f778b0` + rack `44296b8` above `antigravity@46efa8d`)
+`integration/build-intensity-baseline` (weapon tiers `86256d6` + Snow pickup feel `52d29de` above `main@4dad4a0`)
 
 At that point the project has:
 
@@ -21,8 +21,9 @@ At that point the project has:
 - current prototype economy/upgrades/castles
 - Android/mobile support path
 - six-slot personal weapon rack, Tier I–IV merge chains, and class aggregation
+- chunky physical Snow pickup feel with preserved economy semantics
 
-The first doorway art-polish pass is complete. Human playtest now decides whether presentation is locked or needs another targeted pass before Snow pickups.
+The first doorway art-polish pass and Snow pickup feel pass are complete. Human playtest now decides whether the combined presentation is accepted before the first evolution-checkpoint prototype.
 
 ## Phase 0 — Presentation lock
 
@@ -64,7 +65,7 @@ Check:
 
 Do not advance if presentation still feels obviously prototype-level.
 
-## Phase 1 — Snow pickup feel
+## Phase 1 — Snow pickup feel — IMPLEMENTED on `integration/build-intensity-baseline`
 
 Replace literal world snowflakes with chunky Snow.
 
@@ -80,7 +81,9 @@ Deliver:
 - HUD keeps ❄ symbol if useful
 - resource copy standardized to “Snow”
 
-Preserve existing wallet/XP seams while art/feel changes.
+Implemented: SMALL / CHUNKY / BIG / JACKPOT value tiers, landing feel, grounded
+wobble, magnet suction using `pickup_bonus`, collection FX, and preserved wallet
+and XP semantics. World loot is chunky Snow; the HUD may retain ❄.
 
 ## Phase 2 — Weapon Rack foundation — IMPLEMENTED at `codex/weapon-rack-foundation@44296b8`
 
@@ -98,7 +101,7 @@ Deliver:
 
 Do not add every weapon yet. First prove the slot architecture.
 
-## Phase 3 — Weapon tiers, merging, classes — IMPLEMENTED on `feature/weapon-tiers-classes`
+## Phase 3 — Weapon tiers, merging, classes — IMPLEMENTED on `integration/build-intensity-baseline`
 
 Deliver:
 
@@ -124,12 +127,15 @@ Initial class list:
 - Explosive
 
 The current representative set is Ice Lance (Ice + Precision) and Fish Cleaver
-(Fish + Blade). No merge UI, shop offers, recycle/sell rule, or class bonus is
-implemented yet; those remain in the upcoming Field Shop and systems work.
+(Fish + Blade). Merge APIs are internal evolution primitives: no merge UI,
+automatic duplicate merge, or maturation-timing policy is implemented. Duplicate
+weapons remain independently firing slot commitments. Shop offers, recycle/sell
+rules, and class bonuses remain future systems work.
 
 ## Phase 4 — Real Field Shop
 
-Goal: replace the current temporary upgrade UI with the true between-wave run shop.
+Goal: replace the current temporary upgrade UI with a between-wave run shop for
+acquiring and committing build pieces.
 
 Deliver:
 
@@ -139,26 +145,31 @@ Deliver:
 - lock
 - price/reroll escalation
 - weapon offers
-- passive/item offers
+- item/relic/passive offers
 - class-aware weighting
-- merge awareness
+- six-slot pressure and duplicate-commitment visibility
 - ready-up
 - controller + mouse + touch consideration
 
 Township stays separate.
 
-## Phase 5 — Level-up system cleanup
+## Phase 5 — Build Intensity & Evolution
 
-Deliver:
+Goal: turn accumulated run commitment into delayed progression without direct
+weapon or skill upgrade shopping.
 
-- 4 upgrade choices per level
-- rarity tiers
-- stat categories
-- readable comparison
-- personal choice queues
-- no choices stranded on room transition
+Future questions:
 
-Current quick-upgrade prototype can then retire.
+- what contributes to weapon intensity?
+- when does maturation resolve?
+- can one maturation event advance only one tier?
+- how should duplicate slot commitment work?
+- how do classes and future items influence character skill maturation?
+- what role does XP or Expedition Rank play?
+- how is evolution communicated clearly?
+
+The current quick-upgrade prototype remains functional while this direction is
+prototyped. It is not the intended final level-up loop.
 
 ## Phase 6 — RunPlan / global 20-wave structure
 

@@ -17,22 +17,22 @@ There are two runnable scenes. `scenes/arena/test_arena.tscn` is the single-aren
 
 ## Play the test arena
 
-- Player 1: **WASD**, **Space** dash, **Q / E / T** damage/speed/Harvest upgrades, **B** build castle, **F** ready for next wave.
-- Player 2: **Arrow keys**, **Ctrl** dash, **Enter / Shift / Period** upgrades, **N** build castle, **Slash (/)** ready.
-- Each assigned gamepad: **left stick**, **X** dash, **A / B / right bumper** upgrades, **Y** build castle, **Start** ready.
+- Player 1: **WASD**, **Space** dash, **Q / E / T** transitional damage/speed/Harvest test upgrades, **B** build castle, **F** ready for next wave.
+- Player 2: **Arrow keys**, **Ctrl** dash, **Enter / Shift / Period** transitional test upgrades, **N** build castle, **Slash (/)** ready.
+- Each assigned gamepad: **left stick**, **X** dash, **A / B / right bumper** transitional test upgrades, **Y** build castle, **Start** ready.
 - Attacks automatically strike the nearest enemy within weapon range.
 - **R** restarts the run, including after victory or a party wipe.
-- Upgrade choices in the character sheet are mouse-clickable. Build and ready are keyboard or gamepad on desktop; the mobile layout gives them their own touch buttons. Upgrades are chosen in the between-wave shop, and all living players must ready up before the next wave.
+- Upgrade choices in the character sheet are mouse-clickable transitional prototype controls. Build and ready are keyboard or gamepad on desktop; the mobile layout gives them their own touch buttons. All living players must ready up before the next wave.
 
-### Supplies, snowflakes and defenses
+### Supplies, Snow and defenses
 
-Two breakable snowmen supply the arena. Weapons prioritize enemies, then target snowmen in range; cleaver sweeps can hit both. Each snowman drops a **25 HP** pickup and **3 snowflakes**. Full-health players leave healing on the ground. Missing snowmen return at the next wave; intact ones remain.
+Two breakable snowmen supply the arena. Weapons prioritize enemies, then target snowmen in range; cleaver sweeps can hit both. Each snowman drops a **25 HP** pickup and **3 Snow**. Full-health players leave healing on the ground. Missing snowmen return at the next wave; intact ones remain.
 
-Enemy defeats drop **2 snowflakes** rather than immediately granting XP. Either player can collect a drop; its units are split round-robin among living players into **personal wallets**, also awarding XP. Uncollected snowflakes enter the run's reserve after a wave and add matching bonus value to future pickups. Downed players receive no allocation. Wallets and reserves reset with the run.
+Enemy defeats drop **2 Snow** rather than immediately granting XP. World Snow is chunky physical loot: value drives SMALL, CHUNKY, BIG, or JACKPOT presentation, with a landing arc, wobble, magnet suction, and collection puff. Either player can collect a drop; its units are split round-robin among living players into **personal wallets**, also awarding XP. Uncollected Snow enters the run's reserve after a wave and adds matching bonus value to future pickups. Downed players receive no allocation. Wallets and reserves reset with the run.
 
 **Harvest** starts at x1.00 and upgrades by +0.25. It multiplies that player's income and corresponding XP, including the **5 base income** paid after each completed wave. Fractional earnings are retained so small drops still benefit. This multiplier is our chosen variation, not an exact copy of Brotato's flat harvesting stat.
 
-XP still grants free stat choices. Extra upgrades cost **6 snowflakes**, increasing by **3 per personal paid purchase**. Shopping happens between waves; a purchase clears that player's ready status. The character sheet now offers 15 upgrades, including armor, regeneration, typed damage, critical hits, dodge, Engineering and Harvest. The original three remain quick shortcuts. Randomized items, rerolls and a full skill system are future work; weapon tier merging is now a rack API for the future Field Shop and inventory UI.
+Current XP choices and paid stat upgrades remain functional transitional prototype infrastructure. The approved direction is **Acquire → Commit → Survive → Mature**: future runs acquire weapons and items/relics, commit scarce rack capacity and build identity, and resolve power only at meaningful maturation moments. The timing and trigger for that maturation are deliberately undecided. Randomized items, rerolls and a full skill system are future work; weapon-tier merging remains an internal rack evolution primitive, not an ordinary player-facing upgrade command.
 
 ### Android and character stats
 
@@ -40,7 +40,7 @@ Use **Stats / more upgrades** on desktop to open the character sheet. Preview th
 
 The Android debug APK now builds and passes signing/alignment checks. Find it locally at `builds/penguin-wars-debug.apk`. **Physical phone testing remains pending.** Rebuild on this PC with `./tools/build-android.ps1 -WorkspaceToolchain`. See [mobile-and-stats.md](docs/mobile-and-stats.md) for stat formulas, extension points, preview controls and export setup.
 
-**Snow castles are player-built defenses.** Spend **10 personal snowflakes** to place one on open ice in front of your penguin. Each player can build one per run. It fires friendly snowballs for **8 damage every 0.9 seconds**, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves and reset with the run; they are currently indestructible support structures, with enemies continuing to target penguins.
+**Snow castles are player-built defenses.** Spend **10 personal Snow** to place one on open ice in front of your penguin. Each player can build one per run. It fires friendly snowballs for **8 damage every 0.9 seconds**, with **275-pixel targeting range**, and never damages teammates. Invalid placements spend nothing. Castles persist between waves and reset with the run; they are currently indestructible support structures, with enemies continuing to target penguins.
 
 The architecture contract and every extension point are written up in [architecture.md](docs/architecture.md). The town, nurse, blacksmith, town hall and branching caves are built; see [Town and caves](#town-and-caves) below and [hub-and-dungeons.md](docs/hub-and-dungeons.md) for what the direction still leaves open. In the arena slice a castle lasts the run; in a cave it belongs to the room it was built in.
 
@@ -48,7 +48,7 @@ The architecture contract and every extension point are written up in [architect
 
 P1 (and P3) carries the **Ice Lance**: a fast single-target strike with 240-pixel range, 14 damage and a 0.42-second cooldown. P2 (and P4) carries the **Fish Cleaver**: a 140-degree sweep that damages every enemy in its 105-pixel reach for 22 damage, with a 1.05-second cooldown and stronger knockback. Both aim automatically at the nearest enemy. These are initial tuning values, not final balance.
 
-Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability during that burst. The 1.1-second cooldown starts when the dash begins. Move to set direction, or dash along the last movement direction when stationary. Holding the button does not repeat dashes. Each player owns a six-slot personal weapon rack; the default loadout occupies slot 0 and the HUD shows its five remaining empty slots beside level, health and personal Snow. Ice Lance and Fish Cleaver have immutable Tier I–IV definition chains; matching copies merge through the rack and the HUD marks occupied-slot tiers. Hit flashes, floating damage, expanding impact rings, dash trails and cleaver arcs make combat events visible. No global hit pause or camera shake disrupts the other player's view.
+Dashes travel at 680 pixels/second for 0.16 seconds and grant invulnerability during that burst. The 1.1-second cooldown starts when the dash begins. Move to set direction, or dash along the last movement direction when stationary. Holding the button does not repeat dashes. Each player owns a six-slot personal weapon rack; the default loadout occupies slot 0 and the HUD shows its five remaining empty slots beside level, health and personal Snow. Ice Lance and Fish Cleaver have immutable Tier I–IV definition chains and class tags; their mechanical merge primitives are reserved for a future maturation policy. Duplicates remain independently firing weapons that consume separate slots, with no automatic merge or ordinary-run merge button. Hit flashes, floating damage, expanding impact rings, dash trails and cleaver arcs make combat events visible. No global hit pause or camera shake disrupts the other player's view.
 
 ### Enemy roles
 
@@ -69,7 +69,7 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 
 The party starts in **Kelphollow**. Services are entered by standing at them, so the town adds no bindings to learn: the same keys that pick wave-shop upgrades pick that service's three offers (P1 **Q/E/T**, P2 **Enter/Shift/Period**, gamepad **A/B/RB**). Step away and the panel closes.
 
-| Building | Keeper | Offers · cost in snowflakes |
+| Building | Keeper | Offers · cost in Snow |
 | --- | --- | --- |
 | Fisher's Stall | Marra | Herring ration, 40 health · **4** — Packed snow, +12 maximum health · **8** — Traveller's charm, +0.25 Harvest · **11** |
 | Nurse's Hut | Sister Pell | Warm compress, full health · **6** — Rouse a fallen friend, revive at 40% · **14** — Kelp tonic, +0.4 regeneration · **10** |
@@ -90,7 +90,7 @@ A room may also end in a **boss**: when its `EncounterDefinition` names one, the
 
 Routes are physical doorways cut into the room walls, barricaded until the room is cleared. They open only while **every living penguin is inside the same doorway together**, after a short dwell. Stepping out cancels it. Branching therefore needs no new input binding, and one player cannot drag the party through a door. Downed penguins are not waited for.
 
-What crosses a room boundary: wallets, stats, levels, purchase counts, carried weapons and current health. What does not: enemies, projectiles, uncollected snowflakes, snowmen and built castles. A castle belongs to the room it was built in, and its owner may build another in the next room — room persistence for defences remains an open decision.
+What crosses a room boundary: wallets, stats, levels, purchase counts, carried weapons and current health. What does not: enemies, projectiles, uncollected Snow, snowmen and built castles. A castle belongs to the room it was built in, and its owner may build another in the next room — room persistence for defences remains an open decision.
 
 Returning to town records the cave in the run journal and the elder's meeting changes. The journal is run-scoped: **R** restarts the run and the town forgets. Save data, persistent unlocks, and the split between permanent and temporary blacksmith power are still open design questions. Service panels are keyboard and gamepad only; the Android touch layout covers the arena slice, not the town.
 
@@ -161,9 +161,11 @@ godot --headless --path . --script res://tests/economy_test.gd
 godot --headless --path . --script res://tests/stats_mobile_test.gd
 godot --headless --path . --script res://tests/weapon_rack_test.gd
 godot --headless --path . --script res://tests/weapon_tiers_test.gd
+godot --headless --path . --script res://tests/snow_pickup_test.gd
 godot --path . --script res://tests/render_smoke.gd
 godot --path . --script res://tests/weapon_rack_render_smoke.gd
 godot --path . --script res://tests/weapon_tiers_render_smoke.gd
+godot --path . --script res://tests/snow_pickup_render_smoke.gd
 godot --path . --script res://tests/enemy_render_smoke.gd
 godot --path . --script res://tests/economy_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd
