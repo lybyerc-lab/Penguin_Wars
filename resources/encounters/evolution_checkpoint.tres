@@ -14,3 +14,7 @@ base_count = 2
 spawn_interval = 0.35
 wave_count = 6
 run_seed = 5085
+pacing_mode = 1
+timed_wave_durations = PackedFloat32Array(20, 25, 30, 35, 40, 45)
+intermission_duration = 3.0
+timed_max_alive = 8
