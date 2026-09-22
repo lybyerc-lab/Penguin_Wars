@@ -1,11 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="48" viewBox="0 0 32 48">
-  <!-- Rear Flipper: Darker tone for depth separation; pivot at (16, 8) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="44" height="56" viewBox="0 0 44 56">
   <defs>
-    <linearGradient id="flipRearGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1f2f40"/>
-      <stop offset="100%" stop-color="#0e1722"/>
+    <linearGradient id="wingGrad" x1="0.1" y1="0.0" x2="0.8" y2="1.0">
+      <stop offset="0%" stop-color="#32475e"/>
+      <stop offset="50%" stop-color="#223347"/>
+      <stop offset="100%" stop-color="#142130"/>
     </linearGradient>
   </defs>
-  <path d="M 16,8 C 22,8 25,14 24,24 C 23,35 17,43 13,43 C 9,43 7,37 8,26 C 9,15 11,8 16,8 Z"
-        fill="url(#flipRearGrad)" stroke="#081018" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- Rear flipper / wing; pivot at rear shoulder (28, 12) -->
+  <path d="M 28,10
+           C 18,10 10,18 10,30
+           C 10,44 18,52 26,52
+           C 34,52 38,42 36,30
+           C 34,18 32,10 28,10 Z"
+        fill="url(#wingGrad)" stroke="#0a121c" stroke-width="3.0" stroke-linejoin="round"/>
 </svg>

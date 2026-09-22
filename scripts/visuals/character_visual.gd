@@ -74,7 +74,7 @@ const TEX_SEAL = preload("res://assets/characters/seal_raider.svg")
 
 const HIT_DURATION: float = 0.18
 const REVIVE_DURATION: float = 0.35
-const PUPPET_BASE_SCALE: float = 0.70
+const PUPPET_BASE_SCALE: float = 0.48
 
 func _ready() -> void:
 	_actor = get_parent() as CharacterBody2D
@@ -108,14 +108,14 @@ func _setup_player() -> void:
 
 	_rear_flipper = Sprite2D.new()
 	_rear_flipper.texture = TEX_FLIPPER_REAR
-	_rear_flipper.offset = Vector2(0, 14)
+	_rear_flipper.offset = Vector2(0, 16)
 	_rear_flipper.z_index = -2
 	_pivot.add_child(_rear_flipper)
 
 	_rear_foot = Sprite2D.new()
 	_rear_foot.texture = TEX_FOOT
-	_rear_foot.offset = Vector2(2, 4)
-	_rear_foot.z_index = -1
+	_rear_foot.offset = Vector2(0, 6)
+	_rear_foot.z_index = 8
 	_pivot.add_child(_rear_foot)
 
 	_torso = Sprite2D.new()
@@ -150,21 +150,21 @@ func _setup_player() -> void:
 
 	_scarf_tail = Sprite2D.new()
 	_scarf_tail.texture = TEX_SCARF_TAIL
-	_scarf_tail.offset = Vector2(0, 14)
+	_scarf_tail.offset = Vector2(-16, 0)
 	_scarf_tail.z_index = 6
 	_pivot.add_child(_scarf_tail)
 
-	_front_foot = Sprite2D.new()
-	_front_foot.texture = TEX_FOOT
-	_front_foot.offset = Vector2(2, 4)
-	_front_foot.z_index = 7
-	_pivot.add_child(_front_foot)
-
 	_front_flipper = Sprite2D.new()
 	_front_flipper.texture = TEX_FLIPPER_FRONT
-	_front_flipper.offset = Vector2(0, 14)
-	_front_flipper.z_index = 8
+	_front_flipper.offset = Vector2(0, 16)
+	_front_flipper.z_index = 7
 	_pivot.add_child(_front_flipper)
+
+	_front_foot = Sprite2D.new()
+	_front_foot.texture = TEX_FOOT
+	_front_foot.offset = Vector2(0, 6)
+	_front_foot.z_index = 8
+	_pivot.add_child(_front_foot)
 
 	_setup_halo()
 	_update_team_tint()
@@ -319,33 +319,36 @@ func _apply_pose_idle(_delta: float) -> void:
 	_halo.visible = false
 
 	var breath: float = sin(_time * 2.8)
-	_torso.position = Vector2(0, -10 + breath * 0.8)
+	_torso.position = Vector2(0, 14 + breath * 0.7)
 	_torso.rotation = 0.0
-	_torso.scale = Vector2(1.0 + breath * 0.02, 1.0 - breath * 0.02)
+	_torso.scale = Vector2(1.0 + breath * 0.015, 1.0 - breath * 0.015)
 	_belly.position = _torso.position
 	_belly.rotation = 0.0
 	_belly.scale = _torso.scale
 
-	_head.position = Vector2(2, -22 + breath * 0.9)
+	_head.position = Vector2(0, -18 + breath * 0.9)
 	_head.rotation = 0.0
-	_eyes.position = Vector2(8, -21 + breath * 0.9)
-	_eyes.rotation = 0.0
-	_beak.position = Vector2(18, -16 + breath * 0.9)
-	_beak.rotation = 0.0
+	_head.scale = Vector2.ONE
+	_eyes.position = _head.position
+	_eyes.rotation = _head.rotation
+	_eyes.scale = _head.scale
+	_beak.position = _head.position
+	_beak.rotation = _head.rotation
+	_beak.scale = _head.scale
 
-	_scarf_wrap.position = Vector2(3, -14 + breath * 0.8)
+	_scarf_wrap.position = Vector2(2, 2 + breath * 0.8)
 	_scarf_wrap.rotation = 0.0
-	_scarf_tail.position = Vector2(-10, -8 + breath * 0.8)
+	_scarf_tail.position = Vector2(-24, 2 + breath * 0.8)
 	_scarf_tail.rotation = sin(_time * 2.8 - 0.4) * 0.06
 
-	_front_flipper.position = Vector2(14, -6)
-	_front_flipper.rotation = 0.06 + breath * 0.03
-	_rear_flipper.position = Vector2(-16, -7)
+	_front_flipper.position = Vector2(32, 14)
+	_front_flipper.rotation = 0.12 + breath * 0.03
+	_rear_flipper.position = Vector2(-26, 10)
 	_rear_flipper.rotation = -0.06 - breath * 0.03
 
-	_front_foot.position = Vector2(10, 13)
+	_front_foot.position = Vector2(16, 42)
 	_front_foot.rotation = 0.0
-	_rear_foot.position = Vector2(-12, 12)
+	_rear_foot.position = Vector2(-16, 40)
 	_rear_foot.rotation = 0.0
 
 func _apply_pose_waddle(delta: float) -> void:
@@ -355,41 +358,44 @@ func _apply_pose_waddle(delta: float) -> void:
 
 	_waddle_time += delta
 	var w_phase: float = _waddle_time * 12.0
-	var forward_lean: float = 0.20
-	var sway: float = sin(w_phase) * 0.24
+	var forward_lean: float = 0.18
+	var sway: float = sin(w_phase) * 0.20
 	var bounce: float = absf(sin(w_phase)) * 2.8
 
-	_torso.position = Vector2(sway * 5.0, -10 - bounce)
+	_torso.position = Vector2(sway * 4.0, 14 - bounce)
 	_torso.rotation = sway + forward_lean
 	_torso.scale = Vector2.ONE
 	_belly.position = _torso.position
 	_belly.rotation = _torso.rotation
 	_belly.scale = Vector2.ONE
 
-	_head.position = Vector2(2 + sway * 10.0, -22 - bounce)
+	_head.position = Vector2(sway * 8.0, -18 - bounce)
 	_head.rotation = sway * 0.8 + forward_lean
-	_eyes.position = Vector2(8 + sway * 10.0, -21 - bounce)
+	_head.scale = Vector2.ONE
+	_eyes.position = _head.position
 	_eyes.rotation = _head.rotation
-	_beak.position = Vector2(18 + sway * 10.0, -16 - bounce)
+	_eyes.scale = _head.scale
+	_beak.position = _head.position
 	_beak.rotation = _head.rotation
+	_beak.scale = _head.scale
 
-	_scarf_wrap.position = Vector2(3 + sway * 6.0, -14 - bounce)
+	_scarf_wrap.position = Vector2(2 + sway * 5.0, 2 - bounce)
 	_scarf_wrap.rotation = sway * 0.9 + forward_lean
-	_scarf_tail.position = Vector2(-10, -8 - bounce)
+	_scarf_tail.position = Vector2(-24, 2 - bounce)
 	_scarf_tail.rotation = sin(w_phase - 0.8) * 0.35 - 0.15
 
 	# Alternating foot stepping with visible weight transfer and clear daylight lift
-	var r_step: float = maxf(0.0, sin(w_phase)) * 10.0
-	var l_step: float = maxf(0.0, -sin(w_phase)) * 10.0
-	_front_foot.position = Vector2(10, 13 - r_step)
-	_front_foot.rotation = -r_step * 0.05
-	_rear_foot.position = Vector2(-12, 12 - l_step)
-	_rear_foot.rotation = l_step * 0.05
+	var r_step: float = maxf(0.0, sin(w_phase)) * 9.0
+	var l_step: float = maxf(0.0, -sin(w_phase)) * 9.0
+	_front_foot.position = Vector2(16, 42 - r_step)
+	_front_foot.rotation = -r_step * 0.04
+	_rear_foot.position = Vector2(-16, 40 - l_step)
+	_rear_foot.rotation = l_step * 0.04
 
 	# Counter-balancing flippers
-	_front_flipper.position = Vector2(14, -6 - bounce)
+	_front_flipper.position = Vector2(32, 14 - bounce)
 	_front_flipper.rotation = -sin(w_phase) * 0.65 + 0.15
-	_rear_flipper.position = Vector2(-16, -7 - bounce)
+	_rear_flipper.position = Vector2(-26, 10 - bounce)
 	_rear_flipper.rotation = sin(w_phase) * 0.60 - 0.15
 
 func _apply_pose_dash(_delta: float) -> void:
@@ -397,34 +403,37 @@ func _apply_pose_dash(_delta: float) -> void:
 	_beak.texture = TEX_BEAK
 	_halo.visible = false
 
-	var lean: float = 0.65
-	_torso.position = Vector2(8, -8)
+	var lean: float = 0.58
+	_torso.position = Vector2(10, 14)
 	_torso.rotation = lean
-	_torso.scale = Vector2(1.10, 0.92)
+	_torso.scale = Vector2(1.08, 0.94)
 	_belly.position = _torso.position
 	_belly.rotation = lean
 	_belly.scale = _torso.scale
 
-	_head.position = Vector2(16, -18)
+	_head.position = Vector2(16, -16)
 	_head.rotation = lean * 0.95
-	_eyes.position = Vector2(22, -17)
-	_eyes.rotation = lean * 0.95
-	_beak.position = Vector2(32, -13)
-	_beak.rotation = lean * 0.95
+	_head.scale = Vector2.ONE
+	_eyes.position = _head.position
+	_eyes.rotation = _head.rotation
+	_eyes.scale = _head.scale
+	_beak.position = _head.position
+	_beak.rotation = _head.rotation
+	_beak.scale = _head.scale
 
-	_scarf_wrap.position = Vector2(11, -12)
+	_scarf_wrap.position = Vector2(12, 0)
 	_scarf_wrap.rotation = lean
-	_scarf_tail.position = Vector2(-10, -6)
-	_scarf_tail.rotation = -1.10 + sin(_time * 28.0) * 0.12
+	_scarf_tail.position = Vector2(-22, 0)
+	_scarf_tail.rotation = -1.15 + sin(_time * 28.0) * 0.12
 
-	_front_flipper.position = Vector2(12, -6)
+	_front_flipper.position = Vector2(20, 12)
 	_front_flipper.rotation = -1.15
-	_rear_flipper.position = Vector2(-14, -8)
+	_rear_flipper.position = Vector2(-22, 10)
 	_rear_flipper.rotation = -1.05
 
-	_front_foot.position = Vector2(4, 7)
+	_front_foot.position = Vector2(10, 36)
 	_front_foot.rotation = 0.40
-	_rear_foot.position = Vector2(-16, 5)
+	_rear_foot.position = Vector2(-14, 34)
 	_rear_foot.rotation = 0.35
 
 func _apply_pose_hit(_delta: float) -> void:
@@ -436,33 +445,36 @@ func _apply_pose_hit(_delta: float) -> void:
 	var recoil_rot: float = -0.38 * p
 	var recoil_y: float = -8.5 * sin(p * PI)
 
-	_torso.position = Vector2(-6 * p, -10 + recoil_y)
+	_torso.position = Vector2(-6 * p, 14 + recoil_y)
 	_torso.rotation = recoil_rot
-	_torso.scale = Vector2(0.90, 1.10)
+	_torso.scale = Vector2(0.92, 1.08)
 	_belly.position = _torso.position
 	_belly.rotation = recoil_rot
 	_belly.scale = _torso.scale
 
-	_head.position = Vector2(-3 * p, -22 + recoil_y)
+	_head.position = Vector2(-4 * p, -18 + recoil_y)
 	_head.rotation = recoil_rot * 1.15
-	_eyes.position = Vector2(5 * p, -21 + recoil_y)
-	_eyes.rotation = recoil_rot
-	_beak.position = Vector2(18 * p, -16 + recoil_y)
-	_beak.rotation = recoil_rot
+	_head.scale = Vector2.ONE
+	_eyes.position = _head.position
+	_eyes.rotation = _head.rotation
+	_eyes.scale = _head.scale
+	_beak.position = _head.position
+	_beak.rotation = _head.rotation
+	_beak.scale = _head.scale
 
-	_scarf_wrap.position = Vector2(0, -14 + recoil_y)
+	_scarf_wrap.position = Vector2(2 - 2 * p, 2 + recoil_y)
 	_scarf_wrap.rotation = recoil_rot
-	_scarf_tail.position = Vector2(-14, -8 + recoil_y)
+	_scarf_tail.position = Vector2(-24 - 4 * p, 2 + recoil_y)
 	_scarf_tail.rotation = 0.50 * p
 
-	_front_flipper.position = Vector2(12, -6 + recoil_y)
+	_front_flipper.position = Vector2(32, 14 + recoil_y)
 	_front_flipper.rotation = 0.95 * p
-	_rear_flipper.position = Vector2(-18, -7 + recoil_y)
+	_rear_flipper.position = Vector2(-26, 10 + recoil_y)
 	_rear_flipper.rotation = -0.85 * p
 
-	_front_foot.position = Vector2(14, 13 - 7.0 * sin(p * PI))
+	_front_foot.position = Vector2(16, 42 - 7.0 * sin(p * PI))
 	_front_foot.rotation = -0.35 * p
-	_rear_foot.position = Vector2(-12, 12)
+	_rear_foot.position = Vector2(-16, 40)
 	_rear_foot.rotation = 0.15 * p
 
 func _apply_pose_downed(delta: float) -> void:
@@ -472,40 +484,43 @@ func _apply_pose_downed(delta: float) -> void:
 
 	var d_breath: float = sin(_time * 2.2) * 0.75
 
-	_torso.position = Vector2(0, 7 + d_breath)
+	_torso.position = Vector2(0, 24 + d_breath)
 	_torso.rotation = 0.0
 	_torso.scale = Vector2(1.28, 0.52)
 	_belly.position = _torso.position
 	_belly.rotation = 0.0
 	_belly.scale = _torso.scale
 
-	_head.position = Vector2(18, 4 + d_breath)
+	_head.position = Vector2(22, 22 + d_breath)
 	_head.rotation = 0.08
-	_eyes.position = Vector2(24, 3 + d_breath)
-	_eyes.rotation = 0.08
-	_beak.position = Vector2(32, 6 + d_breath)
-	_beak.rotation = 0.08
+	_head.scale = Vector2(1.15, 0.60)
+	_eyes.position = _head.position
+	_eyes.rotation = _head.rotation
+	_eyes.scale = _head.scale
+	_beak.position = _head.position
+	_beak.rotation = _head.rotation
+	_beak.scale = _head.scale
 
-	_scarf_wrap.position = Vector2(14, 5 + d_breath)
+	_scarf_wrap.position = Vector2(16, 22 + d_breath)
 	_scarf_wrap.rotation = 0.0
-	_scarf_tail.position = Vector2(6, 7 + d_breath)
+	_scarf_tail.position = Vector2(4, 24 + d_breath)
 	_scarf_tail.rotation = 1.42
 
-	_front_flipper.position = Vector2(14, 7)
+	_front_flipper.position = Vector2(36, 26)
 	_front_flipper.rotation = 1.45
-	_rear_flipper.position = Vector2(-20, 5)
+	_rear_flipper.position = Vector2(-30, 24)
 	_rear_flipper.rotation = -1.45
 
-	_front_foot.position = Vector2(-16, 8)
+	_front_foot.position = Vector2(-20, 26)
 	_front_foot.rotation = 0.60
-	_rear_foot.position = Vector2(-28, 6)
+	_rear_foot.position = Vector2(-32, 24)
 	_rear_foot.rotation = -0.40
 
-	# Halo orbital loop (2 fish and 4 stars in elliptical path)
+	# Halo orbital loop (2 fish and 4 stars in elliptical path above head)
 	_halo_angle += delta * 3.2
-	_halo.position = Vector2(_facing_direction * 18.0, -14.0)
+	_halo.position = Vector2(_facing_direction * 10.0, -14.0)
 	var rx: float = 24.0
-	var ry: float = 7.5
+	var ry: float = 8.0
 
 	# 2 Fish at opposite angles
 	_halo_fish_1.position = Vector2(cos(_halo_angle) * rx, sin(_halo_angle) * ry)
@@ -534,7 +549,7 @@ func _apply_pose_revive(_delta: float) -> void:
 	var push_t: float = clampf(progress / 0.65, 0.0, 1.0)
 	var tuck_t: float = clampf((progress - 0.4) / 0.6, 0.0, 1.0)
 
-	var y_pos: float = lerpf(7.0, -10.0, push_t)
+	var y_pos: float = lerpf(24.0, 14.0, push_t)
 	var sx: float = lerpf(1.28, 1.0, push_t)
 	var sy: float = lerpf(0.52, 1.0, push_t)
 
@@ -545,28 +560,31 @@ func _apply_pose_revive(_delta: float) -> void:
 	_belly.rotation = _torso.rotation
 	_belly.scale = _torso.scale
 
-	_head.position = Vector2(lerpf(18.0, 2.0, push_t), y_pos - 12.0)
+	_head.position = Vector2(lerpf(22.0, 0.0, push_t), lerpf(22.0, -18.0, push_t))
 	_head.rotation = lerpf(0.08, 0.0, push_t)
-	_eyes.position = Vector2(lerpf(24.0, 8.0, push_t), y_pos - 11.0)
+	_head.scale = Vector2(lerpf(1.15, 1.0, push_t), lerpf(0.60, 1.0, push_t))
+	_eyes.position = _head.position
 	_eyes.rotation = _head.rotation
-	_beak.position = Vector2(lerpf(32.0, 18.0, push_t), y_pos - 6.0)
+	_eyes.scale = _head.scale
+	_beak.position = _head.position
 	_beak.rotation = _head.rotation
+	_beak.scale = _head.scale
 
-	_scarf_wrap.position = Vector2(lerpf(14.0, 3.0, push_t), y_pos - 4.0)
+	_scarf_wrap.position = Vector2(lerpf(16.0, 2.0, push_t), lerpf(22.0, 2.0, push_t))
 	_scarf_wrap.rotation = 0.0
-	_scarf_tail.position = Vector2(lerpf(6.0, -10.0, push_t), y_pos + 2.0)
+	_scarf_tail.position = Vector2(lerpf(4.0, -24.0, push_t), lerpf(24.0, 2.0, push_t))
 	_scarf_tail.rotation = lerpf(1.42, 0.0, tuck_t)
 
 	# Flippers pushing down against ice, then returning to sides
-	_front_flipper.position = Vector2(lerpf(14.0, 14.0, push_t), y_pos + 4.0)
+	_front_flipper.position = Vector2(lerpf(36.0, 32.0, push_t), lerpf(26.0, 14.0, push_t))
 	_front_flipper.rotation = lerpf(1.45, 0.06, tuck_t)
-	_rear_flipper.position = Vector2(lerpf(-20.0, -16.0, push_t), y_pos + 3.0)
+	_rear_flipper.position = Vector2(lerpf(-30.0, -26.0, push_t), lerpf(24.0, 10.0, push_t))
 	_rear_flipper.rotation = lerpf(-1.45, -0.06, tuck_t)
 
 	# Feet tucking back underneath
-	_front_foot.position = Vector2(lerpf(-16.0, 10.0, tuck_t), lerpf(8.0, 13.0, tuck_t))
+	_front_foot.position = Vector2(lerpf(-20.0, 16.0, tuck_t), lerpf(26.0, 42.0, tuck_t))
 	_front_foot.rotation = lerpf(0.60, 0.0, tuck_t)
-	_rear_foot.position = Vector2(lerpf(-28.0, -12.0, tuck_t), lerpf(6.0, 12.0, tuck_t))
+	_rear_foot.position = Vector2(lerpf(-32.0, -16.0, tuck_t), lerpf(24.0, 40.0, tuck_t))
 	_rear_foot.rotation = lerpf(-0.40, 0.0, tuck_t)
 
 func _draw() -> void:
@@ -577,33 +595,33 @@ func _draw() -> void:
 		return
 
 	# Soft ground shadow dynamically shaped by character state
-	var sy: float = 14.0
-	var sx: float = 28.0
-	var s_scale_y: float = 9.5
-	var alpha: float = 0.34
+	var sy: float = 22.0
+	var sx: float = 34.0
+	var s_scale_y: float = 11.0
+	var alpha: float = 0.38
 
 	match current_state:
 		State.DASH:
-			sy = 13.0
-			sx = 34.0
-			s_scale_y = 7.0
-			alpha = 0.38
-		State.DOWNED:
-			sy = 9.0
+			sy = 18.0
 			sx = 38.0
-			s_scale_y = 12.0
-			alpha = 0.40
+			s_scale_y = 9.0
+			alpha = 0.42
+		State.DOWNED:
+			sy = 16.0
+			sx = 44.0
+			s_scale_y = 14.0
+			alpha = 0.44
 		State.HIT:
-			sy = 14.0
-			sx = 23.0
-			s_scale_y = 8.0
-			alpha = 0.28
+			sy = 22.0
+			sx = 28.0
+			s_scale_y = 10.0
+			alpha = 0.32
 		State.REVIVE:
 			var t: float = 1.0 - (_revive_timer / REVIVE_DURATION)
-			sy = lerpf(9.0, 14.0, t)
-			sx = lerpf(38.0, 28.0, t)
-			s_scale_y = lerpf(12.0, 9.5, t)
-			alpha = lerpf(0.40, 0.34, t)
+			sy = lerpf(16.0, 22.0, t)
+			sx = lerpf(44.0, 34.0, t)
+			s_scale_y = lerpf(14.0, 11.0, t)
+			alpha = lerpf(0.44, 0.38, t)
 
 	draw_set_transform(Vector2(0, sy), 0, Vector2(sx / 20.0, s_scale_y / 20.0))
 	draw_circle(Vector2.ZERO, 20.0, Color(0.02, 0.08, 0.16, alpha))

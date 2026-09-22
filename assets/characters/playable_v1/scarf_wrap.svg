@@ -1,18 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="56" height="32" viewBox="0 0 56 32">
-  <!-- Scarf Wrap: Puffy neck collar with knot matching Concept C -->
+<svg xmlns="http://www.w3.org/2000/svg" width="90" height="44" viewBox="0 0 90 44">
   <defs>
-    <linearGradient id="scarfGrad" x1="0" y1="0" x2="0.3" y2="1">
+    <linearGradient id="scarfGrad" x1="0.2" y1="0.0" x2="0.5" y2="1.0">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="60%" stop-color="#e2eff3"/>
-      <stop offset="100%" stop-color="#adc8d2"/>
+      <stop offset="60%" stop-color="#edf5f8"/>
+      <stop offset="100%" stop-color="#bfd6e2"/>
     </linearGradient>
   </defs>
-  <!-- Broad puffy neck wrap -->
-  <path d="M 8,14 C 18,22 36,22 48,14 C 52,19 48,25 40,27 C 26,30 14,28 6,21 Z"
-        fill="url(#scarfGrad)" stroke="#1a3244" stroke-width="2.8" stroke-linejoin="round"/>
-  <!-- Chunky knot on the front-right flank -->
-  <path d="M 37,16 C 41,13 46,15 46,20 C 46,25 40,27 37,23 Z"
-        fill="#ffffff" stroke="#1a3244" stroke-width="2.5" stroke-linejoin="round"/>
-  <!-- Fabric fold lines -->
-  <path d="M 14,17 Q 26,24 38,18" fill="none" stroke="#8faebc" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- Puffy plush neck collar wrap matching Concept C Pose 1 -->
+  <path d="M 16,16
+           C 30,26 58,26 78,16
+           C 84,20 83,28 76,33
+           C 56,43 28,42 12,30
+           C 10,24 12,18 16,16 Z"
+        fill="url(#scarfGrad)" stroke="#0a121c" stroke-width="3.2" stroke-linejoin="round"/>
+
+  <!-- Subtle fold lines -->
+  <path d="M 22,22 C 26,28 26,33 22,37" fill="none" stroke="#a0b8c9" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M 70,22 C 67,27 67,31 70,34" fill="none" stroke="#a0b8c9" stroke-width="1.8" stroke-linecap="round"/>
 </svg>

@@ -1,12 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 56 56">
-  <!-- Head: Chunky, slightly rounded head mass with 2-point crown crest tuft matching approved sheet -->
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="80" viewBox="0 0 100 80">
   <defs>
-    <linearGradient id="headGrad" x1="0.1" y1="0" x2="0.6" y2="1">
-      <stop offset="0%" stop-color="#2c4055"/>
+    <linearGradient id="cowlGrad" x1="0.2" y1="0.0" x2="0.8" y2="1.0">
+      <stop offset="0%" stop-color="#32475e"/>
+      <stop offset="50%" stop-color="#223347"/>
       <stop offset="100%" stop-color="#142130"/>
     </linearGradient>
+    <linearGradient id="faceGrad" x1="0.3" y1="0.0" x2="0.6" y2="1.0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#f2f7fb"/>
+      <stop offset="100%" stop-color="#d6e4ed"/>
+    </linearGradient>
   </defs>
-  <!-- Main head volume with crest tuft integrated into silhouette -->
-  <path d="M 23,8 C 22,5 24,3 26,4 C 27,2 29,3 30,7 C 38,7 45,15 45,26 C 45,38 37,46 27,46 C 16,46 10,38 10,26 C 10,15 17,8 23,8 Z"
-        fill="url(#headGrad)" stroke="#0c1722" stroke-width="3.5" stroke-linejoin="round"/>
+
+  <!-- Dark Cowl with 3-tuft crest on top-left -->
+  <path d="M 26,22
+           C 23,15 25,11 29,12
+           C 31,7 35,7 37,11
+           C 40,7 44,8 45,13
+           C 56,11 72,15 81,25
+           C 89,35 88,52 80,63
+           C 71,72 56,74 44,73
+           C 28,71 18,60 17,46
+           C 16,33 21,24 26,22 Z"
+        fill="url(#cowlGrad)" stroke="#0a121c" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- Iconic White Face Mask: double-arch over eyes, cheek curves meeting neck -->
+  <path d="M 37,42
+           C 36,28 44,22 51,23
+           C 55,24 57,27 61,24
+           C 67,20 77,22 80,32
+           C 83,41 80,54 74,62
+           C 66,69 54,70 44,65
+           C 37,59 36,50 37,42 Z"
+        fill="url(#faceGrad)" stroke="#0a121c" stroke-width="2.6" stroke-linejoin="round"/>
 </svg>

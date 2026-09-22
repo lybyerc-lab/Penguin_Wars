@@ -1,12 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <!-- Torso: Broad, chunky pear-shaped body in 3/4 view matching Concept C -->
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="84" viewBox="0 0 96 84">
   <defs>
-    <linearGradient id="torsoGrad" x1="0" y1="0" x2="0.6" y2="1">
-      <stop offset="0%" stop-color="#2a3d52"/>
+    <linearGradient id="torsoGrad" x1="0.2" y1="0.0" x2="0.7" y2="1.0">
+      <stop offset="0%" stop-color="#32475e"/>
+      <stop offset="50%" stop-color="#223347"/>
       <stop offset="100%" stop-color="#142130"/>
     </linearGradient>
   </defs>
-  <!-- Broad pear body silhouette with low center of gravity -->
-  <path d="M 22,14 C 34,13 44,14 46,18 C 52,24 57,32 57,42 C 57,51 48,56 32,56 C 16,56 7,51 7,42 C 7,32 12,24 18,18 C 20,15 21,14 22,14 Z"
-        fill="url(#torsoGrad)" stroke="#0c1722" stroke-width="3.5" stroke-linejoin="round"/>
+
+  <!-- Broad, chubby pear-shaped body in 3/4 perspective matching Concept C -->
+  <path d="M 28,14
+           C 44,12 62,13 68,16
+           C 80,24 88,40 86,58
+           C 84,72 74,78 52,78
+           C 28,78 16,72 14,56
+           C 12,38 18,22 28,14 Z"
+        fill="url(#torsoGrad)" stroke="#0a121c" stroke-width="3.5" stroke-linejoin="round"/>
 </svg>

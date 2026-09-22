@@ -1,17 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
-  <!-- Open Yelling / Gasping Beak for Hit Reaction matching approved sheet pose 4 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="80" viewBox="0 0 100 80">
   <defs>
-    <linearGradient id="beakOpenGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffbe42"/>
-      <stop offset="100%" stop-color="#f08818"/>
+    <linearGradient id="beakGrad" x1="0.1" y1="0.0" x2="0.6" y2="1.0">
+      <stop offset="0%" stop-color="#ffbf42"/>
+      <stop offset="60%" stop-color="#f8901e"/>
+      <stop offset="100%" stop-color="#df6200"/>
     </linearGradient>
   </defs>
-  <!-- Deep mouth cavity -->
-  <path d="M 6,10 L 28,14 L 16,28 L 6,22 Z" fill="#3a1010" stroke="#682c0e" stroke-width="2.5" stroke-linejoin="round"/>
-  <!-- Bright coral pink tongue -->
-  <path d="M 8,18 Q 15,18 17,24 Q 11,27 8,22 Z" fill="#ff6b81"/>
+
+  <!-- Open yelling beak for Hit Reaction matching Pose 4 -->
   <!-- Upper beak wedge -->
-  <path d="M 6,10 L 28,14 L 12,14 Z" fill="url(#beakOpenGrad)" stroke="#682c0e" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M 55,39 L 71,35 L 68,42 Z"
+        fill="url(#beakGrad)" stroke="#0a121c" stroke-width="2.6" stroke-linejoin="round"/>
+
+  <!-- Open mouth cavity -->
+  <path d="M 55,40 C 63,40 68,44 65,50 C 60,53 55,48 55,40 Z"
+        fill="#d83a52" stroke="#0a121c" stroke-width="2.2" stroke-linejoin="round"/>
+  <!-- Tongue / inner highlight -->
+  <path d="M 57,47 C 60,45 63,47 62,50 Z" fill="#ff7688"/>
+
   <!-- Lower beak wedge -->
-  <path d="M 6,22 L 16,28 L 8,27 Z" fill="url(#beakOpenGrad)" stroke="#682c0e" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M 55,48 L 66,52 L 59,56 Z"
+        fill="url(#beakGrad)" stroke="#0a121c" stroke-width="2.6" stroke-linejoin="round"/>
 </svg>

@@ -1,13 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <!-- Belly: Broad dimensional white belly wrapping front-right flank matching Concept C -->
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="84" viewBox="0 0 96 84">
   <defs>
-    <linearGradient id="bellyGrad" x1="0.2" y1="0" x2="0.6" y2="1">
+    <linearGradient id="bellyGrad" x1="0.2" y1="0.0" x2="0.6" y2="1.0">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="65%" stop-color="#f0f7fa"/>
-      <stop offset="100%" stop-color="#bdd5e0"/>
+      <stop offset="70%" stop-color="#f2f7fb"/>
+      <stop offset="100%" stop-color="#d6e4ed"/>
     </linearGradient>
   </defs>
-  <!-- Broad rounded belly patch wrapping across the front -->
-  <path d="M 28,18 C 38,18 48,22 50,30 C 53,38 49,52 34,53 C 21,53 16,42 16,33 C 16,23 21,18 28,18 Z"
-        fill="url(#bellyGrad)" stroke="#1c2d3d" stroke-width="2.2" stroke-linejoin="round"/>
+
+  <!-- Big round chubby white belly matching Concept C Pose 1 -->
+  <path d="M 32,16
+           C 52,13 74,15 82,24
+           C 90,34 91,52 86,64
+           C 80,75 64,77 48,76
+           C 30,74 22,64 22,48
+           C 22,32 26,20 32,16 Z"
+        fill="url(#bellyGrad)" stroke="#0a121c" stroke-width="2.8" stroke-linejoin="round"/>
 </svg>
