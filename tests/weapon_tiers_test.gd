@@ -22,6 +22,10 @@ func _run() -> void:
 	# Tier I tuning is preserved; upper values are provisional data, not runtime state.
 	check(LANCE_I.damage == 14.0 and LANCE_I.cooldown == 0.42 and LANCE_I.reach == 240.0, "Ice Lance I retains current tuning")
 	check(CLEAVER_I.damage == 22.0 and CLEAVER_I.cooldown == 1.05 and CLEAVER_I.reach == 105.0 and CLEAVER_I.pattern == WeaponDefinition.Pattern.ARC, "Fish Cleaver I retains current tuning")
+	check(LANCE_II.damage / LANCE_II.cooldown >= 2.0 * LANCE_I.damage / LANCE_I.cooldown, "Ice Lance II conserves the simple damage-per-cooldown value of its two Tier I inputs")
+	check(CLEAVER_II.damage / CLEAVER_II.cooldown >= 2.0 * CLEAVER_I.damage / CLEAVER_I.cooldown, "Fish Cleaver II conserves the simple damage-per-cooldown value of its two Tier I inputs")
+	check(LANCE_I.damage < LANCE_II.damage and LANCE_II.damage < LANCE_III.damage and LANCE_III.damage < LANCE_IV.damage, "Ice Lance provisional tier damage remains strictly increasing")
+	check(CLEAVER_I.damage < CLEAVER_II.damage and CLEAVER_II.damage < CLEAVER_III.damage and CLEAVER_III.damage < CLEAVER_IV.damage, "Fish Cleaver provisional tier damage remains strictly increasing")
 	check(LANCE_I.next_tier == LANCE_II and LANCE_II.next_tier == LANCE_III and LANCE_III.next_tier == LANCE_IV and LANCE_IV.next_tier == null, "Ice Lance chain resolves I through IV")
 	check(CLEAVER_I.next_tier == CLEAVER_II and CLEAVER_II.next_tier == CLEAVER_III and CLEAVER_III.next_tier == CLEAVER_IV and CLEAVER_IV.next_tier == null, "Fish Cleaver chain resolves I through IV")
 	for definition: WeaponDefinition in [LANCE_I, LANCE_II, LANCE_III, LANCE_IV, CLEAVER_I, CLEAVER_II, CLEAVER_III, CLEAVER_IV]:

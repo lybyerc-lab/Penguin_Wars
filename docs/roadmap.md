@@ -182,6 +182,13 @@ maturation event. Wave six therefore uses the evolved rack. Normal arena and
 expedition runs do not subscribe to this policy. The checkpoint carries no shop,
 items, skills, recycle, sell, or permanent-progression work.
 
+Its provisional tuning uses **compressed prior investment**, rather than the
+former linear tier curve: I is about one Tier-I copy worth, II about two, III
+about four, and IV about eight. Tier II therefore conserves or slightly improves
+the simple damage-per-cooldown of its two consumed Tier I weapons; the freed slot
+is an additional reward. Tier III/IV values are monotonic placeholders, not final
+balance work.
+
 ## Phase 6 — RunPlan / global 20-wave structure
 
 Only now wire the global run plan.

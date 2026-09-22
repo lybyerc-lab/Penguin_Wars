@@ -9,6 +9,12 @@ prototype. Only that prototype calls the operation, once after wave five, for
 every registered player; normal arena and expedition runs retain no automatic
 maturation policy.
 
+The Tier I values remain Ice Lance 14 and Fish Cleaver 22. The provisional
+compressed-investment ladder is Ice Lance 14 / 30 / 60 / 120 and Fish Cleaver
+22 / 46 / 92 / 184 for Tiers I–IV. Tier II now conserves or slightly improves
+the raw damage-per-cooldown represented by its two Tier I inputs; Tier III/IV
+are monotonic placeholders, not final balance values.
+
 Focused headless coverage passed `weapon_maturation_test.gd` and
 `evolution_checkpoint_test.gd`: simultaneous independent pairs, deterministic
 lowest-slot selection, no cascade, gaps retained, non-IV eligibility, result
