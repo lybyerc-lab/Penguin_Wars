@@ -6,7 +6,9 @@ This is a direction document, not a promise of exact scheduling. The order matte
 
 Implementation baseline recorded here:
 
-`main@2c9a890` (the build-intensity integration: weapon tiers plus chunky Snow)
+`integration/evolution-feel-v1` (systems-playtest candidate above
+`main@2c9a890`: Evolution Checkpoint, timed combat feel, and CharacterVisual
+state architecture). `main@2c9a890` remains canonical development authority.
 
 At that point the project has:
 
@@ -22,6 +24,9 @@ At that point the project has:
 - Android/mobile support path
 - six-slot personal weapon rack, Tier I–IV merge chains, and class aggregation
 - chunky physical Snow pickup feel with preserved economy semantics
+- timed Brotato-like combat heartbeat and automatic intermissions in one opt-in prototype
+- visible stable multi-weapon mounts and deterministic duplicate staggering
+- CharacterVisual downed/revive state plumbing; runtime character-art fidelity remains pending
 
 The first doorway art-polish pass and Snow pickup feel pass are complete. The
 first evolution timing proof now lives only in the dedicated Evolution
@@ -130,9 +135,10 @@ Initial class list:
 
 The current representative set is Ice Lance (Ice + Precision) and Fish Cleaver
 (Fish + Blade). Merge APIs are internal evolution primitives: no merge UI,
-automatic duplicate merge, or maturation-timing policy is implemented. Duplicate
-weapons remain independently firing slot commitments. Shop offers, recycle/sell
-rules, and class bonuses remain future systems work.
+ordinary-run automatic duplicate merge, or maturation-timing policy is
+implemented. The contained Evolution Checkpoint proof resolves once after Wave
+5; duplicate weapons otherwise remain independently firing slot commitments.
+Shop offers, recycle/sell rules, and class bonuses remain future systems work.
 
 ## Phase 4 — Real Field Shop
 
@@ -176,11 +182,25 @@ prototyped. It is not the intended final level-up loop.
 ### Evolution Checkpoint v0 — IMPLEMENTED on `feature/evolution-checkpoint-v0`
 
 `scenes/prototypes/evolution_checkpoint.tscn` is a six-wave, one-player proof
-using the normal `TestArena` and `RunSession` composition path. At its wave-five
-clear event only, every registered party rack resolves one snapshot-based
-maturation event. Wave six therefore uses the evolved rack. Normal arena and
-expedition runs do not subscribe to this policy. The checkpoint carries no shop,
-items, skills, recycle, sell, or permanent-progression work.
+using the normal `TestArena` and `RunSession` composition path. It opts into
+20 / 25 / 30 / 35 / 40 / 45-second timed waves with a three-second automatic
+intermission. At its Wave-5 timed completion only, every registered party rack
+resolves one snapshot-based maturation event. Wave 6 therefore uses the evolved
+rack. Normal arena and expedition runs do not subscribe to this policy. The
+checkpoint carries no shop, items, skills, recycle, sell, or
+permanent-progression work.
+
+### Evolution feel presentation — IMPLEMENTED AS PROTOTYPE on `integration/evolution-feel-v1`
+
+The checkpoint combines the timed combat heartbeat, stable visible weapon slots
+and deterministic duplicate staggering with CharacterVisual state plumbing.
+The Broad 2.5D concept/reference is approved, but the current in-game art is
+temporary scaffolding and is not accepted as a faithful reproduction; a
+dedicated production-character fidelity pass must replace assets while retaining
+the state machinery. Its cartoon downed/revive presentation is cosmetic; no
+revive gameplay was added. Human play acceptance remains pending, and this does
+not freeze Wave 5, exact production durations, production-wide timed encounters,
+or a final 20-wave RunPlan.
 
 Its provisional tuning uses **compressed prior investment**, rather than the
 former linear tier curve: I is about one Tier-I copy worth, II about two, III

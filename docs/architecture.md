@@ -14,8 +14,9 @@ and the rest are what keeps the two runnable scenes from drifting apart.
    to room, cave back to town. Nothing else changes where the party is.
 2. **`RoomDefinition` owns geography** — bounds, entry point, exits, supply
    placement, palette and a reference to an encounter. It never owns combat.
-3. **`EncounterDefinition` owns combat content** — enemy scenes, counts, pacing,
-   difficulty and an optional boss. It never owns geography.
+3. **`EncounterDefinition` owns combat content** — enemy scenes, counts,
+   explicit pacing data, difficulty and an optional boss. `CLEAR_ALL` is the
+   default and `TIMED` is opt-in. It never owns geography.
 4. **No second journey, dungeon or world manager.** New data resources are
    welcome; a second thing that decides where the party goes is not.
 5. **No global current-room singleton.** Systems are handed their room by the
@@ -35,6 +36,26 @@ and the rest are what keeps the two runnable scenes from drifting apart.
 `RoomSpace.apply()` is the hand-off between layers: it takes a `RoomDefinition`
 and pushes its geography into the party, director, builder, loot, camera and
 backdrop. Systems receive their space; they never look it up.
+
+### Timed combat ownership
+
+`EncounterDirector` remains the sole combat and wave-lifecycle authority. In
+timed mode it owns the countdown, capped spawning, automatic intermission and
+expiry cleanup; the HUD reads its public timer seams. There is no second
+WaveManager. The Evolution Checkpoint is the only current `TIMED` encounter;
+legacy arena and expedition definitions remain `CLEAR_ALL` with their manual
+ready flow.
+
+### Cosmetic player and weapon presentation
+
+`CharacterVisual` is a layered cosmetic puppet that observes player movement,
+dash, and health signals for idle/waddle/dash/hit/downed/revive states. It does
+not own movement, health, damage, or revive simulation. The current runtime art
+is temporary scaffolding; a future asset-fidelity pass can replace it without
+changing that state machinery. `WeaponRack` assigns stable slot identity to each
+personal controller. `WeaponController` keeps player-centered combat and its
+deterministic slot phase, while `WeaponVisual` consumes only the cosmetic mount
+presentation seam.
 
 ## Seams
 
@@ -354,15 +375,18 @@ are documented separately below.
 `WeaponDefinition` is immutable shared content. Its `family_id`, `tier`,
 `next_tier`, and canonical `WeaponClasses` tags describe a Tier I–IV chain;
 `problems()` validates that the chain and tags agree. `WeaponController` reads
-one definition and has no merge or class policy.
+one definition, retains a stable rack-slot presentation/phase seam, and has no
+merge or class policy. Its combat geometry stays player-centered; there is no
+global weapon scheduler.
 
 `WeaponRack` owns all runtime merge and evolution primitives for one player. `can_merge_slots()`
 and `merge_slots()` retain the first slot, consume the second, and leave every
 other slot in place. `find_merge_slot()` and
 `merge_definition_into_slot()` are the equivalent seam for future inventory or
 shop delivery without adding a seventh slot. It does **not** decide when
-maturation occurs: a future progression policy may invoke these primitives, but
-no policy or player-facing merge command is implemented. Its class aggregation
+maturation occurs: a future progression policy may invoke these primitives. The
+Evolution Checkpoint prototype invokes one contained Wave-5 policy; there is no
+ordinary-run policy or player-facing merge command. Its class aggregation
 is based on occupied definitions, once per weapon; future class bonuses should
 write their resulting modifiers through `PlayerStats`, not mutate definitions.
 
@@ -386,8 +410,9 @@ replay is not guaranteed; no gameplay state depends on it.
 `PlayerStats` remains the player simulation/state seam. `RunProgression`'s
 level-up choices and paid upgrades are functional transitional prototypes and
 must not become the future Field Shop god object. A future progression/evolution
-policy decides when accumulated build commitment matures, but no new manager,
-evolution checkpoint, or maturation trigger is implemented here.
+policy decides when accumulated build commitment matures. The contained
+Evolution Checkpoint prototype supplies one Wave-5 trigger without adding a
+general-purpose manager or production maturation policy.
 
 ## Working alongside this branch
 

@@ -1,5 +1,36 @@
 # Verification record
 
+## Evolution Feel v1 integration
+
+September 22, 2026. `integration/evolution-feel-v1` starts from the shared
+`feature/evolution-checkpoint-v0@7ad977ac30aee6e8301d3a8914a019d04b5199cc`,
+then cherry-picks combat `1a23496ad697d5e4b846fdde4a1e3bb3480c0c18` followed
+by CharacterVisual state plumbing `b6852a7ed7b0a1ed69b87ef73b764731da1a3fd8`.
+The cherry-picks had no conflicts. Mount geometry remains the combat branch's
+original presentation seam; no temporary-art-specific clearance tuning was kept.
+
+All 18 headless suites passed with zero assertion failures: foundation, combat
+feel, enemy behavior, economy, stats/mobile, seams, town/cave, boss, fullscreen
+HUD, doorway, weapon rack, weapon tiers, Snow pickup, weapon maturation,
+Evolution Checkpoint, timed waves, weapon presentation, and penguin
+presentation. The seams suite emitted its expected invalid boss-stub diagnostic
+while passing its negative-path assertions.
+
+All 14 current real-renderer passes passed: arena, enemy, economy, mobile
+normal, mobile wide, town, boss, doorway, weapon rack, weapon tiers, Snow
+pickup, Evolution Checkpoint, Brotato combat loop, and penguin implementation.
+The integration renderer additionally produced and was directly inspected in
+the same runtime: `evolution-feel-four-weapons.png`,
+`evolution-feel-six-weapons.png`, `evolution-feel-dash.png`,
+`evolution-feel-wave-six.png`, and `evolution-feel-downed.png`. Inspection
+confirmed readable timed HUD, separated four/six mount lanes, a readable dash,
+Wave-6 two-weapon compression, and clean KO weapon hiding with the cartoon
+downed marker visible. These are engineering coexistence captures only: the
+Broad 2.5D concept/reference is approved, but the current integrated character
+art is temporary and does not yet meet the approved Broad 2.5D reference
+fidelity. This is technical readiness for systems-focused human playtest, not
+character-art or design approval.
+
 ## Evolution Checkpoint v0
 
 September 22, 2026. `feature/evolution-checkpoint-v0` starts from canonical

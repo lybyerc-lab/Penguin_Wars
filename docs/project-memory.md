@@ -2,7 +2,7 @@
 
 > Durable project context for future sessions and AI handoffs.
 >
-> Canonical development authority: `main@2c9a890dfb14c2cad01a0eb9044f4cf8d6a99be6`. Current feature candidate: `feature/evolution-checkpoint-v0`, cut from that main baseline. It adds a dedicated timing prototype only; it does not alter ordinary expedition progression.
+> Canonical development authority remains `main@2c9a890dfb14c2cad01a0eb9044f4cf8d6a99be6`. Current integrated systems-playtest candidate: `integration/evolution-feel-v1`, built from `feature/evolution-checkpoint-v0@7ad977a`, `feature/brotato-combat-loop-v1@1a23496`, and `feature/penguin-implementation-v1@b6852a7`. It does not alter ordinary expedition progression. The Broad 2.5D concept is approved; current runtime character-art fidelity is not accepted.
 
 ## North-star concept
 
@@ -45,6 +45,7 @@ Current important lineage:
 - `integration/build-intensity-baseline`: combined Tier I–IV weapon, chunky Snow, and progression-direction baseline.
 - `main@2c9a890`: canonical development authority after that integration.
 - `feature/evolution-checkpoint-v0`: dedicated six-wave maturation-timing proof above `main@2c9a890`; not merged into main.
+- `integration/evolution-feel-v1`: current systems-playtest candidate combining the timed combat proof and temporary CharacterVisual state architecture; production character assets still need a fidelity replacement pass.
 
 Current implemented slice includes:
 
@@ -53,6 +54,9 @@ Current implemented slice includes:
 - Shared camera.
 - Auto-target basic weapons.
 - Personal six-slot `WeaponRack` runtimes; standard loadouts begin in slot 0.
+- Stable weapon mount slots and deterministic per-slot duplicate phases; combat remains player-centered.
+- CharacterVisual state architecture for idle, waddle, dash, hit, cartoon downed/woozy halo, and revive; current runtime art is temporary scaffolding, while the Broad 2.5D concept/reference remains the approved direction.
+- Explicit opt-in timed encounter pacing. The Evolution Checkpoint uses 20 / 25 / 30 / 35 / 40 / 45 second waves and three-second automatic intermissions; normal arena and expedition encounters remain CLEAR_ALL/manual.
 - Immutable Ice Lance and Fish Cleaver Tier I–IV chains, rack merge APIs, and canonical weapon-class aggregation.
 - Player-wide flat weapon damage used by Sharp Ice and Cold Forge Hone.
 - Chunky physical Snow loot: SMALL, CHUNKY, BIG, and JACKPOT value tiers with landing, wobble, magnet suction, and collection puff presentation.
@@ -205,7 +209,10 @@ tiers. It returns `WeaponMaturation` result data and emits `matured(changes)`
 only if it made changes. The rack owns no timing policy. The dedicated Evolution
 Checkpoint v0 prototype invokes it after wave five for every registered player,
 including downed members; normal arena and expedition runs do not invoke it.
-Later progression policy can revise timing beyond that contained proof.
+Controllers receive stable rack-slot identity for cosmetic mount lanes and
+deterministic duplicate phase staggering; `WeaponVisual` is cosmetic only and
+the controller's hit geometry remains player-centered. Later progression policy
+can revise timing beyond that contained proof.
 
 ## Progression direction
 
