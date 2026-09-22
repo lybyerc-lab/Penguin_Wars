@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="SS2D_Material_Shape" format=3]
+
+[ext_resource type="Script" path="res://addons/rmsmartshape/materials/edge_material_metadata.gd" id="1_xtc1v"]
+[ext_resource type="Script" path="res://addons/rmsmartshape/materials/edge_material.gd" id="2_dx7o5"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/cliff_edge.png" id="3_nndvf"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/cliff_taper_left.png" id="4_84qx4"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/cliff_taper_right.png" id="5_hf4fi"]
+[ext_resource type="Script" path="res://addons/rmsmartshape/normal_range.gd" id="6_oxcef"]
+[ext_resource type="Script" path="res://addons/rmsmartshape/materials/shape_material.gd" id="7_rqb24"]
+
+[sub_resource type="Resource" id="Resource_4djam"]
+script = ExtResource("2_dx7o5")
+textures = Array[Texture2D]([ExtResource("3_nndvf")])
+textures_taper_left = Array[Texture2D]([ExtResource("4_84qx4")])
+textures_taper_right = Array[Texture2D]([ExtResource("5_hf4fi")])
+use_corner_texture = false
+
+[sub_resource type="Resource" id="Resource_muh1u"]
+script = ExtResource("6_oxcef")
+
+[sub_resource type="Resource" id="Resource_jo3x1"]
+script = ExtResource("1_xtc1v")
+edge_material = SubResource("Resource_4djam")
+normal_range = SubResource("Resource_muh1u")
+
+[resource]
+script = ExtResource("7_rqb24")
+_edge_meta_materials = Array[ExtResource("1_xtc1v")]([SubResource("Resource_jo3x1")])

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="RoomDefinition" format=3 uid="uid://4yyeya7uf0h6"]
+
+[ext_resource type="Script" uid="uid://vw36m8ctisbi" path="res://scripts/data/room_definition.gd" id="1"]
+[ext_resource type="Script" uid="uid://diekal3sthxx1" path="res://scripts/data/room_exit.gd" id="2"]
+
+[sub_resource type="Resource" id="shore_exit"]
+script = ExtResource("2")
+target_id = &"frozen_coast_beyond"
+label = "Along the shore"
+side = 1
+
+[resource]
+script = ExtResource("1")
+id = &"frozen_coast_prototype"
+display_name = "Frozen Coast (prototype)"
+kind = 1
+bounds = Rect2(-600, -320, 1200, 640)
+spawn_ring = Vector2(570, 290)
+supply_points = Array[Vector2]([Vector2(-150, 190), Vector2(-330, -130)])
+entry_point = Vector2(-380, 20)
+exits = Array[ExtResource("2")]([SubResource("shore_exit")])
+arrival_line = "Experiment: SmartShape2D terrain dressing over RoomDefinition geography."

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SS2D_Material_Edge" format=3]
+
+[ext_resource type="Script" path="res://addons/rmsmartshape/materials/edge_material.gd" id="1_r2dg0"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/snow_lip_edge.png" id="2_rc3iv"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/lip_taper_left.png" id="3_difdh"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/lip_taper_right.png" id="4_4u7us"]
+
+[resource]
+script = ExtResource("1_r2dg0")
+textures = Array[Texture2D]([ExtResource("2_rc3iv")])
+textures_taper_left = Array[Texture2D]([ExtResource("3_difdh")])
+textures_taper_right = Array[Texture2D]([ExtResource("4_4u7us")])
+use_corner_texture = false

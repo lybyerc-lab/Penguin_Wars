@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="SS2D_Material_Shape" format=3]
+
+[ext_resource type="Script" path="res://addons/rmsmartshape/materials/edge_material_metadata.gd" id="1_37dvw"]
+[ext_resource type="Script" path="res://addons/rmsmartshape/materials/edge_material.gd" id="2_dnyyj"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/cliff_edge.png" id="3_n7vl7"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/cliff_taper_left.png" id="4_pgphg"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/cliff_taper_right.png" id="5_p6kw4"]
+[ext_resource type="Script" path="res://addons/rmsmartshape/normal_range.gd" id="6_cwjkf"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/snow_lip_edge.png" id="7_t75fe"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/lip_taper_left.png" id="8_m8dgu"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/lip_taper_right.png" id="9_wnv25"]
+[ext_resource type="Texture2D" path="res://experiments/smartshape_frozen_coast/terrain/ice_fill.png" id="10_j5qsc"]
+[ext_resource type="Script" path="res://addons/rmsmartshape/materials/shape_material.gd" id="11_5bpha"]
+
+[sub_resource type="Resource" id="Resource_4djam"]
+script = ExtResource("2_dnyyj")
+textures = Array[Texture2D]([ExtResource("3_n7vl7")])
+textures_taper_left = Array[Texture2D]([ExtResource("4_pgphg")])
+textures_taper_right = Array[Texture2D]([ExtResource("5_p6kw4")])
+use_corner_texture = false
+
+[sub_resource type="Resource" id="Resource_xkn7h"]
+script = ExtResource("6_cwjkf")
+begin = 240.0
+distance = 60.0
+
+[sub_resource type="Resource" id="Resource_cxnef"]
+script = ExtResource("1_37dvw")
+edge_material = SubResource("Resource_4djam")
+normal_range = SubResource("Resource_xkn7h")
+offset = 0.5
+
+[sub_resource type="Resource" id="Resource_jhnhl"]
+script = ExtResource("2_dnyyj")
+textures = Array[Texture2D]([ExtResource("7_t75fe")])
+textures_taper_left = Array[Texture2D]([ExtResource("8_m8dgu")])
+textures_taper_right = Array[Texture2D]([ExtResource("9_wnv25")])
+use_corner_texture = false
+
+[sub_resource type="Resource" id="Resource_u0sah"]
+script = ExtResource("6_cwjkf")
+begin = 300.0
+distance = 300.0
+
+[sub_resource type="Resource" id="Resource_8o7ln"]
+script = ExtResource("1_37dvw")
+edge_material = SubResource("Resource_jhnhl")
+normal_range = SubResource("Resource_u0sah")
+
+[resource]
+script = ExtResource("11_5bpha")
+_edge_meta_materials = Array[ExtResource("1_37dvw")]([SubResource("Resource_cxnef"), SubResource("Resource_8o7ln")])
+fill_textures = Array[Texture2D]([ExtResource("10_j5qsc")])
