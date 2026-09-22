@@ -86,9 +86,9 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, 24, 0, TAU, 24, Color("d4fbff"), 2)
 	var color: Color = identity.tint if identity != null else Color.WHITE
 	if health != null and not health.is_alive():
-		color = Color("526273")
+		return
 	draw_set_transform(Vector2(0, 15), 0, Vector2(1, 0.45))
-	draw_arc(Vector2.ZERO, 25, 0, TAU, 32, Color(color, 0.8), 3)
+	draw_arc(Vector2.ZERO, 25, 0, TAU, 32, Color(color, 0.6), 2)
 	draw_set_transform(Vector2.ZERO)
 	if health != null:
 		draw_rect(Rect2(-21, -46, 42, 6), Color("152a3e"))

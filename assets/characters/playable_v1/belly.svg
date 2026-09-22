@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Belly: Broad dimensional white belly wrapping front-right flank matching Concept C -->
+  <defs>
+    <linearGradient id="bellyGrad" x1="0.2" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="65%" stop-color="#f0f7fa"/>
+      <stop offset="100%" stop-color="#bdd5e0"/>
+    </linearGradient>
+  </defs>
+  <!-- Broad rounded belly patch wrapping across the front -->
+  <path d="M 28,18 C 38,18 48,22 50,30 C 53,38 49,52 34,53 C 21,53 16,42 16,33 C 16,23 21,18 28,18 Z"
+        fill="url(#bellyGrad)" stroke="#1c2d3d" stroke-width="2.2" stroke-linejoin="round"/>
+</svg>

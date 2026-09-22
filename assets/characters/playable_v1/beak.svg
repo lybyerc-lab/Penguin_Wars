@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Beak: Forward-pointing triangular 3/4 beak -->
+  <defs>
+    <linearGradient id="beakGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffbf42"/>
+      <stop offset="100%" stop-color="#f28e1c"/>
+    </linearGradient>
+  </defs>
+  <!-- Upper beak wedge pointing forward-right -->
+  <path d="M 6,10 L 26,15 L 6,22 Z"
+        fill="url(#beakGrad)" stroke="#682c0e" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Beak midline facet -->
+  <path d="M 6,14 L 23,15" stroke="#ffe58f" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

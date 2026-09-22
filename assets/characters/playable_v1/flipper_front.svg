@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="48" viewBox="0 0 32 48">
+  <!-- Front Flipper: Chunky anatomical wing in 3/4 view with shoulder pivot at (16, 8) -->
+  <defs>
+    <linearGradient id="flipFrontGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2f445c"/>
+      <stop offset="100%" stop-color="#142130"/>
+    </linearGradient>
+  </defs>
+  <!-- Curving teardrop flipper with rounded paddle tip -->
+  <path d="M 16,8 C 22,8 26,14 26,24 C 26,36 18,44 14,44 C 10,44 7,38 8,26 C 9,15 11,8 16,8 Z"
+        fill="url(#flipFrontGrad)" stroke="#0c1722" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Subtle leading-edge facet line -->
+  <path d="M 14,12 C 18,16 21,24 20,36" fill="none" stroke="#48688a" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

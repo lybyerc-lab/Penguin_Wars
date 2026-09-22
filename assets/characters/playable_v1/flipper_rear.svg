@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="48" viewBox="0 0 32 48">
+  <!-- Rear Flipper: Darker tone for depth separation; pivot at (16, 8) -->
+  <defs>
+    <linearGradient id="flipRearGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f2f40"/>
+      <stop offset="100%" stop-color="#0e1722"/>
+    </linearGradient>
+  </defs>
+  <path d="M 16,8 C 22,8 25,14 24,24 C 23,35 17,43 13,43 C 9,43 7,37 8,26 C 9,15 11,8 16,8 Z"
+        fill="url(#flipRearGrad)" stroke="#081018" stroke-width="3" stroke-linejoin="round"/>
+</svg>
