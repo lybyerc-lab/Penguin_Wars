@@ -5,6 +5,8 @@ extends Node2D
 
 const DEFAULT_CAPACITY: int = 6
 signal changed
+## Emitted only when one snapshot-based maturation event resolves at least one pair.
+signal matured(changes: Array[WeaponMaturation])
 
 @export_range(1, DEFAULT_CAPACITY) var slot_capacity: int = DEFAULT_CAPACITY
 
@@ -152,6 +154,38 @@ func merge_definition_into_slot(slot: int, definition: WeaponDefinition) -> bool
 	changed.emit()
 	return true
 
+## Resolves one generation for every compatible pair present at event start.
+## Timing belongs to a higher-level progression policy. The snapshot and used
+## slots ensure a created definition cannot cascade into another merge here.
+func resolve_maturation_once() -> Array[WeaponMaturation]:
+	var snapshot: Array[WeaponDefinition] = _slots.duplicate()
+	var consumed_or_advanced: Dictionary = {}
+	var changes: Array[WeaponMaturation] = []
+	for keep_slot: int in range(slot_capacity):
+		if consumed_or_advanced.has(keep_slot):
+			continue
+		var before: WeaponDefinition = snapshot[keep_slot]
+		if not _eligible_for_maturation(before):
+			continue
+		for consumed_slot: int in range(keep_slot + 1, slot_capacity):
+			if consumed_or_advanced.has(consumed_slot):
+				continue
+			var candidate: WeaponDefinition = snapshot[consumed_slot]
+			if candidate == null or not before.can_merge_with(candidate):
+				continue
+			var after: WeaponDefinition = before.next_tier
+			_set_slot(keep_slot, after)
+			_set_slot(consumed_slot, null)
+			consumed_or_advanced[keep_slot] = true
+			consumed_or_advanced[consumed_slot] = true
+			changes.append(WeaponMaturation.new(before, after, keep_slot, consumed_slot))
+			break
+	if changes.is_empty():
+		return changes
+	changed.emit()
+	matured.emit(changes)
+	return changes
+
 func _reset_slots(new_capacity: int) -> void:
 	for controller: WeaponController in _controllers:
 		if is_instance_valid(controller):
@@ -184,6 +218,9 @@ func _set_slot(slot: int, definition: WeaponDefinition) -> void:
 
 func _upgrade_slot(slot: int) -> void:
 	_set_slot(slot, _slots[slot].next_tier)
+
+func _eligible_for_maturation(definition: WeaponDefinition) -> bool:
+	return definition != null and not definition.is_max_tier() and definition.next_tier != null
 
 func _valid_slot(slot: int) -> bool:
 	return slot >= 0 and slot < slot_capacity

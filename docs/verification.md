@@ -1,5 +1,37 @@
 # Verification record
 
+## Evolution Checkpoint v0
+
+September 22, 2026. `feature/evolution-checkpoint-v0` starts from canonical
+`main@2c9a890dfb14c2cad01a0eb9044f4cf8d6a99be6`. It adds an inventory-owned
+snapshot maturation operation and a separate six-wave Evolution Checkpoint
+prototype. Only that prototype calls the operation, once after wave five, for
+every registered player; normal arena and expedition runs retain no automatic
+maturation policy.
+
+Focused headless coverage passed `weapon_maturation_test.gd` and
+`evolution_checkpoint_test.gd`: simultaneous independent pairs, deterministic
+lowest-slot selection, no cascade, gaps retained, non-IV eligibility, result
+data/signals, resource/controller lifecycle, downed-player and four-player
+ownership boundaries, normal-run isolation, wave-five timing, duplicate-signal
+guard, and wave-six persistence. `evolution_checkpoint_render_smoke.gd` writes
+`evolution-before.png` and `evolution-after.png` on the real renderer; the
+after capture shows the compact checkpoint summary and Tier II rack state.
+
+All 15 combined headless suites passed with zero assertion failures:
+foundation, combat feel, enemy behavior, economy, stats/mobile, seams,
+town/cave, boss, fullscreen HUD, doorway, weapon rack, weapon tiers, Snow
+pickup, weapon maturation, and Evolution Checkpoint. The seams suite emitted
+its expected invalid boss-stub diagnostic while proving its negative path.
+
+All 12 real OpenGL renderer passes passed: arena, enemy, economy, mobile normal
+and wide, town, boss, doorway, weapon rack, weapon tiers, Snow pickup, and
+Evolution Checkpoint. `evolution-before.png` visibly retains four Tier I rack
+slots; `evolution-after.png` visibly retains the slot gaps, displays the two
+Tier II badges, and presents the compact checkpoint summary. Legacy screenshot
+rewrites made by renderer smokes were restored; only the two new evolution
+captures are part of this feature.
+
 ## Build intensity baseline integration
 
 September 22, 2026. `integration/build-intensity-baseline` starts at canonical

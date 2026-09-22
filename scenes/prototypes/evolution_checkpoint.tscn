@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/arena/test_arena.tscn" id="1_arena"]
+[ext_resource type="Script" path="res://scripts/prototypes/evolution_checkpoint.gd" id="2_script"]
+
+[node name="EvolutionCheckpoint" instance=ExtResource("1_arena")]
+script = ExtResource("2_script")
+player_count = 1

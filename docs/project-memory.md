@@ -2,7 +2,7 @@
 
 > Durable project context for future sessions and AI handoffs.
 >
-> Canonical development authority: `main`. Current integration baseline: `integration/build-intensity-baseline`, layering `feature/weapon-tiers-classes@86256d6` and `feature/snow-pickup-feel@52d29de` above `main@4dad4a0d051d40ac597c7a2ae4ae38688aa98154`.
+> Canonical development authority: `main@2c9a890dfb14c2cad01a0eb9044f4cf8d6a99be6`. Current feature candidate: `feature/evolution-checkpoint-v0`, cut from that main baseline. It adds a dedicated timing prototype only; it does not alter ordinary expedition progression.
 
 ## North-star concept
 
@@ -43,6 +43,8 @@ Current important lineage:
 - `integration/pre-brotato-rack`: cleanup and six-slot rack baseline.
 - `main@4dad4a0`: canonical development authority for this integration.
 - `integration/build-intensity-baseline`: combined Tier I–IV weapon, chunky Snow, and progression-direction baseline.
+- `main@2c9a890`: canonical development authority after that integration.
+- `feature/evolution-checkpoint-v0`: dedicated six-wave maturation-timing proof above `main@2c9a890`; not merged into main.
 
 Current implemented slice includes:
 
@@ -197,8 +199,13 @@ for that player reads the same flat damage bonus.
 Merging is an internal evolution primitive, not a player-facing ordinary-run
 command or automatic duplicate policy. Duplicate weapons remain independently
 firing rack occupants and are themselves a six-slot commitment choice.
-Future progression policy decides if and when it invokes rack primitives; the
-timing of maturation is intentionally undecided.
+`WeaponRack.resolve_maturation_once()` resolves every valid pair visible in one
+event-start snapshot, preserving the lower slot and never cascading created
+tiers. It returns `WeaponMaturation` result data and emits `matured(changes)`
+only if it made changes. The rack owns no timing policy. The dedicated Evolution
+Checkpoint v0 prototype invokes it after wave five for every registered player,
+including downed members; normal arena and expedition runs do not invoke it.
+Later progression policy can revise timing beyond that contained proof.
 
 ## Progression direction
 

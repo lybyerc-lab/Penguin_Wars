@@ -6,7 +6,7 @@ This is a direction document, not a promise of exact scheduling. The order matte
 
 Implementation baseline recorded here:
 
-`integration/build-intensity-baseline` (weapon tiers `86256d6` + Snow pickup feel `52d29de` above `main@4dad4a0`)
+`main@2c9a890` (the build-intensity integration: weapon tiers plus chunky Snow)
 
 At that point the project has:
 
@@ -23,7 +23,9 @@ At that point the project has:
 - six-slot personal weapon rack, Tier I–IV merge chains, and class aggregation
 - chunky physical Snow pickup feel with preserved economy semantics
 
-The first doorway art-polish pass and Snow pickup feel pass are complete. Human playtest now decides whether the combined presentation is accepted before the first evolution-checkpoint prototype.
+The first doorway art-polish pass and Snow pickup feel pass are complete. The
+first evolution timing proof now lives only in the dedicated Evolution
+Checkpoint prototype; it is not ordinary expedition progression.
 
 ## Phase 0 — Presentation lock
 
@@ -170,6 +172,15 @@ Future questions:
 
 The current quick-upgrade prototype remains functional while this direction is
 prototyped. It is not the intended final level-up loop.
+
+### Evolution Checkpoint v0 — IMPLEMENTED on `feature/evolution-checkpoint-v0`
+
+`scenes/prototypes/evolution_checkpoint.tscn` is a six-wave, one-player proof
+using the normal `TestArena` and `RunSession` composition path. At its wave-five
+clear event only, every registered party rack resolves one snapshot-based
+maturation event. Wave six therefore uses the evolved rack. Normal arena and
+expedition runs do not subscribe to this policy. The checkpoint carries no shop,
+items, skills, recycle, sell, or permanent-progression work.
 
 ## Phase 6 — RunPlan / global 20-wave structure
 
