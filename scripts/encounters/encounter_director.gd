@@ -28,6 +28,8 @@ var alive_count: int = 0
 var active_boss: BossActor
 var _left: int = 0
 var _timer: float = 0.0
+var _wave_duration: float = 0.0
+var _wave_time_remaining: float = 0.0
 var _spawn_index: int = 0
 var _rng := RandomNumberGenerator.new()
 
@@ -43,6 +45,8 @@ func reset() -> void:
 	active_boss = null
 	_left = 0
 	_timer = 0.0
+	_wave_duration = 0.0
+	_wave_time_remaining = 0.0
 	_spawn_index = 0
 
 func start() -> void:
@@ -57,9 +61,31 @@ func _begin_wave() -> void:
 	wave += 1
 	_spawn_index = 0
 	_left = definition.base_count + (wave - 1) * 2 + maxi(0, party.members().size() - 1) * 2
-	_timer = 1.0
+	_wave_duration = definition.duration_for_wave(wave)
+	_wave_time_remaining = _wave_duration
+	_timer = 0.0 if uses_timed_waves() else 1.0
 	state = State.SPAWNING
 	state_changed.emit()
+
+## Read-only simulation seams for timed HUD and tests. Legacy encounters report
+## zero duration/progress rather than exposing the old spawn timer.
+func uses_timed_waves() -> bool:
+	return definition != null and definition.uses_timed_waves()
+
+func wave_time_remaining() -> float:
+	return maxf(0.0, _wave_time_remaining) if uses_timed_waves() else 0.0
+
+func wave_duration() -> float:
+	return _wave_duration if uses_timed_waves() else 0.0
+
+func wave_progress() -> float:
+	return clampf(1.0 - _wave_time_remaining / _wave_duration, 0.0, 1.0) if _wave_duration > 0.0 else 0.0
+
+func intermission_time_remaining() -> float:
+	return maxf(0.0, _timer) if state == State.INTERMISSION else 0.0
+
+func timed_alive_cap() -> int:
+	return definition.timed_max_alive + maxi(0, party.members().size() - 1) * 2
 
 func _physics_process(delta: float) -> void:
 	if state in [State.READY, State.COMPLETE, State.FAILED]:
@@ -69,13 +95,23 @@ func _physics_process(delta: float) -> void:
 		_clear_projectiles()
 		state_changed.emit()
 		return
-	_timer -= delta
-	if state == State.SPAWNING and _timer <= 0.0:
-		_spawn_enemy()
-		_left -= 1
-		_timer = definition.spawn_interval
-		if _left == 0:
-			state = State.CLEARING
+	if state == State.SPAWNING and uses_timed_waves():
+		_wave_time_remaining -= delta
+		if _wave_time_remaining <= 0.0:
+			_end_timed_wave()
+			return
+		_timer -= delta
+		if _timer <= 0.0 and alive_count < timed_alive_cap():
+			_spawn_enemy()
+			_timer = definition.spawn_interval
+	elif state == State.SPAWNING:
+		_timer -= delta
+		if _timer <= 0.0:
+			_spawn_enemy()
+			_left -= 1
+			_timer = definition.spawn_interval
+			if _left == 0:
+				state = State.CLEARING
 	elif state == State.CLEARING and alive_count == 0:
 		_clear_projectiles()
 		# Pay and bank the wave before deciding what follows it.
@@ -90,12 +126,36 @@ func _physics_process(delta: float) -> void:
 			_finish()
 	elif state == State.BOSS and alive_count == 0:
 		_finish()
-	elif state == State.INTERMISSION and auto_advance and _timer <= 0.0:
-		_begin_wave()
+	elif state == State.INTERMISSION:
+		_timer -= delta
+		if (auto_advance or uses_timed_waves()) and _timer <= 0.0:
+			_begin_wave()
 
 func advance_wave() -> void:
-	if state == State.INTERMISSION:
+	if state == State.INTERMISSION and not uses_timed_waves():
 		_begin_wave()
+
+## Timer expiration is not a kill: ordinary enemies leave without defeated,
+## loot, XP, or reward callbacks, then normal wave completion occurs once.
+func _end_timed_wave() -> void:
+	_wave_time_remaining = 0.0
+	_despawn_ordinary_enemies()
+	_clear_projectiles()
+	wave_cleared.emit(wave)
+	if wave < definition.wave_count:
+		state = State.INTERMISSION
+		_timer = definition.intermission_duration
+		state_changed.emit()
+	elif definition.boss != null:
+		_begin_boss()
+	else:
+		_finish()
+
+func _despawn_ordinary_enemies() -> void:
+	for node: Node in actor_root.get_children():
+		if node is ArenaEnemy and not node is BossActor:
+			node.queue_free()
+	alive_count = 0
 
 func _spawn_enemy() -> void:
 	var selected: PackedScene = definition.enemy_scene

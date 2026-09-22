@@ -35,7 +35,9 @@ func _run() -> void:
 	prototype.encounter.state = EncounterDirector.State.INTERMISSION
 	prototype.encounter.wave = 5
 	prototype.progression.toggle_ready(1)
-	check(prototype.encounter.wave == 6 and rack.weapon_at(0) == LANCE_II, "normal F-ready flow reaches wave six with the evolved rack intact")
+	check(prototype.encounter.wave == 5, "timed checkpoint ignores ready input during automatic intermission")
+	prototype.encounter._physics_process(prototype.encounter.definition.intermission_duration + 0.1)
+	check(prototype.encounter.wave == 6 and rack.weapon_at(0) == LANCE_II, "automatic intermission reaches wave six with the evolved rack intact")
 	await process_frame
 	check(not prototype.checkpoint_notice_visible(), "checkpoint summary clears when wave six begins")
 	prototype.free()

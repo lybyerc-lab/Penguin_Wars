@@ -25,6 +25,6 @@ func _process(_delta: float) -> void:
 			angle += lerpf(-1.1, 1.1, progress)
 		else:
 			thrust = sin(progress * PI) * 17
-	position = Vector2.from_angle(angle) * (33.0 + thrust) + Vector2(0, 2)
+	position = _weapon.presentation_origin(angle, thrust)
 	rotation = angle
 	_sprite.flip_v = cos(angle) < 0.0

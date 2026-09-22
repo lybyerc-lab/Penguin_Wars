@@ -7,6 +7,27 @@ var _remaining: float = 0.0
 var _flash: float = 0.0
 var _hit_position: Vector2
 var aim_angle: float = 0.0
+## Stable personal-rack identity. It is presentation/timing data only; hit
+## range and target selection remain centered on the wielder.
+var rack_slot: int = 0
+var _phase_remaining: float = 0.0
+var _had_target: bool = false
+var _has_fired: bool = false
+
+func configure_rack_slot(slot: int) -> void:
+	rack_slot = slot
+	_phase_remaining = firing_phase_delay()
+
+func firing_phase_delay() -> float:
+	return definition.cooldown * 0.12 * float(rack_slot) if definition != null else 0.0
+
+## A cosmetic origin for held art and attack effects. Inventory slots remain
+## stable, including holes left by maturation, so weapon count stays legible.
+func presentation_origin(angle: float, thrust: float = 0.0) -> Vector2:
+	var lateral: float = (float(rack_slot) - 2.5) * 11.0
+	var forward := Vector2.from_angle(angle) * (33.0 + thrust)
+	var side := Vector2.from_angle(angle + PI * 0.5) * lateral
+	return forward + side + Vector2(0, 2)
 
 func _physics_process(delta: float) -> void:
 	_remaining = maxf(0.0, _remaining - delta)
@@ -32,8 +53,17 @@ func _physics_process(delta: float) -> void:
 			best = score
 			target = enemy
 	if target != null:
+		_phase_remaining = maxf(0.0, _phase_remaining - delta)
 		if _flash <= 0.0:
 			aim_angle = global_position.angle_to_point(target.global_position)
+		if not _had_target and _has_fired and _remaining <= 0.0:
+			_phase_remaining = firing_phase_delay()
+			_had_target = true
+			if _phase_remaining > 0.0:
+				return
+		_had_target = true
+		if _phase_remaining > 0.0:
+			return
 		if _remaining > 0.0:
 			return
 		_hit_position = target.global_position
@@ -50,7 +80,9 @@ func _physics_process(delta: float) -> void:
 					_hit(enemy)
 		_remaining = wielder.stats.cooldown(definition.cooldown)
 		_flash = 0.18
+		_has_fired = true
 	elif _flash <= 0.0:
+		_had_target = false
 		aim_angle = wielder.dash.facing.angle()
 
 func _hit(enemy: Node2D) -> void:
@@ -69,7 +101,7 @@ func _draw() -> void:
 		var tint := Color(definition.tint, _flash / 0.18)
 		if definition.pattern == WeaponDefinition.Pattern.ARC:
 			var half: float = deg_to_rad(definition.arc_degrees * 0.5)
-			draw_arc(Vector2.ZERO, maxf(20, definition.reach + wielder.stats.range_bonus) * (1.0 - _flash), aim_angle - half, aim_angle + half, 24, tint, 5)
+			draw_arc(presentation_origin(aim_angle), maxf(20, definition.reach + wielder.stats.range_bonus) * (1.0 - _flash), aim_angle - half, aim_angle + half, 24, tint, 5)
 		else:
-			draw_line(Vector2.ZERO, to_local(_hit_position), tint, 4.0)
+			draw_line(presentation_origin(aim_angle), to_local(_hit_position), tint, 4.0)
 			draw_circle(to_local(_hit_position), 7, tint)

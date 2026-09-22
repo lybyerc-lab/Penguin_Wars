@@ -209,6 +209,7 @@ func _set_slot(slot: int, definition: WeaponDefinition) -> void:
 	controller.name = "WeaponSlot%d" % slot
 	controller.definition = definition
 	controller.wielder = owner_player
+	controller.configure_rack_slot(slot)
 	controller.z_index = 1
 	var visual := WeaponVisual.new()
 	visual.name = "Visual"
