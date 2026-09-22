@@ -1,5 +1,29 @@
 # Verification record
 
+## Integrated pre-Brotato cleanup and Weapon Rack baseline
+
+September 22, 2026. `integration/pre-brotato-rack` layers
+`cleanup/pre-brotato@8f778b0` below `codex/weapon-rack-foundation@44296b8`,
+both from `antigravity@46efa8d`. The integration preserves `Expedition` as the
+only travel authority, physical doorway thresholds with the 0.4-second dwell,
+explicit `RoomExit.offset_along` and `RoomExit.Presentation`, Frostbreaker at
+the Black Ledge, and each penguin's independent six-slot `WeaponRack`.
+
+All eleven combined headless suites passed with zero assertion failures:
+foundation, combat feel, enemy behavior, economy, stats/mobile, seams,
+town/cave, boss, fullscreen HUD, doorway, and weapon rack. The seams run emits
+its expected invalid-stub diagnostic while validating its negative path.
+
+All nine real-renderer smokes passed: arena, enemy, economy, mobile normal and
+wide, town, boss, doorway, and weapon rack. The Black Ledge capture reached
+`WAVE 2 / 2 · BOSS` with Frostbreaker alive and barricades present; the
+doorway capture retained physical threshold waiting feedback with corner HUD
+cards; and the two-weapon rack capture showed both P1 controller visuals.
+
+The remaining rack work is intentionally deferred: flat DAMAGE and blacksmith
+Hone currently affect slot 0 only, and separate controller target scans need
+profiling before 4-player × 6-weapon mobile-scale content expands.
+
 ## Pre-Brotato cleanup pass
 
 September 21, 2026. Branch `cleanup/pre-brotato`, cut from `antigravity` @ `46efa8d`. Godot **4.7.2 stable** in a Linux container, compatibility rendering, OpenGL through Xvfb. No gameplay features added; no behaviour intentionally changed.

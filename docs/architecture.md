@@ -47,8 +47,10 @@ Each of these exists so a feature can be added without touching the rest.
 a boss phase after the final wave, and the room does not complete — so its
 exits do not unlock — until the boss is down.
 
-**This branch owns the phase, not the boss.** There is no boss content here on
-purpose.
+The architecture owns the phase and its scaling contract. **Frostbreaker is
+attached to the Black Ledge** as the current rank-one boss; future boss content
+continues to enter through `BossDefinition` and `BossActor` rather than a
+second combat path.
 
 #### The scaling contract
 
@@ -133,7 +135,7 @@ matching one wins. That expresses the agreed twenty-wave target directly:
 | --- | --- | --- |
 | `every = 5` — mini-boss | 5, 10, 15, 20 | 5 |
 | `every = 10` — Glacier Warden | 10, 20 | 10 |
-| `at = 15` — evolved mini-boss | 15 | 15 |
+| `at = 15` — Frostbreaker placeholder | 15 | 15 |
 | `every = 20` — Mondo, the War King | 20 | 20 |
 
 **Nothing calls this yet, and the director must never call it directly** —
@@ -301,14 +303,13 @@ validation entry points; both are asserted in tests.
 
 - Every existing suite runs against the real scenes, not mocks.
 - `tests/seams_test.gd` uses `tests/stub_boss.gd` — a boss with no attacks, art
-  or telegraphs — so the boss phase is verified without this branch owning boss
-  content.
+  or telegraphs — to isolate the phase contract from Frostbreaker's content.
 - What survives a room change (wallets, stats, levels, purchases, health,
   carried weapons) and what does not (enemies, projectiles, drops, snowmen,
   castles) is asserted in `tests/town_cave_test.gd`.
 - Castles are refused wherever there is no fight, including town.
 - A room's exits stay locked until it is complete, and travel needs the whole
-  living party on the pad.
+  living party inside the physical doorway threshold for the ~0.4-second dwell.
 
 ## Township is not the field shop
 

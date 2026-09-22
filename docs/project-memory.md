@@ -2,7 +2,7 @@
 
 > Durable project context for future sessions and AI handoffs.
 >
-> Documentation baseline: `antigravity@46efa8d` (doorway mechanics plus carved cave-mouth art polish). This documentation was developed on a separate branch while gameplay work continued, then merged forward.
+> Current integrated baseline: `integration/pre-brotato-rack`, combining `cleanup/pre-brotato@8f778b0` and `codex/weapon-rack-foundation@44296b8` above `antigravity@46efa8d`.
 
 ## North-star concept
 
@@ -39,6 +39,8 @@ Current important lineage:
 - `antigravity@20ed8f9`: physical Zelda-style doorway thresholds replacing teleport pads.
 - `antigravity@f05d804`: chunky carved cave mouths, palette-aware tunnel depth, environmental route framing, wider Kelphollow expedition mouth and polished barricade presentation.
 - `antigravity@46efa8d`: current gameplay authority before the six-slot rack branch.
+- `cleanup/pre-brotato@8f778b0`: doorway offset and presentation data, corrected render fixtures and viewport verification.
+- `integration/pre-brotato-rack`: current combined cleanup and six-slot rack baseline.
 
 Current implemented slice includes:
 
@@ -128,11 +130,11 @@ Planned polish:
 - Kelphollow cave mouth gets a special expedition-entrance treatment.
 - Eventually add a short classic Zelda-style directional screen slide.
 
-Important small technical TODO:
+Implemented doorway seams:
 
-- Add an explicit per-exit wall offset such as `offset_along`.
-- `RoomExit.wall_position(bounds, side, offset_along)` already conceptually supports this.
-- Needed before multiple exits share the same wall, because current centering would stack them.
+- `RoomExit.offset_along` persists each doorway's wall offset, and `place_on()` is the shared placement path for gates and wall art.
+- `RoomExit.Presentation` explicitly selects `STANDARD`, `EXPEDITION_MOUTH`, `CRYSTAL`, or `FRACTURED` dressing; doorway visuals do not infer it from target ids or room names.
+- Multiple doorways can share a wall without their placement or presentation drifting.
 
 ## Presentation direction
 
@@ -167,6 +169,19 @@ Room variation should primarily come from:
 Not from shrinking the playable rectangle into tiny boxes.
 
 Typical combat-room target: roughly 1200 × 620–660 logical space at 1280×720 presentation.
+
+## Weapon rack integration notes
+
+`WeaponRack` is implemented as a personal runtime under each penguin. It owns
+ordered definitions and independent `WeaponController` instances; shared
+`WeaponDefinition` resources remain immutable. `RunSession` applies each
+`CharacterDefinition.starting_weapons` loadout once, beginning in slot 0, and
+`weapon_capacity` provides the future one-flipper-style exception seam.
+
+Known limits deliberately left for later systems work:
+
+- the legacy flat DAMAGE upgrade and the blacksmith Hone currently modify slot 0 only;
+- each equipped controller scans target groups independently, so 4 players × 6 weapons needs profiling before mobile-scale content expands.
 
 ## Boss architecture and content
 

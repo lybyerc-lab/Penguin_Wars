@@ -6,7 +6,7 @@ This is a direction document, not a promise of exact scheduling. The order matte
 
 Implementation baseline recorded here:
 
-`antigravity@46efa8d`
+`integration/pre-brotato-rack` (cleanup `8f778b0` + rack `44296b8` above `antigravity@46efa8d`)
 
 At that point the project has:
 
@@ -20,6 +20,7 @@ At that point the project has:
 - Warden and Mondo boss content ready
 - current prototype economy/upgrades/castles
 - Android/mobile support path
+- six-slot personal weapon rack foundation
 
 The first doorway art-polish pass is complete. Human playtest now decides whether presentation is locked or needs another targeted pass before Snow pickups.
 
@@ -41,13 +42,13 @@ Implemented targets:
 - route-label hierarchy
 - quieter waiting copy
 
-### 0.2 Doorway offset seam
+### 0.2 Doorway offset seam — IMPLEMENTED at `cleanup/pre-brotato@8f778b0`
 
 Before multiple cave mouths occupy the same wall:
 
-- add `RoomExit.offset_along`
-- use it in `wall_position()`
-- remove dead/ambiguous legacy positioning behavior
+- `RoomExit.offset_along` and shared `place_on()` placement
+- explicit `RoomExit.Presentation` dressing data
+- no doorway presentation branches on target ids or room names
 
 ### 0.3 Human playtest
 
@@ -81,7 +82,7 @@ Deliver:
 
 Preserve existing wallet/XP seams while art/feel changes.
 
-## Phase 2 — Weapon Rack foundation — IMPLEMENTED at `codex/weapon-rack-foundation`
+## Phase 2 — Weapon Rack foundation — IMPLEMENTED at `codex/weapon-rack-foundation@44296b8`
 
 Goal: make the build engine capable of Brotato-like inventory decisions.
 
