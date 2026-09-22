@@ -333,20 +333,38 @@ new paid run power belongs in the field shop, not in town.
 ## Seams held for the next direction
 
 These are not built. They are noted so that whoever builds them knows where
-they go, and so nobody builds them somewhere else.
+they go, and so nobody builds them somewhere else. Implemented weapon seams
+are documented separately below.
 
 | Planned | Where it belongs |
 | --- | --- |
 | 20-wave run structure | `EncounterDefinition.wave_count`, already ranged to 20. The director's wave loop needs no change. |
 | Run/wave plan | Reserved and approved, not built. A lightweight data layer owned by `Expedition` that describes a run — which waves happen where, and which milestone bosses `BossSchedule` picks — and writes the result into `EncounterDefinition`. It describes; it must never move the party, or it becomes the second journey manager the contract forbids. |
 | Field shop: four offers, reroll, lock | `RunProgression`. `OPTIONS` is today's fixed catalogue and `choose(player_id, index)` indexes straight into it — both are the thing an offer system replaces. Expect to keep `pending`, `purchases`, `price()` and the wallet, and to change what an "index" means. |
-| Four weapon tiers, duplicate merging | `WeaponDefinition`. A tier field and a merge rule live there and in whatever owns an inventory; `WeaponController` reads a definition and needs no knowledge of tiers. |
-| Weapon classes and set bonuses | `WeaponDefinition` for the class tag; `PlayerStats` for the resulting modifiers, through the same seam upgrades already use. |
 | Personal builds per co-op player | Already true: `PlayerStats` is one instance per penguin and `RunWallet` is per player. Keep it that way. |
 | Harvest as compounding wave-end economy | `PlayerStats.harvest_yield()` is the single place income is computed, and `RunProgression.finish_wave()` the single place a wave pays. Change those two, not the call sites. |
 | Snow pickups as irregular blobs | `RunPickup` and its `_draw`. Presentation only; `RunPickup.Kind` stays. |
 | Storm difficulty | `RunModifiers` resources in `resources/modifiers/`, chosen by `Expedition.modifiers`. |
 | Horizontal unlocks | `CampaignState.unlocked` plus `CharacterDefinition.unlocked_by_default`. Prefer unlocking options over inflating stats. |
+
+### Weapon tiers, merges, and classes
+
+`WeaponDefinition` is immutable shared content. Its `family_id`, `tier`,
+`next_tier`, and canonical `WeaponClasses` tags describe a Tier I–IV chain;
+`problems()` validates that the chain and tags agree. `WeaponController` reads
+one definition and has no merge or class policy.
+
+`WeaponRack` owns all runtime merge policy for one player. `can_merge_slots()`
+and `merge_slots()` retain the first slot, consume the second, and leave every
+other slot in place. `find_merge_slot()` and
+`merge_definition_into_slot()` are the equivalent seam for future inventory or
+shop delivery without adding a seventh slot. Its class aggregation is based on
+occupied definitions, once per weapon; future class bonuses should write their
+resulting modifiers through `PlayerStats`, not mutate definitions.
+
+Sharp Ice and Cold Forge Hone write `PlayerStats.flat_weapon_damage`, which is
+read by every equipped controller. This makes flat damage player-wide for both
+current and later-equipped weapons.
 
 ## Working alongside this branch
 

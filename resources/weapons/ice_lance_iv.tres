@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/ice_lance.svg" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"ice_lance_iv"
+display_name = "Ice Lance IV"
+family_id = &"ice_lance"
+tier = 4
+classes = Array[StringName]([&"ice", &"precision"])
+damage = 27.0
+cooldown = 0.42
+reach = 240.0
+held_texture = ExtResource("2")

@@ -2,7 +2,6 @@ class_name WeaponController
 extends Node2D
 
 @export var definition: WeaponDefinition
-var damage_bonus: float = 0.0
 var wielder: PenguinPlayer
 var _remaining: float = 0.0
 var _flash: float = 0.0
@@ -56,7 +55,7 @@ func _physics_process(delta: float) -> void:
 
 func _hit(enemy: Node2D) -> void:
 	var push: Vector2 = global_position.direction_to(enemy.global_position) * definition.knockback
-	var damage: float = wielder.stats.weapon_damage(definition.damage + damage_bonus, definition.damage_kind == WeaponDefinition.DamageKind.MELEE, randf())
+	var damage: float = wielder.stats.weapon_damage(definition.damage + wielder.stats.flat_weapon_damage, definition.damage_kind == WeaponDefinition.DamageKind.MELEE, randf())
 	(enemy.get_node("Health") as Health).take_damage(DamageEvent.new(damage, wielder.identity.player_id, push))
 
 func is_attacking() -> bool:

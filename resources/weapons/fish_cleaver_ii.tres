@@ -1,16 +1,18 @@
 [gd_resource type="Resource" script_class="WeaponDefinition" load_steps=4 format=3]
+
 [ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/weapons/fish_cleaver.svg" id="2"]
-[ext_resource type="Resource" path="res://resources/weapons/fish_cleaver_ii.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/weapons/fish_cleaver_iii.tres" id="3"]
+
 [resource]
 script = ExtResource("1")
-id = &"fish_cleaver"
-display_name = "Fish Cleaver I"
+id = &"fish_cleaver_ii"
+display_name = "Fish Cleaver II"
 family_id = &"fish_cleaver"
-tier = 1
+tier = 2
 next_tier = ExtResource("3")
 classes = Array[StringName]([&"fish", &"blade"])
-damage = 22.0
+damage = 28.0
 cooldown = 1.05
 reach = 105.0
 pattern = 1

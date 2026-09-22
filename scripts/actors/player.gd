@@ -47,9 +47,7 @@ func _physics_process(delta: float) -> void:
 func apply_upgrade(upgrade: UpgradeDefinition) -> void:
 	match upgrade.stat:
 		UpgradeDefinition.Stat.DAMAGE:
-			var active_weapon := weapon_rack.controller_at(0)
-			if active_weapon != null:
-				active_weapon.damage_bonus += upgrade.amount
+			stats.flat_weapon_damage += upgrade.amount
 		UpgradeDefinition.Stat.SPEED:
 			speed = maxf(1.0, speed + upgrade.amount)
 		UpgradeDefinition.Stat.MAX_HEALTH:

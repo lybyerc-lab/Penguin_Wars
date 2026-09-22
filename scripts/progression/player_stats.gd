@@ -5,6 +5,8 @@ extends Resource
 @export var armor: float = 0.0
 @export var regeneration: float = 0.0
 @export var damage_percent: float = 0.0
+## Generic flat damage applies to every current and future personal weapon.
+@export var flat_weapon_damage: float = 0.0
 @export var melee_damage: float = 0.0
 @export var ranged_damage: float = 0.0
 @export var attack_speed: float = 0.0

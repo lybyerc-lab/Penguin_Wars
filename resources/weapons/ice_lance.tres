@@ -1,12 +1,17 @@
-[gd_resource type="Resource" script_class="WeaponDefinition" format=3 uid="uid://irw72yxxc2d2"]
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=3 format=3 uid="uid://irw72yxxc2d2"]
 
 [ext_resource type="Script" uid="uid://dt4grtuvsnq3r" path="res://scripts/data/weapon_definition.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/weapons/ice_lance.svg" id="2"]
+[ext_resource type="Resource" path="res://resources/weapons/ice_lance_ii.tres" id="3"]
 
 [resource]
 script = ExtResource("1")
 id = &"ice_lance"
-display_name = "Ice Lance"
+display_name = "Ice Lance I"
+family_id = &"ice_lance"
+tier = 1
+next_tier = ExtResource("3")
+classes = Array[StringName]([&"ice", &"precision"])
 cooldown = 0.42
 reach = 240.0
 held_texture = ExtResource("2")

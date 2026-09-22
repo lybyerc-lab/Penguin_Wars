@@ -1,5 +1,35 @@
 # Verification record
 
+## Weapon tiers, merging, and classes
+
+September 22, 2026. `feature/weapon-tiers-classes` starts from
+`origin/main@4dad4a0d051d40ac597c7a2ae4ae38688aa98154`. It adds immutable
+Tier I–IV Ice Lance and Fish Cleaver definition chains, canonical class tags,
+personal rack merge and class-aggregation APIs, HUD tier markers, and Build
+Sheet rack/class visibility. Sharp Ice and Cold Forge Hone now write the
+player-wide `PlayerStats.flat_weapon_damage` modifier, which every current and
+later-equipped weapon reads.
+
+All twelve headless suites passed with zero failures on this branch:
+foundation, combat feel, enemy behavior, economy, stats/mobile, seams,
+town/cave, boss, fullscreen HUD, doorway, weapon rack, and weapon tiers. The
+seams suite emitted its expected invalid-boss-stub diagnostic while validating
+its negative path. `weapon_tiers_test.gd` covers Tier I tuning preservation,
+chain validity, slot and incoming-definition merges, controller replacement,
+class aggregation, per-player isolation, player-wide flat damage, and the rack
+`changed` signal.
+
+All ten real OpenGL renderer smokes passed: arena, enemy, economy, mobile
+normal and wide, town, boss, doorway, weapon rack, and weapon tiers.
+`weapon-tiers-rack.png` captures a merged Ice Lance II in P1's rack, and
+`weapon-tiers-sheet.png` captures its Tier II name plus Ice and Precision
+counts in the Build Sheet.
+
+Known follow-up: each equipped controller still scans target groups
+independently. Profile that work before expanding 4-player × 6-weapon
+mobile-scale content. Merge UI, Field Shop offers/weighting, recycling, and
+class bonuses are intentionally not part of this implementation.
+
 ## Integrated pre-Brotato cleanup and Weapon Rack baseline
 
 September 22, 2026. `integration/pre-brotato-rack` layers
@@ -20,9 +50,10 @@ wide, town, boss, doorway, and weapon rack. The Black Ledge capture reached
 doorway capture retained physical threshold waiting feedback with corner HUD
 cards; and the two-weapon rack capture showed both P1 controller visuals.
 
-The remaining rack work is intentionally deferred: flat DAMAGE and blacksmith
-Hone currently affect slot 0 only, and separate controller target scans need
-profiling before 4-player × 6-weapon mobile-scale content expands.
+The remaining rack performance work is intentionally deferred: separate
+controller target scans need profiling before 4-player × 6-weapon
+mobile-scale content expands. Flat DAMAGE and blacksmith Hone became
+player-wide in the later weapon-tiers implementation above.
 
 ## Pre-Brotato cleanup pass
 

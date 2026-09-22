@@ -20,7 +20,7 @@ At that point the project has:
 - Warden and Mondo boss content ready
 - current prototype economy/upgrades/castles
 - Android/mobile support path
-- six-slot personal weapon rack foundation
+- six-slot personal weapon rack, Tier I–IV merge chains, and class aggregation
 
 The first doorway art-polish pass is complete. Human playtest now decides whether presentation is locked or needs another targeted pass before Snow pickups.
 
@@ -98,17 +98,15 @@ Deliver:
 
 Do not add every weapon yet. First prove the slot architecture.
 
-## Phase 3 — Weapon tiers, merging, classes
+## Phase 3 — Weapon tiers, merging, classes — IMPLEMENTED on `feature/weapon-tiers-classes`
 
 Deliver:
 
-- Tier I–IV
-- duplicate merge rules
-- weapon class/tag data
-- class count aggregation
-- class/set-bonus seam
-- shop weighting seam
-- recycle/sell rules if useful
+- Tier I–IV immutable definition chains for Ice Lance and Fish Cleaver
+- duplicate merge rules in the personal `WeaponRack`, including an incoming-definition seam for a future shop
+- canonical weapon class/tag data and class count aggregation
+- `WeaponRack.class_counts()` / `class_count()` seam for future class or set bonuses
+- `WeaponRack.find_merge_slot()` seam for future shop weighting and merge-aware offers
 
 Initial class list:
 
@@ -125,7 +123,9 @@ Initial class list:
 - Swift
 - Explosive
 
-Add a small representative weapon set before large content expansion.
+The current representative set is Ice Lance (Ice + Precision) and Fish Cleaver
+(Fish + Blade). No merge UI, shop offers, recycle/sell rule, or class bonus is
+implemented yet; those remain in the upcoming Field Shop and systems work.
 
 ## Phase 4 — Real Field Shop
 

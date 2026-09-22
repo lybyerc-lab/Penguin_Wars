@@ -54,7 +54,7 @@ func _run() -> void:
 	wallet.credit(1, 10)
 	var before: int = wallet.balance(1)
 	check(progression.choose(1, 0) and wallet.balance(1) == before - 6, "purchase charges personal wallet once")
-	check(players[0].weapon.damage_bonus == 3 and players[1].weapon.damage_bonus == 0, "purchased upgrade applies only to recipient")
+	check(players[0].stats.flat_weapon_damage == 3 and players[1].stats.flat_weapon_damage == 0, "purchased upgrade applies only to recipient")
 	check(progression.price(1, 0) == 9 and progression.price(2, 0) == 6, "prices scale per player's purchases")
 	progression.pending[1] = 1
 	before = wallet.balance(1)

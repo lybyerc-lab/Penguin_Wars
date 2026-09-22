@@ -55,7 +55,7 @@ func _run() -> void:
 	check(arena.progression.pending[2] == 2, "level-up queue retains choices")
 	arena.encounter.state = EncounterDirector.State.INTERMISSION
 	check(arena.progression.choose(2, 0), "upgrade choice accepted")
-	check(players[1].weapon.damage_bonus == 3 and players[0].weapon.damage_bonus == 0, "upgrade state isolated")
+	check(players[1].stats.flat_weapon_damage == 3 and players[0].stats.flat_weapon_damage == 0, "upgrade state isolated")
 	check(players[1].weapon.definition.damage == 22, "shared resource remains immutable")
 	check(not arena.progression.choose(2, 99), "invalid upgrade rejected")
 	# Exercise the actual weapon/target/damage/reward chain.

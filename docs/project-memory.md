@@ -2,7 +2,7 @@
 
 > Durable project context for future sessions and AI handoffs.
 >
-> Current integrated baseline: `integration/pre-brotato-rack`, combining `cleanup/pre-brotato@8f778b0` and `codex/weapon-rack-foundation@44296b8` above `antigravity@46efa8d`.
+> Current development baseline: `feature/weapon-tiers-classes`, above `origin/main@4dad4a0d051d40ac597c7a2ae4ae38688aa98154`, which already combines `cleanup/pre-brotato@8f778b0` and `codex/weapon-rack-foundation@44296b8` above `antigravity@46efa8d`.
 
 ## North-star concept
 
@@ -49,6 +49,8 @@ Current implemented slice includes:
 - Shared camera.
 - Auto-target basic weapons.
 - Personal six-slot `WeaponRack` runtimes; standard loadouts begin in slot 0.
+- Immutable Ice Lance and Fish Cleaver Tier I–IV chains, rack merge APIs, and canonical weapon-class aggregation.
+- Player-wide flat weapon damage used by Sharp Ice and Cold Forge Hone.
 - Manual movement and dodge.
 - Personal health, XP, wallet and upgrade choices.
 - Snow-castle defense prototype.
@@ -155,6 +157,7 @@ Current player-card concept:
 - level
 - personal Snow
 - compact six-weapon row, with occupied icons and visible empty slots
+- compact Roman tier marker on every occupied weapon slot
 
 Room variation should primarily come from:
 
@@ -172,15 +175,24 @@ Typical combat-room target: roughly 1200 × 620–660 logical space at 1280×720
 
 ## Weapon rack integration notes
 
-`WeaponRack` is implemented as a personal runtime under each penguin. It owns
-ordered definitions and independent `WeaponController` instances; shared
+`WeaponRack` is a personal runtime under each penguin. It owns ordered
+definitions and independent `WeaponController` instances; shared
 `WeaponDefinition` resources remain immutable. `RunSession` applies each
 `CharacterDefinition.starting_weapons` loadout once, beginning in slot 0, and
 `weapon_capacity` provides the future one-flipper-style exception seam.
 
+Each weapon definition carries a stable `family_id`, a Tier I–IV value, a
+`next_tier` reference, and canonical class tags from `WeaponClasses`. The rack
+merges matching non-maximum definitions through its slot and incoming-definition
+APIs, leaving all unrelated slot positions intact. Its class aggregation counts
+each occupied weapon once, and is the seam for future set bonuses and shop
+weighting. Tier chains currently ship for Ice Lance (Ice + Precision) and Fish
+Cleaver (Fish + Blade). Sharp Ice and Cold Forge Hone write
+`PlayerStats.flat_weapon_damage`, so every present and later-equipped weapon
+for that player reads the same flat damage bonus.
+
 Known limits deliberately left for later systems work:
 
-- the legacy flat DAMAGE upgrade and the blacksmith Hone currently modify slot 0 only;
 - each equipped controller scans target groups independently, so 4 players × 6 weapons needs profiling before mobile-scale content expands.
 
 ## Boss architecture and content
