@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="32" viewBox="0 0 48 32">
+  <!-- Hit Reaction Eyes: Squeezed shut impact (> <) with tension marks -->
+  <!-- Rear Eye: Squeezed > -->
+  <path d="M 11,11 L 18,16 L 12,21" fill="none" stroke="#0c1722" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Front Eye: Squeezed < -->
+  <path d="M 33,10 L 25,16 L 32,22" fill="none" stroke="#0c1722" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Little impact sweat drop flying -->
+  <path d="M 38,7 C 41,5 42,9 38,10 Z" fill="#bde7ff" stroke="#2a6080" stroke-width="1.2"/>
+</svg>

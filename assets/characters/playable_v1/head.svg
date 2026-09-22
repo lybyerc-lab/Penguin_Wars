@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 56 56">
+  <!-- Head: Chunky, slightly rounded head mass with 2-point crown crest tuft matching approved sheet -->
+  <defs>
+    <linearGradient id="headGrad" x1="0.1" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="#2c4055"/>
+      <stop offset="100%" stop-color="#142130"/>
+    </linearGradient>
+  </defs>
+  <!-- Main head volume with crest tuft integrated into silhouette -->
+  <path d="M 23,8 C 22,5 24,3 26,4 C 27,2 29,3 30,7 C 38,7 45,15 45,26 C 45,38 37,46 27,46 C 16,46 10,38 10,26 C 10,15 17,8 23,8 Z"
+        fill="url(#headGrad)" stroke="#0c1722" stroke-width="3.5" stroke-linejoin="round"/>
+</svg>
