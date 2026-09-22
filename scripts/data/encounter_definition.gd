@@ -8,3 +8,5 @@ extends Resource
 @export_range(0.1, 10.0) var spawn_interval: float = 0.8
 @export_range(1, 20) var wave_count: int = 3
 @export var run_seed: int = 1729
+@export var boss: BossDefinition
+@export var difficulty_multiplier: float = 1.0

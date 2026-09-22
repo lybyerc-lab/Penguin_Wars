@@ -37,7 +37,13 @@ The next cave starts at wave one and keeps each player's health, stats, weapon b
 
 Stationary castles, health drops, supplies and projectiles do not travel. Uncollected flakes are banked in the existing reserve. The nurse, blacksmith and town hall are labeled placeholders; their services, stories and branching dungeon layouts remain future work. See [hub-and-dungeons.md](docs/hub-and-dungeons.md).
 
-### Combat slice
+### Boss milestones and ending
+
+After the normal waves, caves **5 and 15** add Frostbreaker mini-bosses, cave **10** adds Glacier Warden, and cave **20** adds **Mondo, the War King**. Bosses have a shared health display, telegraphed attacks and co-op health scaling. Exits unlock only after the boss dies.
+
+Defeating Mondo at cave 20 offers **End the war** (victory and peaceful town) or **Endless caves** (keep the build and continue to cave 21). Endless repeats the 20-cave boss cycle with increasing enemy health and damage. See [bosses-and-endless.md](docs/bosses-and-endless.md) for attack patterns, tuning and extension points.
+
+### Weapons and movement
 
 P1 (and P3) carries the **Ice Lance**: a fast single-target strike with 240-pixel range, 14 damage and a 0.42-second cooldown. P2 (and P4) carries the **Fish Cleaver**: a 140-degree sweep that damages every enemy in its 105-pixel reach for 22 damage, with a 1.05-second cooldown and stronger knockback. Both aim automatically at the nearest enemy. These are initial tuning values, not final balance.
 
@@ -94,7 +100,7 @@ Set `TestArena.player_count` in the inspector to 1–4. Slots 1 and 2 have keybo
 
 **Exploration and camera.** The camera holds a fixed full-screen room view. Players and enemies share viewport-sized bounds with a small body inset; the room updates when the window size changes. For Zelda-style rooms, introduce a region/room scene owning bounds, spawn markers, exits and encounters; gate exits on `completed`. Decide party tethering and room transitions before permitting independent exploration. No split-screen is implemented.
 
-**Progression.** `Experience` handles XP overflow and emits one event per level; `RunProgression` owns team reward policy and queued personal choices. Downed players receive no XP. A new arena instance starts a fresh run. Save data, unlocks, inventory, bosses, interaction and run route selection are deliberately left to subsequent layers.
+**Progression.** `Experience` handles XP overflow and emits one event per level; `RunProgression` owns team reward policy and queued personal choices. Downed players receive no XP. A new arena instance starts a fresh run. Boss milestones and campaign/endless flow are implemented. Save data, unlocks, inventory, interaction and branching route selection remain future layers.
 
 **Economy and skills seam.** `PlayerStats` is a unique Resource instance per player and owns the Harvest multiplier/fractional carry. `RunWallet` owns balances; `RunProgression` owns material allocation, wave payments, purchases and readiness. `ArenaLoot` owns supply placement, drop wiring and reserve banking. `RunPickup` prevents duplicate collection and wasted healing. Breakable weapon targets expose a `Health` child and join `breakables`; enemy targets remain higher priority. `CastleBuilder` validates ownership, placement and affordability before spending. A future skill layer can grant stat modifiers or abilities through these separate systems. Move arena-specific bounds and prop locations into room data before introducing dungeons.
 
@@ -111,6 +117,7 @@ godot --headless --path . --script res://tests/economy_test.gd
 godot --headless --path . --script res://tests/stats_mobile_test.gd
 godot --headless --path . --script res://tests/fullscreen_hud_test.gd
 godot --headless --path . --script res://tests/cave_journey_test.gd
+godot --headless --path . --script res://tests/boss_campaign_test.gd
 godot --path . --script res://tests/render_smoke.gd
 godot --path . --script res://tests/enemy_render_smoke.gd
 godot --path . --script res://tests/economy_render_smoke.gd
@@ -118,6 +125,7 @@ godot --path . --script res://tests/mobile_render_smoke.gd
 godot --path . --script res://tests/mobile_render_smoke.gd -- --wide
 godot --path . --script res://tests/cave_journey_render.gd
 godot --path . --script res://tests/cave_journey_render.gd -- --mobile
+godot --path . --script res://tests/boss_render_smoke.gd
 ```
 
 The integration test fails with a nonzero exit code on failed assertions. It covers party IDs/capacity, movement/bounds, death/retargeting, XP overflow, queued upgrades and resource isolation, actual weapon kills/rewards, encounter completion, party wipe and scene cleanup. The renderer test writes `docs/arena-preview.png` using the live viewport. See `docs/verification.md` for actual results and limitations.

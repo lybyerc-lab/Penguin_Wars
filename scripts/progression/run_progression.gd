@@ -84,6 +84,10 @@ func finish_wave(wave: int) -> void:
 	for player: PenguinPlayer in party.members(true):
 		_grant_income(player, 5)
 
+func grant_boss_reward(amount: int) -> void:
+	for player: PenguinPlayer in party.members(true):
+		_grant_income(player, amount)
+
 func toggle_ready(player_id: int) -> void:
 	if encounter == null or encounter.state != EncounterDirector.State.INTERMISSION:
 		return

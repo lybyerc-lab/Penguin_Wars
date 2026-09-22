@@ -44,4 +44,4 @@ func _process(_delta: float) -> void:
 		_status.text = "FROSTFALL TOWN · EXPEDITION CAMP"
 		return
 	var phase: String = "SHOP · OPEN YOUR PENGUIN CARD" if encounter.state == EncounterDirector.State.INTERMISSION else EncounterDirector.State.keys()[encounter.state]
-	_status.text = "WAVE %d/%d  ·  %s" % [encounter.wave, encounter.definition.wave_count, phase]
+	_status.text = "CAVE %d · WAVE %d/%d · %s" % [encounter.cave_number, encounter.wave, encounter.definition.wave_count, phase]

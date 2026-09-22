@@ -1,5 +1,11 @@
 # Verification record
 
+## Boss milestones and war ending
+
+- Boss/campaign integration passes: milestone precedence through cave 60, boss health scaling for co-op, locked harmless windups, charge/recovery contact gating, resistance to stun-lock, Warden volleys, Mondo enrage/slam/dash immunity, boss rewards paid once, projectile cleanup, blocked premature exits, mobile campaign-choice controls, preserved endless state, peaceful ending and party-wipe rejection.
+- Foundation, cave-journey, combat-feel, enemy-behavior and economy regressions passed. Controlled OpenGL fixtures for all three boss tiers, the mobile cave-20 choice and the town ending were visually inspected.
+- Tests accelerate waves and deal scripted lethal damage. They verify lifecycle and combat rules, not 20 caves of human balance or Android performance. Boss appearances are initial crown/seal art. Physical phone testing, saves and online authority remain outstanding.
+
 ## Cave completion, exits and town staging
 
 - Cave journey integration passed: exits locked during combat; actual multi-wave completion shows the banner; town retains build/HP/XP/level/wallet/free choices/reserve; town stops combat and rejects building; subsequent caves reset supplies and pay wave-one income exactly once; duplicate travel is rejected; direct next-cave travel and mobile button paths work.

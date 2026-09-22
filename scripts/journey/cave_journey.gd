@@ -11,6 +11,8 @@ var builder: CastleBuilder
 var actor_root: Node2D
 var cave_number: int = 1
 var in_town: bool = false
+var endless: bool = false
+var war_ended: bool = false
 var _announced: bool = false
 var _moving: bool = false
 var _base_definition: EncounterDefinition
@@ -35,7 +37,7 @@ func _on_encounter_changed() -> void:
 		cave_cleared.emit(cave_number)
 
 func next_cave() -> bool:
-	if _moving or (not in_town and not can_leave()):
+	if war_ended or war_choice_pending() or _moving or (not in_town and not can_leave()):
 		return false
 	_moving = true
 	_clear_room()
@@ -47,7 +49,10 @@ func next_cave() -> bool:
 	var definition := _base_definition.duplicate() as EncounterDefinition
 	definition.base_count += mini(cave_number - 1, 10) * 2
 	definition.run_seed += (cave_number - 1) * 97
+	definition.boss = BossSchedule.for_cave(cave_number)
+	definition.difficulty_multiplier = BossSchedule.difficulty(cave_number)
 	encounter.definition = definition
+	encounter.cave_number = cave_number
 	_place_party(true)
 	location_changed.emit(false, cave_number)
 	encounter.start()
@@ -55,7 +60,7 @@ func next_cave() -> bool:
 	return true
 
 func return_to_town() -> bool:
-	if not can_leave():
+	if war_choice_pending() or not can_leave():
 		return false
 	_moving = true
 	_clear_room()
@@ -68,6 +73,21 @@ func return_to_town() -> bool:
 	encounter.state_changed.emit()
 	_moving = false
 	return true
+
+func war_choice_pending() -> bool:
+	return cave_number == 20 and not endless and not war_ended and can_leave()
+
+func choose_endless() -> bool:
+	if not war_choice_pending():
+		return false
+	endless = true
+	return next_cave()
+
+func end_war() -> bool:
+	if not war_choice_pending():
+		return false
+	war_ended = true
+	return return_to_town()
 
 func _clear_room() -> void:
 	loot.bank_uncollected(0)

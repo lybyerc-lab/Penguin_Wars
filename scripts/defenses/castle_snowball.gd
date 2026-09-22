@@ -22,7 +22,7 @@ func _physics_process(delta: float) -> void:
 		if enemy == null or not enemy.health.is_alive():
 			continue
 		var closest: Vector2 = Geometry2D.get_closest_point_to_segment(enemy.global_position, start, finish)
-		if closest.distance_squared_to(enemy.global_position) <= 21.0 * 21.0 and start.distance_squared_to(closest) < best:
+		if closest.distance_squared_to(enemy.global_position) <= enemy.hit_radius * enemy.hit_radius and start.distance_squared_to(closest) < best:
 			best = start.distance_squared_to(closest)
 			target = enemy
 	global_position = finish

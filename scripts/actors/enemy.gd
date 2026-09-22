@@ -5,6 +5,10 @@ signal defeated(enemy: ArenaEnemy, event: DamageEvent)
 
 @export var speed: float = 72.0
 @export var contact_damage: float = 8.0
+@export var projectile_damage: float = 10.0
+@export var contact_radius: float = 34.0
+@export var hit_radius: float = 21.0
+@export var knockback_multiplier: float = 1.0
 @export var arena_bounds := Rect2(-540, -260, 1080, 520)
 var party: PartyRoster
 var _attack_remaining: float = 0.0
@@ -32,12 +36,12 @@ func _physics_process(delta: float) -> void:
 	_knockback = _knockback.move_toward(Vector2.ZERO, 1000.0 * delta)
 	move_and_slide()
 	global_position = global_position.clamp(arena_bounds.position, arena_bounds.end)
-	if global_position.distance_to(target.global_position) < 34.0 and _attack_remaining <= 0.0 and (behavior == null or behavior.contact_enabled()):
+	if global_position.distance_to(target.global_position) < contact_radius and _attack_remaining <= 0.0 and (behavior == null or behavior.contact_enabled()):
 		target.health.take_damage(DamageEvent.new(contact_damage))
 		_attack_remaining = 0.8
 
 func _on_damaged(event: DamageEvent) -> void:
-	_knockback += event.impulse
+	_knockback += event.impulse * knockback_multiplier
 	if behavior != null:
 		behavior.on_damage(event)
 

@@ -46,6 +46,7 @@ func _ready() -> void:
 	encounter.state_changed.connect($Loot.on_encounter_changed)
 	encounter.wave_cleared.connect($Loot.bank_uncollected)
 	encounter.wave_cleared.connect(progression.finish_wave)
+	encounter.boss_reward.connect(progression.grant_boss_reward)
 	$HUD.party = party
 	$HUD.encounter = encounter
 	$HUD.progression = progression
@@ -93,6 +94,10 @@ func _setup_journey() -> void:
 	travel.journey = journey
 	add_child(travel)
 	travel.setup()
+	var boss_hud := BossHUD.new()
+	boss_hud.encounter = encounter
+	add_child(boss_hud)
+	boss_hud.setup()
 
 func _resize_room() -> void:
 	var size: Vector2 = get_viewport_rect().size
@@ -105,6 +110,8 @@ func _resize_room() -> void:
 	for actor: Node in $Actors.get_children():
 		if actor is PenguinPlayer or actor is ArenaEnemy:
 			actor.arena_bounds = actor_bounds
+			if actor is ArenaBoss:
+				actor.arena_bounds = actor_bounds.grow(-actor.hit_radius)
 		if actor is Node2D:
 			actor.position = actor.position.clamp(actor_bounds.position, actor_bounds.end)
 

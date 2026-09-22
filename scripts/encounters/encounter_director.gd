@@ -6,8 +6,10 @@ signal enemy_defeated(event: DamageEvent)
 signal loot_available(location: Vector2)
 signal completed
 signal wave_cleared(wave_number: int)
+signal boss_started(boss: ArenaBoss)
+signal boss_reward(amount: int)
 
-enum State { READY, SPAWNING, CLEARING, INTERMISSION, COMPLETE, FAILED }
+enum State { READY, SPAWNING, CLEARING, INTERMISSION, COMPLETE, FAILED, BOSS }
 @export var definition: EncounterDefinition
 @export var auto_advance: bool = false
 var party: PartyRoster
@@ -15,7 +17,9 @@ var actor_root: Node2D
 var arena_bounds := Rect2(-540, -260, 1080, 520)
 var state: State = State.READY
 var wave: int = 0
+var cave_number: int = 1
 var alive_count: int = 0
+var active_boss: ArenaBoss
 var _left: int = 0
 var _timer: float = 0.0
 var _spawn_index: int = 0
@@ -25,6 +29,7 @@ func start() -> void:
 	assert(party != null and actor_root != null and definition != null)
 	wave = 0
 	alive_count = 0
+	active_boss = null
 	_rng.seed = definition.run_seed
 	_begin_wave()
 
@@ -53,14 +58,18 @@ func _physics_process(delta: float) -> void:
 			state = State.CLEARING
 	elif state == State.CLEARING and alive_count == 0:
 		_clear_projectiles()
+		wave_cleared.emit(wave)
 		if wave >= definition.wave_count:
-			state = State.COMPLETE
-			completed.emit()
+			if definition.boss != null:
+				_begin_boss()
+			else:
+				_finish_cave()
 		else:
 			state = State.INTERMISSION
 			_timer = 3.0
-		wave_cleared.emit(wave)
-		state_changed.emit()
+			state_changed.emit()
+	elif state == State.BOSS and alive_count == 0:
+		_finish_cave()
 	elif state == State.INTERMISSION and auto_advance and _timer <= 0.0:
 		_begin_wave()
 
@@ -79,6 +88,9 @@ func _spawn_enemy() -> void:
 	var enemy := selected.instantiate() as ArenaEnemy
 	enemy.party = party
 	enemy.arena_bounds = arena_bounds
+	enemy.get_node("Health").maximum *= definition.difficulty_multiplier
+	enemy.contact_damage *= definition.difficulty_multiplier
+	enemy.projectile_damage *= definition.difficulty_multiplier
 	# Pick the safest of several perimeter points to avoid spawning on a player.
 	var safest := Vector2.ZERO
 	var best: float = -1.0
@@ -95,6 +107,34 @@ func _spawn_enemy() -> void:
 	enemy.defeated.connect(_on_enemy_defeated)
 	actor_root.add_child(enemy)
 	alive_count += 1
+
+func _begin_boss() -> void:
+	state = State.BOSS
+	var boss: ArenaBoss = preload("res://scenes/actors/boss.tscn").instantiate()
+	boss.party = party
+	boss.configure(definition.boss, definition.difficulty_multiplier, party.members().size())
+	boss.arena_bounds = arena_bounds.grow(-boss.hit_radius)
+	var best: float = -1
+	for corner: Vector2 in [boss.arena_bounds.position, boss.arena_bounds.end, Vector2(boss.arena_bounds.position.x, boss.arena_bounds.end.y), Vector2(boss.arena_bounds.end.x, boss.arena_bounds.position.y)]:
+		var nearest: PenguinPlayer = party.nearest_alive(corner)
+		var distance: float = corner.distance_squared_to(nearest.global_position) if nearest != null else INF
+		if distance > best:
+			best = distance
+			boss.position = corner
+	boss.defeated.connect(_on_enemy_defeated)
+	boss.defeated.connect(func(_enemy: ArenaEnemy, _event: DamageEvent) -> void: boss_reward.emit(definition.boss.reward))
+	actor_root.add_child(boss)
+	active_boss = boss
+	alive_count = 1
+	boss_started.emit(boss)
+	state_changed.emit()
+
+func _finish_cave() -> void:
+	_clear_projectiles()
+	active_boss = null
+	state = State.COMPLETE
+	completed.emit()
+	state_changed.emit()
 
 func _on_enemy_defeated(enemy: ArenaEnemy, event: DamageEvent) -> void:
 	alive_count -= 1

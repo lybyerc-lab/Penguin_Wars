@@ -38,8 +38,8 @@ func setup() -> void:
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 16)
 	content.add_child(actions)
-	_next = _button("Next cave", func() -> void: journey.next_cave(), actions)
-	_town = _button("Back to town", func() -> void: journey.return_to_town(), actions)
+	_next = _button("Next cave", _next_pressed, actions)
+	_town = _button("Back to town", _town_pressed, actions)
 	_panel.hide()
 	journey.cave_cleared.connect(_on_cleared)
 	journey.location_changed.connect(_on_location_changed)
@@ -59,7 +59,27 @@ func _on_cleared(number: int) -> void:
 	_description.text = "Cave %d complete · Rewards collected\nChoose the party's next destination, or open your stats to shop." % number
 	_next.text = "Next cave · %d" % (number + 1)
 	_town.show()
+	_town.text = "Back to town"
+	if journey.war_choice_pending():
+		_title.text = "MONDO DEFEATED!"
+		_description.text = "Twenty caves. One war king. Your choice.\nBring peace to town, or keep your build and brave endless caves."
+		_next.text = "Endless caves"
+		_town.text = "End the war"
 	_panel.show()
+
+func _next_pressed() -> void:
+	if journey.war_ended:
+		get_tree().reload_current_scene()
+	elif journey.war_choice_pending():
+		journey.choose_endless()
+	else:
+		journey.next_cave()
+
+func _town_pressed() -> void:
+	if journey.war_choice_pending():
+		journey.end_war()
+	else:
+		journey.return_to_town()
 
 func _on_location_changed(town: bool, number: int) -> void:
 	_panel.visible = town
@@ -67,6 +87,10 @@ func _on_location_changed(town: bool, number: int) -> void:
 		_title.text = "EXPEDITION CAMP"
 		_description.text = "Your build, health, levels and flakes are retained.\nOpen your penguin card to shop, then head back into the caves."
 		_next.text = "Enter cave %d" % (number + 1)
+		if journey.war_ended:
+			_title.text = "THE WAR IS OVER!"
+			_description.text = "Mondo has fallen. Frostfall Town is safe.\nYour expedition is complete. Enjoy the peace, penguins."
+			_next.text = "Start a new expedition"
 		_town.hide()
 		_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 		_panel.offset_left = -330
