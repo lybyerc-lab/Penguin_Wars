@@ -274,6 +274,11 @@ func _on_damaged(_event: DamageEvent) -> void:
 	if _health != null and not _health.is_alive():
 		return
 	_hit_timer = HIT_DURATION
+	if _using_profile() and _animated_sprite != null:
+		var hit_anim := profile.get_animation_for_state(State.HIT)
+		if profile.has_animation(hit_anim):
+			_animated_sprite.stop()
+			_animated_sprite.play(hit_anim)
 
 func _on_died(_event: DamageEvent) -> void:
 	if enemy:
@@ -281,6 +286,11 @@ func _on_died(_event: DamageEvent) -> void:
 	_hit_timer = 0.0
 	_revive_timer = 0.0
 	current_state = State.DOWNED
+	if _using_profile() and _animated_sprite != null:
+		var downed_anim := profile.get_animation_for_state(State.DOWNED)
+		if profile.has_animation(downed_anim):
+			_animated_sprite.stop()
+			_animated_sprite.play(downed_anim)
 
 func _on_revived(_current: float) -> void:
 	if enemy:
@@ -288,6 +298,11 @@ func _on_revived(_current: float) -> void:
 	_hit_timer = 0.0
 	_revive_timer = REVIVE_DURATION
 	current_state = State.REVIVE
+	if _using_profile() and _animated_sprite != null:
+		var revive_anim := profile.get_animation_for_state(State.REVIVE)
+		if profile.has_animation(revive_anim):
+			_animated_sprite.stop()
+			_animated_sprite.play(revive_anim)
 
 func _process(delta: float) -> void:
 	_time += delta
@@ -358,7 +373,7 @@ func _process_player(delta: float) -> void:
 				_pivot.scale.x = _facing_direction
 			var anim_name: StringName = profile.get_animation_for_state(current_state)
 			if profile.has_animation(anim_name):
-				if _animated_sprite.animation != anim_name or not _animated_sprite.is_playing():
+				if _animated_sprite.animation != anim_name:
 					_animated_sprite.play(anim_name)
 		if current_state == State.DOWNED:
 			_halo.visible = true
