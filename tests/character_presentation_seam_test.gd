@@ -174,6 +174,36 @@ func _run() -> void:
 	check(v1.animated_sprite.animation == &"idle", "returns to 'idle' animation")
 
 	# =========================================================================
+	# 3b. STATE PRIORITY HIERARCHY VERIFICATION (DOWNED > REVIVE > HIT > DASH > MOVE > IDLE)
+	# =========================================================================
+	# HIT overrides DASH
+	p1.dash.remaining = 0.16
+	p1.health.take_damage(DamageEvent.new(10))
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.HIT, "HIT takes priority over active DASH")
+	v1._process_player(0.20)
+	# After hit recovers, active dash still presents if remaining
+	p1.dash.remaining = 0.10
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.DASH, "recovering from HIT while dash still active presents DASH")
+	p1.dash.remaining = 0.0
+
+	# DOWNED overrides active DASH and HIT
+	p1.dash.direction = Vector2.RIGHT
+	p1.dash.remaining = 0.16
+	p1.health.take_damage(DamageEvent.new(1000))
+	p1.dash.tick(0.016, Vector2.ZERO, false, p1.health.is_alive())
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.DOWNED, "DOWNED takes priority over active DASH and HIT")
+
+	# REVIVE overrides DOWNED
+	p1.health.revive(50.0)
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.REVIVE, "REVIVE takes priority over DOWNED")
+	v1._process_player(0.40)
+	check(v1.current_state == CharacterVisual.State.IDLE, "REVIVE completion settles in IDLE")
+
+	# =========================================================================
 	# 4. PROFILE SWAPPING AND FALLBACK PUPPET ADAPTER
 	# =========================================================================
 	v1.set_profile(null)
@@ -266,6 +296,29 @@ func _run() -> void:
 	check((p1.get_node("WeaponRack") as Node2D).position == Vector2.ZERO, "WeaponRack origin remains at (0, 0)")
 	check(p1.speed == 220.0, "player gameplay speed remains 220.0")
 	check(p1.dash.burst_speed == 680.0, "dash burst speed remains 680.0")
+
+	# =========================================================================
+	# 6b. VISUAL ROOT VS GAMEPLAY ROOT SEPARATION (DEFORMATION ISOLATION)
+	# =========================================================================
+	var p_pos_before: Vector2 = p1.global_position
+	var col_pos_before: Vector2 = (p1.get_node("CollisionShape2D") as Node2D).global_position
+	var rack_pos_before: Vector2 = (p1.get_node("WeaponRack") as Node2D).global_position
+
+	# Heavily deform the visual pivot (squash, stretch, rotate, translate)
+	v1._pivot.scale = Vector2(3.5, 0.25)
+	v1._pivot.rotation = 1.45
+	v1._pivot.position = Vector2(25.0, -40.0)
+
+	# Verify gameplay collision and weapon origins are completely untouched by visual deformation
+	check(p1.global_position == p_pos_before, "player gameplay position untouched by visual deformation")
+	check((p1.get_node("CollisionShape2D") as Node2D).global_position == col_pos_before, "collision global position untouched by visual deformation")
+	check((p1.get_node("WeaponRack") as Node2D).global_position == rack_pos_before, "WeaponRack global position untouched by visual deformation")
+	check(shape1.radius == 16.0, "collision shape radius untouched by visual deformation")
+
+	# Reset visual pivot
+	v1._pivot.scale = Vector2.ONE
+	v1._pivot.rotation = 0.0
+	v1._pivot.position = Vector2.ZERO
 
 	# =========================================================================
 	# 7. REPEATED CYCLES AND NODE LEAK PREVENTION
