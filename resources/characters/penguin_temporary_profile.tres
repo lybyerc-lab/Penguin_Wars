@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="CharacterPresentationProfile" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_presentation_profile.gd" id="1_profile"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin.svg" id="2_temp_tex"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_temp"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_temp_tex")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_temp_tex")
+}],
+"loop": true,
+"name": &"move",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_temp_tex")
+}],
+"loop": true,
+"name": &"dash",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_temp_tex")
+}],
+"loop": false,
+"name": &"hit",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_temp_tex")
+}],
+"loop": true,
+"name": &"downed",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_temp_tex")
+}],
+"loop": false,
+"name": &"revive",
+"speed": 8.0
+}]
+
+[resource]
+script = ExtResource("1_profile")
+profile_name = "Temporary Placeholder Profile"
+sprite_frames = SubResource("SpriteFrames_temp")
+base_scale = Vector2(0.5, 0.5)
+offset = Vector2(0, -10)
+flip_h_with_facing = true
+anim_idle = &"idle"
+anim_move = &"move"
+anim_dash = &"dash"
+anim_hit = &"hit"
+anim_downed = &"downed"
+anim_revive = &"revive"

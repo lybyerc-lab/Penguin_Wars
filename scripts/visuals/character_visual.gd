@@ -3,16 +3,22 @@ extends Node2D
 ## Production player penguin presentation matching the approved Concept C (Broad 2.5D) sheet.
 ## Cosmetic-only animation and team colors, strictly independent from movement/health rules.
 
+const ProfileResource = preload("res://scripts/data/character_presentation_profile.gd")
+
 enum State {
 	IDLE,
-	WADDLE,
+	MOVE,
 	DASH,
 	HIT,
 	DOWNED,
 	REVIVE,
+	WADDLE = 1,
+	KO = 4,
 }
 
 @export var enemy: bool = false
+@export var profile: ProfileResource:
+	set = set_profile
 
 var current_state: State = State.IDLE
 
@@ -31,8 +37,16 @@ var _dash: DashController
 # Legacy enemy sprite
 var _enemy_body: Sprite2D
 
-# Modular Penguin Puppet Nodes (Player)
+# Presentation Seam Nodes
 var _pivot: Node2D
+var _animated_sprite: AnimatedSprite2D
+var _puppet_sprites: Array[CanvasItem] = []
+
+var animated_sprite: AnimatedSprite2D:
+	get:
+		return _animated_sprite
+
+# Modular Penguin Puppet Nodes (Player Fallback)
 var _rear_flipper: Sprite2D
 var _rear_foot: Sprite2D
 var _torso: Sprite2D
@@ -166,9 +180,47 @@ func _setup_player() -> void:
 	_front_flipper.z_index = 8
 	_pivot.add_child(_front_flipper)
 
+	_puppet_sprites = [
+		_rear_flipper,
+		_rear_foot,
+		_torso,
+		_belly,
+		_head,
+		_eyes,
+		_beak,
+		_scarf_wrap,
+		_scarf_tail,
+		_front_foot,
+		_front_flipper,
+	]
+
+	_animated_sprite = AnimatedSprite2D.new()
+	_pivot.add_child(_animated_sprite)
+
 	_setup_halo()
 	_update_team_tint()
+	_update_presentation_mode()
 	_apply_pose_idle(0.0)
+
+func _using_profile() -> bool:
+	return profile != null and profile.sprite_frames != null
+
+func set_profile(new_profile: ProfileResource) -> void:
+	profile = new_profile
+	_update_presentation_mode()
+
+func _update_presentation_mode() -> void:
+	if _pivot == null:
+		return
+	var use_prof: bool = _using_profile()
+	if _animated_sprite != null:
+		_animated_sprite.visible = use_prof
+		if use_prof:
+			_animated_sprite.sprite_frames = profile.sprite_frames
+			_animated_sprite.scale = profile.base_scale
+			_animated_sprite.offset = profile.offset
+	for sprite in _puppet_sprites:
+		sprite.visible = not use_prof
 
 func _setup_halo() -> void:
 	_halo = Node2D.new()
@@ -284,7 +336,7 @@ func _process_player(delta: float) -> void:
 	elif dashing:
 		current_state = State.DASH
 	elif moving:
-		current_state = State.WADDLE
+		current_state = State.MOVE
 	else:
 		current_state = State.IDLE
 
@@ -296,22 +348,40 @@ func _process_player(delta: float) -> void:
 		if absf(vel.x) > 5.0:
 			_facing_direction = 1.0 if vel.x > 0 else -1.0
 
-	_pivot.scale = Vector2(_facing_direction * PUPPET_BASE_SCALE, PUPPET_BASE_SCALE)
+	if _using_profile():
+		_pivot.scale = Vector2.ONE
+		if _animated_sprite != null:
+			if profile.flip_h_with_facing:
+				_animated_sprite.flip_h = (_facing_direction < 0.0)
+			else:
+				_animated_sprite.flip_h = false
+				_pivot.scale.x = _facing_direction
+			var anim_name: StringName = profile.get_animation_for_state(current_state)
+			if profile.has_animation(anim_name):
+				if _animated_sprite.animation != anim_name or not _animated_sprite.is_playing():
+					_animated_sprite.play(anim_name)
+		if current_state == State.DOWNED:
+			_halo.visible = true
+			_update_halo(delta)
+		else:
+			_halo.visible = false
+	else:
+		_pivot.scale = Vector2(_facing_direction * PUPPET_BASE_SCALE, PUPPET_BASE_SCALE)
 
-	# Execute State Animation
-	match current_state:
-		State.IDLE:
-			_apply_pose_idle(delta)
-		State.WADDLE:
-			_apply_pose_waddle(delta)
-		State.DASH:
-			_apply_pose_dash(delta)
-		State.HIT:
-			_apply_pose_hit(delta)
-		State.DOWNED:
-			_apply_pose_downed(delta)
-		State.REVIVE:
-			_apply_pose_revive(delta)
+		# Execute State Animation
+		match current_state:
+			State.IDLE:
+				_apply_pose_idle(delta)
+			State.MOVE:
+				_apply_pose_waddle(delta)
+			State.DASH:
+				_apply_pose_dash(delta)
+			State.HIT:
+				_apply_pose_hit(delta)
+			State.DOWNED:
+				_apply_pose_downed(delta)
+			State.REVIVE:
+				_apply_pose_revive(delta)
 
 func _apply_pose_idle(_delta: float) -> void:
 	_eyes.texture = TEX_EYES_ALERT
@@ -501,6 +571,9 @@ func _apply_pose_downed(delta: float) -> void:
 	_rear_foot.position = Vector2(-28, 6)
 	_rear_foot.rotation = -0.40
 
+	_update_halo(delta)
+
+func _update_halo(delta: float) -> void:
 	# Halo orbital loop (2 fish and 4 stars in elliptical path)
 	_halo_angle += delta * 3.2
 	_halo.position = Vector2(_facing_direction * 18.0, -14.0)
