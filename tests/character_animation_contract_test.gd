@@ -1,13 +1,13 @@
 extends SceneTree
-## Focused verification suite for Penguin Wars Production Character Animation Import Contract.
-## Tests directory layout, frame naming, canvas dimensions, 24 FPS baseline, loop/one-shot rules,
-## Downed end-frame hold behavior, validator negative testing, and 4-player shared SpriteFrames usage.
+## Comprehensive acceptance test suite for Penguin Wars Production Character Animation Import Contract v1.1.
+## Tests centralized contract values, directory layout, base/scarf layer synchronization,
+## per-player scarf tinting, one-shot presentation timing & recovery, Downed end-frame hold,
+## repeated hit replay, authoritative death interruption, and 4-player shared resource independence.
 ## Exit code is nonzero on any failure.
 
+const Contract = preload("res://scripts/data/character_animation_contract.gd")
 const Validator = preload("res://scripts/tools/character_animation_validator.gd")
-const PROD_PROFILE_PATH: String = "res://resources/characters/penguin_production_profile.tres"
-const PROD_FRAMES_PATH: String = "res://resources/characters/penguin_production_sprite_frames.tres"
-const PROD_DIR_PATH: String = "res://assets/characters/penguin/production"
+const ProfileScript = preload("res://scripts/data/character_presentation_profile.gd")
 
 var failures: int = 0
 
@@ -23,18 +23,35 @@ func _run() -> void:
 	print("--- BEGIN CHARACTER ANIMATION CONTRACT TESTS ---")
 
 	# =========================================================================
-	# 1. VALIDATOR NEGATIVE TESTING (VERIFY DETECTION OF INVALID EXPORTS)
+	# 1. CENTRALIZED CONTRACT VALUES VERIFICATION
 	# =========================================================================
-	print("Testing validator negative cases...")
+	print("1. Verifying centralized contract constants...")
+	check(Contract.CANVAS_SIZE == Vector2i(256, 256), "Contract CANVAS_SIZE is 256x256")
+	check(Contract.GROUND_ANCHOR == Vector2i(128, 216), "Contract GROUND_ANCHOR is (128, 216)")
+	check(is_equal_approx(Contract.SOURCE_FPS, 24.0), "Contract SOURCE_FPS is 24.0")
+	check(Contract.RUNTIME_SCALE == Vector2(0.25, 0.25), "Contract RUNTIME_SCALE is (0.25, 0.25)")
+	check(Contract.RUNTIME_OFFSET == Vector2(0.0, -88.0), "Contract RUNTIME_OFFSET is (0, -88)")
+	check(Contract.CANONICAL_STATES.size() == 6, "Contract defines exactly 6 canonical states")
+	check(Contract.is_state_looping("idle") == true, "Contract idle loops")
+	check(Contract.is_state_looping("move") == true, "Contract move loops")
+	check(Contract.is_state_looping("dash") == false, "Contract dash is one-shot")
+	check(Contract.is_state_looping("hit") == false, "Contract hit is one-shot")
+	check(Contract.is_state_looping("downed") == false, "Contract downed is one-shot")
+	check(Contract.is_state_looping("revive") == false, "Contract revive is one-shot")
+	check(Contract.REQUIRED_LAYERS.has("base") and Contract.REQUIRED_LAYERS.has("scarf"), "Contract requires 'base' and 'scarf' layers")
+
+	# =========================================================================
+	# 2. VALIDATOR NEGATIVE TESTING
+	# =========================================================================
+	print("2. Testing validator negative cases...")
 	var bad_frames := SpriteFrames.new()
 	if bad_frames.has_animation("default"):
 		bad_frames.remove_animation("default")
 
-	# Test 1a: Missing canonical animation
+	# 2a: Missing canonical animation
 	bad_frames.add_animation("idle")
 	bad_frames.set_animation_speed("idle", 24.0)
 	bad_frames.set_animation_loop("idle", true)
-	# Add a dummy texture to idle
 	var dummy_img := Image.create(256, 256, false, Image.FORMAT_RGBA8)
 	var dummy_tex := ImageTexture.create_from_image(dummy_img)
 	bad_frames.add_frame("idle", dummy_tex)
@@ -47,9 +64,9 @@ func _run() -> void:
 			break
 	check(has_missing_err, "validator catches missing canonical animation")
 
-	# Test 1b: Wrong FPS
+	# 2b: Wrong FPS
 	bad_frames.add_animation("move")
-	bad_frames.set_animation_speed("move", 15.0) # Wrong FPS
+	bad_frames.set_animation_speed("move", 15.0)
 	bad_frames.set_animation_loop("move", true)
 	bad_frames.add_frame("move", dummy_tex)
 	var errs_fps := Validator.validate_sprite_frames(bad_frames)
@@ -60,7 +77,7 @@ func _run() -> void:
 			break
 	check(has_fps_err, "validator catches wrong FPS (!= 24.0)")
 
-	# Test 1c: Wrong Loop Flag (idle should loop, downed should not)
+	# 2c: Wrong Loop Flag
 	bad_frames.set_animation_speed("move", 24.0)
 	bad_frames.add_animation("downed")
 	bad_frames.set_animation_speed("downed", 24.0)
@@ -74,7 +91,7 @@ func _run() -> void:
 			break
 	check(has_loop_err, "validator catches wrong loop flag on downed")
 
-	# Test 1d: Inconsistent frame dimensions
+	# 2d: Inconsistent frame dimensions
 	var bad_dim_img := Image.create(128, 128, false, Image.FORMAT_RGBA8)
 	var bad_dim_tex := ImageTexture.create_from_image(bad_dim_img)
 	bad_frames.add_frame("idle", bad_dim_tex)
@@ -86,62 +103,80 @@ func _run() -> void:
 			break
 	check(has_dim_err, "validator catches inconsistent frame dimensions")
 
-	# =========================================================================
-	# 2. PRODUCTION DIRECTORY LAYOUT & NAMING VALIDATION
-	# =========================================================================
-	print("Validating production directory layout...")
-	var dir_errors := Validator.validate_directory(PROD_DIR_PATH, Vector2i(256, 256))
-	for e in dir_errors:
-		push_error("DIR VALIDATION ERROR: " + e)
-	check(dir_errors.is_empty(), "production directory passes validation with 0 errors")
+	# 2e: Rejection of art/blender path
+	var blender_errs := Validator.validate_directory_layout("res://art/blender/characters/penguin")
+	var has_blender_err := false
+	for e in blender_errs:
+		if "art/blender" in e or "art\\blender" in e:
+			has_blender_err = true
+			break
+	check(has_blender_err, "validator rejects attempts to load runtime assets from art/blender/")
 
 	# =========================================================================
-	# 3. PRODUCTION SPRITEFRAMES RESOURCE VALIDATION
+	# 3. PRODUCTION PATH CLEANLINESS VERIFICATION
 	# =========================================================================
-	print("Validating production SpriteFrames resource...")
-	var prod_frames := load(PROD_FRAMES_PATH) as SpriteFrames
-	check(prod_frames != null, "production SpriteFrames resource loaded successfully")
-
-	var frames_errors := Validator.validate_sprite_frames(prod_frames, Vector2i(256, 256))
-	for e in frames_errors:
-		push_error("FRAMES VALIDATION ERROR: " + e)
-	check(frames_errors.is_empty(), "production SpriteFrames resource passes validation with 0 errors")
-
-	# Verify specific properties
-	check(prod_frames.get_animation_loop("idle") == true, "idle loop is true")
-	check(prod_frames.get_animation_loop("move") == true, "move loop is true")
-	check(prod_frames.get_animation_loop("dash") == false, "dash loop is false")
-	check(prod_frames.get_animation_loop("hit") == false, "hit loop is false")
-	check(prod_frames.get_animation_loop("downed") == false, "downed loop is false")
-	check(prod_frames.get_animation_loop("revive") == false, "revive loop is false")
-
-	check(prod_frames.get_animation_speed("idle") == 24.0, "idle speed is 24.0 FPS")
-	check(prod_frames.get_animation_speed("move") == 24.0, "move speed is 24.0 FPS")
-	check(prod_frames.get_animation_speed("dash") == 24.0, "dash speed is 24.0 FPS")
-	check(prod_frames.get_animation_speed("hit") == 24.0, "hit speed is 24.0 FPS")
-	check(prod_frames.get_animation_speed("downed") == 24.0, "downed speed is 24.0 FPS")
-	check(prod_frames.get_animation_speed("revive") == 24.0, "revive speed is 24.0 FPS")
+	print("3. Verifying production root contains no fake fixture artwork...")
+	var prod_da := DirAccess.open(Contract.PATH_PRODUCTION_ROOT)
+	check(prod_da != null, "production root directory exists: %s" % Contract.PATH_PRODUCTION_ROOT)
+	if prod_da != null:
+		var found_fake_pngs: Array[String] = []
+		_scan_for_pngs(Contract.PATH_PRODUCTION_ROOT, found_fake_pngs)
+		check(found_fake_pngs.is_empty(), "production root contains NO placeholder PNGs (found %d: %s)" % [found_fake_pngs.size(), str(found_fake_pngs)])
 
 	# =========================================================================
-	# 4. PRODUCTION PROFILE BINDING
+	# 4. DIAGNOSTIC FIXTURE DIRECTORY VALIDATION
 	# =========================================================================
-	print("Validating production CharacterPresentationProfile...")
-	var prod_profile := load(PROD_PROFILE_PATH) as CharacterPresentationProfile
-	check(prod_profile != null, "production CharacterPresentationProfile loaded successfully")
-
-	var profile_errors := Validator.validate_profile(prod_profile, Vector2i(256, 256))
-	for e in profile_errors:
-		push_error("PROFILE VALIDATION ERROR: " + e)
-	check(profile_errors.is_empty(), "production profile passes validation with 0 errors")
-
-	check(prod_profile.base_scale == Vector2(0.25, 0.25), "profile base scale is 0.25 (64px height)")
-	check(prod_profile.offset == Vector2(0, -88), "profile offset aligns anchor at (0, -88)")
-	check(prod_profile.flip_h_with_facing == true, "profile flip_h_with_facing is true")
+	print("4. Validating diagnostic fixture directory layout...")
+	var fixture_dir_errs := Validator.validate_directory_layout(Contract.PATH_FIXTURE_ROOT)
+	for e in fixture_dir_errs:
+		push_error("FIXTURE DIR ERROR: " + e)
+	check(fixture_dir_errs.is_empty(), "diagnostic fixtures directory passes validation with 0 errors")
 
 	# =========================================================================
-	# 5. DOWNED END-FRAME HOLD BEHAVIOR VERIFICATION
+	# 5. COMPILED FIXTURE SPRITEFRAMES & PROFILE RESOURCES VALIDATION
 	# =========================================================================
-	print("Testing Downed end-frame hold behavior...")
+	print("5. Validating fixture SpriteFrames & Profile resources...")
+	var fixture_base_frames := load(Contract.PATH_FIXTURE_SPRITE_FRAMES) as SpriteFrames
+	check(fixture_base_frames != null, "fixture base SpriteFrames loaded successfully")
+	var base_frame_errs := Validator.validate_sprite_frames(fixture_base_frames)
+	for e in base_frame_errs:
+		push_error("BASE FRAMES ERROR: " + e)
+	check(base_frame_errs.is_empty(), "fixture base SpriteFrames passes validation with 0 errors")
+
+	var fixture_scarf_frames := load(Contract.PATH_FIXTURE_SCARF_FRAMES) as SpriteFrames
+	check(fixture_scarf_frames != null, "fixture scarf SpriteFrames loaded successfully")
+	var scarf_frame_errs := Validator.validate_sprite_frames(fixture_scarf_frames)
+	for e in scarf_frame_errs:
+		push_error("SCARF FRAMES ERROR: " + e)
+	check(scarf_frame_errs.is_empty(), "fixture scarf SpriteFrames passes validation with 0 errors")
+
+	var fixture_profile := load(Contract.PATH_FIXTURE_PROFILE) as CharacterPresentationProfile
+	check(fixture_profile != null, "fixture CharacterPresentationProfile loaded successfully")
+	var prof_errs := Validator.validate_profile(fixture_profile)
+	for e in prof_errs:
+		push_error("PROFILE ERROR: " + e)
+	check(prof_errs.is_empty(), "fixture CharacterPresentationProfile passes validation with 0 errors")
+
+	# Verify canonical loop flags & speeds
+	for state_name in Contract.CANONICAL_STATES:
+		var exp_loop: bool = Contract.is_state_looping(state_name)
+		check(fixture_base_frames.get_animation_loop(state_name) == exp_loop, "base %s loop flag is %s" % [state_name, exp_loop])
+		check(fixture_scarf_frames.get_animation_loop(state_name) == exp_loop, "scarf %s loop flag is %s" % [state_name, exp_loop])
+		check(is_equal_approx(fixture_base_frames.get_animation_speed(state_name), 24.0), "base %s speed is 24.0 fps" % state_name)
+		check(is_equal_approx(fixture_scarf_frames.get_animation_speed(state_name), 24.0), "scarf %s speed is 24.0 fps" % state_name)
+
+	# Verify arbitrary frame count support in fixture:
+	check(fixture_base_frames.get_frame_count("idle") == 4, "fixture idle has 4 frames")
+	check(fixture_base_frames.get_frame_count("move") == 8, "fixture move has 8 frames")
+	check(fixture_base_frames.get_frame_count("dash") == 4, "fixture dash has 4 frames")
+	check(fixture_base_frames.get_frame_count("hit") == 6, "fixture hit has 6 frames (0.25s at 24fps)")
+	check(fixture_base_frames.get_frame_count("downed") == 6, "fixture downed has 6 frames")
+	check(fixture_base_frames.get_frame_count("revive") == 6, "fixture revive has 6 frames")
+
+	# =========================================================================
+	# 6. ARENA SETUP WITH 4 PLAYERS USING FIXTURE PROFILE
+	# =========================================================================
+	print("6. Setting up 4-player test arena with fixture profile...")
 	var scene: PackedScene = load("res://scenes/arena/test_arena.tscn")
 	var arena: Node2D = scene.instantiate()
 	root.add_child(arena)
@@ -158,7 +193,6 @@ func _run() -> void:
 	session.camera = arena.get_node("Camera")
 	session.actor_root = arena.get_node("Actors")
 
-	# Ensure 4 players are present
 	var players: Array[PenguinPlayer] = party.members()
 	if players.size() < 4:
 		for idx in range(players.size(), 4):
@@ -176,57 +210,182 @@ func _run() -> void:
 
 	players = party.members()
 	var p1: PenguinPlayer = players[0]
-	var v1: CharacterVisual = p1.get_node("CharacterVisual") as CharacterVisual
-
-	# Bind production profile to P1
-	v1.set_profile(prod_profile)
-	check(v1._using_profile() == true, "P1 using production profile")
-	p1.velocity = Vector2.ZERO
-	v1._process_player(0.016)
-	check(v1.animated_sprite.animation == &"idle", "P1 initially playing 'idle'")
-
-	# Kill P1
-	p1.health.take_damage(DamageEvent.new(1000))
-	p1.dash.tick(0.016, Vector2.ZERO, false, false)
-	v1._process_player(0.016)
-	check(v1.current_state == CharacterVisual.State.DOWNED, "P1 entered DOWNED")
-	check(v1.animated_sprite.animation == &"downed", "P1 playing 'downed'")
-
-	# Fast-forward animation to the final frame
-	var total_downed_frames: int = prod_frames.get_frame_count("downed")
-	v1.animated_sprite.frame = total_downed_frames - 1
-	v1.animated_sprite.pause() # Simulates animation reaching completion
-
-	# Process 20 frames while dead — verify frame does NOT reset to 0 or restart
-	for step in range(20):
-		v1._process_player(0.016)
-		check(v1.animated_sprite.frame == total_downed_frames - 1, "Downed holds final settled frame without restarting (step %d)" % step)
-
-	# Revive P1
-	p1.health.revive(50.0)
-	v1._process_player(0.016)
-	check(v1.current_state == CharacterVisual.State.REVIVE, "P1 transitions to REVIVE")
-	check(v1.animated_sprite.animation == &"revive", "P1 playing 'revive'")
-
-	# Settle revive to IDLE
-	v1._process_player(0.40)
-	check(v1.current_state == CharacterVisual.State.IDLE, "P1 settles back into IDLE")
-	check(v1.animated_sprite.animation == &"idle", "P1 returned to 'idle'")
-
-	# =========================================================================
-	# 6. MULTIPLAYER WITH SHARED PRODUCTION SPRITEFRAMES (4 PLAYERS)
-	# =========================================================================
-	print("Testing 4-player shared production profile usage...")
 	var p2: PenguinPlayer = players[1]
 	var p3: PenguinPlayer = players[2]
 	var p4: PenguinPlayer = players[3]
+
+	var v1: CharacterVisual = p1.get_node("CharacterVisual") as CharacterVisual
 	var v2: CharacterVisual = p2.get_node("CharacterVisual") as CharacterVisual
 	var v3: CharacterVisual = p3.get_node("CharacterVisual") as CharacterVisual
 	var v4: CharacterVisual = p4.get_node("CharacterVisual") as CharacterVisual
 
-	v2.set_profile(prod_profile)
-	v3.set_profile(prod_profile)
-	v4.set_profile(prod_profile)
+	# Bind fixture profile to all 4 players
+	v1.set_profile(fixture_profile)
+	v2.set_profile(fixture_profile)
+	v3.set_profile(fixture_profile)
+	v4.set_profile(fixture_profile)
+
+	for v in [v1, v2, v3, v4]:
+		check(v._using_profile() == true, "CharacterVisual using profile")
+		check(v.animated_sprite != null and v.animated_sprite.visible == true, "Base animated_sprite active")
+		check(v.scarf_sprite != null and v.scarf_sprite.visible == true, "Scarf scarf_sprite active")
+
+	# =========================================================================
+	# 7. BASE + SCARF LAYER SYNCHRONIZATION & SCARF TINT INDEPENDENCE
+	# =========================================================================
+	print("7. Verifying base/scarf synchronization and scarf tinting...")
+	p1.velocity = Vector2(100, 0) # Moving right
+	v1._process_player(0.016)
+	check(v1.animated_sprite.animation == &"move", "Base plays 'move'")
+	check(v1.scarf_sprite.animation == &"move", "Scarf plays 'move'")
+	check(v1.animated_sprite.flip_h == false, "Base flip_h false when moving right")
+	check(v1.scarf_sprite.flip_h == false, "Scarf flip_h false when moving right")
+	check(v1.animated_sprite.frame == v1.scarf_sprite.frame, "Base and scarf frame index match")
+
+	p1.velocity = Vector2(-100, 0) # Moving left
+	v1._process_player(0.016)
+	check(v1.animated_sprite.flip_h == true, "Base flip_h true when moving left")
+	check(v1.scarf_sprite.flip_h == true, "Scarf flip_h true when moving left")
+	check(v1.animated_sprite.frame == v1.scarf_sprite.frame, "Base and scarf frame index match after flip")
+
+	# Per-player scarf tint: scarf is tinted, base body is NOT tinted
+	check(v1.scarf_sprite.modulate == p1.identity.tint, "P1 scarf tinted with P1 identity tint")
+	check(v1.animated_sprite.modulate == Color.WHITE, "P1 base body sprite is WHITE (untinted)")
+	check(v2.scarf_sprite.modulate == p2.identity.tint, "P2 scarf tinted with P2 identity tint")
+	check(v2.animated_sprite.modulate == Color.WHITE, "P2 base body sprite is WHITE (untinted)")
+	check(v1.scarf_sprite.modulate != v2.scarf_sprite.modulate, "P1 and P2 scarfs have distinct tints")
+
+	# =========================================================================
+	# 8. ONE-SHOT PRESENTATION TIMING: HIT (24 FPS, 6 FRAMES = 0.25S)
+	# =========================================================================
+	print("8. Verifying HIT presentation timing (not truncated by old 0.18s)...")
+	p1.velocity = Vector2.ZERO
+	v1._process_player(0.016) # Back to idle
+	check(v1.current_state == CharacterVisual.State.IDLE, "P1 is IDLE")
+
+	p1.health.take_damage(DamageEvent.new(10)) # Triggers HIT
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.HIT, "Taking damage enters HIT state")
+	check(v1.animated_sprite.animation == &"hit", "Base plays 'hit'")
+	check(v1.scarf_sprite.animation == &"hit", "Scarf plays 'hit'")
+
+	# Advance 0.19 seconds (total elapsed > 0.18s older constant)
+	v1._process_player(0.18)
+	# Production hit has 6 frames / 24 fps = 0.25s duration. At ~0.196s it must STILL be in HIT!
+	check(v1.current_state == CharacterVisual.State.HIT, "HIT is NOT truncated at 0.18s constant (still in HIT at >0.18s)")
+
+	# Advance past 0.26s total -> HIT completes and recovers to IDLE
+	v1._process_player(0.08)
+	check(v1.current_state == CharacterVisual.State.IDLE, "HIT presentation recovers cleanly to IDLE after 0.25s completes")
+	check(v1.animated_sprite.animation == &"idle", "Base returned to 'idle'")
+	check(v1.scarf_sprite.animation == &"idle", "Scarf returned to 'idle'")
+
+	# =========================================================================
+	# 9. REPEATED HIT RESTART BEHAVIOR
+	# =========================================================================
+	print("9. Verifying repeated HIT restarts animation from frame 0...")
+	p1.health.take_damage(DamageEvent.new(10))
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.HIT, "First hit entered HIT")
+	v1.animated_sprite.frame = 3 # Mid-way through animation
+	v1.scarf_sprite.frame = 3
+
+	# Second damage event occurs while in HIT
+	p1.health.take_damage(DamageEvent.new(10))
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.HIT, "Still in HIT after second damage event")
+	check(v1.animated_sprite.frame == 0, "Second damage event restarted base animation from frame 0")
+	check(v1.scarf_sprite.frame == 0, "Second damage event restarted scarf animation from frame 0")
+
+	# Let hit expire
+	v1._process_player(0.30)
+	check(v1.current_state == CharacterVisual.State.IDLE, "Hit recovers to IDLE")
+
+	# =========================================================================
+	# 10. DASH ONE-SHOT PRESENTATION RELEASE
+	# =========================================================================
+	print("10. Verifying DASH one-shot releases cleanly...")
+	p1.dash.direction = Vector2.RIGHT
+	p1.dash.remaining = 0.16
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.DASH, "Starting dash triggers visual DASH state")
+	check(v1.animated_sprite.animation == &"dash", "Base plays 'dash'")
+	check(v1.scarf_sprite.animation == &"dash", "Scarf plays 'dash'")
+
+	# Dash animation completes (4 frames / 24 fps = 0.167s)
+	p1.dash.remaining = 0.0
+	p1.velocity = Vector2.ZERO
+	v1._process_player(0.20)
+	check(v1.current_state == CharacterVisual.State.IDLE, "DASH releases presentation cleanly to IDLE")
+	check(v1.animated_sprite.animation == &"idle", "Base returned to 'idle'")
+	check(v1.scarf_sprite.animation == &"idle", "Scarf returned to 'idle'")
+
+	# =========================================================================
+	# 11. DOWNED END-FRAME HOLD (NO REPLAYING OR LOOPING)
+	# =========================================================================
+	print("11. Verifying DOWNED holds final frame indefinitely...")
+	p1.health.take_damage(DamageEvent.new(1000)) # Lethal damage
+	p1.dash.remaining = 0.0
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.DOWNED, "Lethal damage triggers DOWNED")
+	check(v1.animated_sprite.animation == &"downed", "Base plays 'downed'")
+	check(v1.scarf_sprite.animation == &"downed", "Scarf plays 'downed'")
+
+	# Advance to final frame (frame 5 of 6)
+	v1.animated_sprite.frame = 5
+	v1.scarf_sprite.frame = 5
+	v1.animated_sprite.pause()
+	v1.scarf_sprite.pause()
+
+	# Process 25 ticks while dead — ensure frame remains locked at frame 5
+	for step in range(25):
+		v1._process_player(0.016)
+		check(v1.animated_sprite.frame == 5, "Base downed holds settled final frame at step %d" % step)
+		check(v1.scarf_sprite.frame == 5, "Scarf downed holds settled final frame at step %d" % step)
+		check(v1.current_state == CharacterVisual.State.DOWNED, "State remains DOWNED at step %d" % step)
+
+	# =========================================================================
+	# 12. REVIVE ONE-SHOT COMPLETION BEFORE RETURNING TO IDLE
+	# =========================================================================
+	print("12. Verifying REVIVE one-shot completes before returning to IDLE...")
+	p1.health.revive(50.0)
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.REVIVE, "Reviving enters REVIVE state")
+	check(v1.animated_sprite.animation == &"revive", "Base plays 'revive'")
+	check(v1.scarf_sprite.animation == &"revive", "Scarf plays 'revive'")
+
+	# At 0.15s into revive (6 frames / 24 fps = 0.25s total), still in REVIVE
+	v1._process_player(0.12)
+	check(v1.current_state == CharacterVisual.State.REVIVE, "Still in REVIVE mid-sequence")
+
+	# After 0.30s total, revive completes -> IDLE
+	v1._process_player(0.20)
+	check(v1.current_state == CharacterVisual.State.IDLE, "REVIVE completes and returns to IDLE")
+	check(v1.animated_sprite.animation == &"idle", "Base returned to 'idle'")
+
+	# =========================================================================
+	# 13. AUTHORITATIVE DEATH IMMEDIATELY OVERRIDES LIVE PRESENTATION
+	# =========================================================================
+	print("13. Verifying authoritative death interrupts live presentation immediately...")
+	p1.dash.direction = Vector2.RIGHT
+	p1.dash.remaining = 0.16
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.DASH, "Player entered DASH")
+
+	# Kill player while in DASH
+	p1.health.take_damage(DamageEvent.new(1000))
+	v1._process_player(0.016)
+	check(v1.current_state == CharacterVisual.State.DOWNED, "Death immediately overrides active DASH")
+	check(v1.animated_sprite.animation == &"downed", "Base immediately plays 'downed'")
+	check(v1.scarf_sprite.animation == &"downed", "Scarf immediately plays 'downed'")
+
+	# =========================================================================
+	# 14. 4-PLAYER SHARED RESOURCE INDEPENDENCE
+	# =========================================================================
+	print("14. Verifying 4-player simultaneous independent state with shared profile...")
+	p1.dash.remaining = 0.0
+	p1.health.revive(100.0)
+	v1._process_player(0.30) # Settle P1 to IDLE
 
 	for p in [p1, p2, p3, p4]:
 		p.velocity = Vector2.ZERO
@@ -235,11 +394,10 @@ func _run() -> void:
 	v3._process_player(0.016)
 	v4._process_player(0.016)
 
-	# Distinct states active across players simultaneously using the SAME SpriteFrames resource
-	p1.velocity = Vector2(100, 0) # P1 MOVE
-	p2.dash.remaining = 0.16      # P2 DASH
-	p3.health.take_damage(DamageEvent.new(10)) # P3 HIT
-	# P4 remains IDLE
+	p1.velocity = Vector2(100, 0)             # P1: MOVE
+	p2.dash.remaining = 0.16                  # P2: DASH
+	p3.health.take_damage(DamageEvent.new(10))# P3: HIT
+	# P4: remains IDLE
 
 	v1._process_player(0.016)
 	v2._process_player(0.016)
@@ -264,3 +422,17 @@ func _run() -> void:
 	print("--- CHARACTER ANIMATION CONTRACT TESTS FINISHED ---")
 	print("RESULT: ", "PASS" if failures == 0 else "FAIL", " (", failures, " failures)")
 	quit(0 if failures == 0 else 1)
+
+static func _scan_for_pngs(path: String, result: Array[String]) -> void:
+	var da := DirAccess.open(path)
+	if da == null:
+		return
+	da.list_dir_begin()
+	var fname := da.get_next()
+	while fname != "":
+		if da.current_is_dir() and fname != "." and fname != "..":
+			_scan_for_pngs("%s/%s" % [path, fname], result)
+		elif fname.ends_with(".png"):
+			result.append("%s/%s" % [path, fname])
+		fname = da.get_next()
+	da.list_dir_end()

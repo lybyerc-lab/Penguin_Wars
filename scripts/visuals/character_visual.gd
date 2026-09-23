@@ -26,6 +26,8 @@ var _time: float = 0.0
 var _waddle_time: float = 0.0
 var _hit_timer: float = 0.0
 var _revive_timer: float = 0.0
+var _dash_timer: float = 0.0
+var _was_dashing: bool = false
 var _halo_angle: float = 0.0
 var _facing_direction: float = 1.0
 
@@ -39,12 +41,17 @@ var _enemy_body: Sprite2D
 
 # Presentation Seam Nodes
 var _pivot: Node2D
-var _animated_sprite: AnimatedSprite2D
+var _animated_sprite: AnimatedSprite2D # Base character body
+var _scarf_sprite: AnimatedSprite2D    # Scarf overlay (neutral/white, tinted per player)
 var _puppet_sprites: Array[CanvasItem] = []
 
 var animated_sprite: AnimatedSprite2D:
 	get:
 		return _animated_sprite
+
+var scarf_sprite: AnimatedSprite2D:
+	get:
+		return _scarf_sprite
 
 # Modular Penguin Puppet Nodes (Player Fallback)
 var _rear_flipper: Sprite2D
@@ -195,7 +202,11 @@ func _setup_player() -> void:
 	]
 
 	_animated_sprite = AnimatedSprite2D.new()
+	_animated_sprite.animation_finished.connect(_on_animation_finished)
 	_pivot.add_child(_animated_sprite)
+
+	_scarf_sprite = AnimatedSprite2D.new()
+	_pivot.add_child(_scarf_sprite)
 
 	_setup_halo()
 	_update_team_tint()
@@ -219,6 +230,15 @@ func _update_presentation_mode() -> void:
 			_animated_sprite.sprite_frames = profile.sprite_frames
 			_animated_sprite.scale = profile.base_scale
 			_animated_sprite.offset = profile.offset
+			_animated_sprite.modulate = Color.WHITE
+	if _scarf_sprite != null:
+		var has_scarf: bool = use_prof and profile.scarf_sprite_frames != null
+		_scarf_sprite.visible = has_scarf
+		if has_scarf:
+			_scarf_sprite.sprite_frames = profile.scarf_sprite_frames
+			_scarf_sprite.scale = profile.base_scale
+			_scarf_sprite.offset = profile.offset
+			_update_team_tint()
 	for sprite in _puppet_sprites:
 		sprite.visible = not use_prof
 
@@ -265,44 +285,96 @@ func _update_team_tint() -> void:
 		var p := _actor as PenguinPlayer
 		if p.identity != null:
 			tint = p.identity.tint
+	set_team_tint(tint)
+
+func set_team_tint(tint: Color) -> void:
 	_scarf_wrap.modulate = tint
 	_scarf_tail.modulate = tint
+	if _scarf_sprite != null:
+		_scarf_sprite.modulate = tint
+	if _animated_sprite != null:
+		_animated_sprite.modulate = Color.WHITE
+
+func get_state_animation_duration(state: State) -> float:
+	if _using_profile() and profile != null:
+		var anim_name := profile.get_animation_for_state(state)
+		if profile.has_animation(anim_name):
+			var frames := profile.sprite_frames
+			var count: int = frames.get_frame_count(anim_name)
+			var fps: float = frames.get_animation_speed(anim_name)
+			if fps > 0.0 and count > 0:
+				return float(count) / fps
+	match state:
+		State.HIT:
+			return HIT_DURATION
+		State.REVIVE:
+			return REVIVE_DURATION
+		State.DASH:
+			return _dash.duration if _dash != null else 0.16
+		_:
+			return 0.0
+
+func _play_animation(anim_name: StringName, restart: bool = false) -> void:
+	if not _using_profile() or _animated_sprite == null:
+		return
+	if profile.has_animation(anim_name):
+		if restart:
+			_animated_sprite.stop()
+			_animated_sprite.play(anim_name)
+		elif _animated_sprite.animation != anim_name:
+			_animated_sprite.play(anim_name)
+
+	if _scarf_sprite != null and profile.has_scarf_animation(anim_name):
+		if restart:
+			_scarf_sprite.stop()
+			_scarf_sprite.play(anim_name)
+		elif _scarf_sprite.animation != anim_name:
+			_scarf_sprite.play(anim_name)
+		_scarf_sprite.frame = _animated_sprite.frame
+		_scarf_sprite.frame_progress = _animated_sprite.frame_progress
+
+func _on_animation_finished() -> void:
+	if not _using_profile() or profile == null or _animated_sprite == null:
+		return
+	var finished_anim: StringName = _animated_sprite.animation
+	if finished_anim == profile.get_animation_for_state(State.HIT):
+		_hit_timer = 0.0
+	elif finished_anim == profile.get_animation_for_state(State.REVIVE):
+		_revive_timer = 0.0
+	elif finished_anim == profile.get_animation_for_state(State.DASH):
+		_dash_timer = 0.0
 
 func _on_damaged(_event: DamageEvent) -> void:
 	if enemy:
 		return
 	if _health != null and not _health.is_alive():
 		return
-	_hit_timer = HIT_DURATION
+	_hit_timer = get_state_animation_duration(State.HIT)
 	if _using_profile() and _animated_sprite != null:
 		var hit_anim := profile.get_animation_for_state(State.HIT)
-		if profile.has_animation(hit_anim):
-			_animated_sprite.stop()
-			_animated_sprite.play(hit_anim)
+		_play_animation(hit_anim, true)
 
 func _on_died(_event: DamageEvent) -> void:
 	if enemy:
 		return
 	_hit_timer = 0.0
 	_revive_timer = 0.0
+	_dash_timer = 0.0
 	current_state = State.DOWNED
 	if _using_profile() and _animated_sprite != null:
 		var downed_anim := profile.get_animation_for_state(State.DOWNED)
-		if profile.has_animation(downed_anim):
-			_animated_sprite.stop()
-			_animated_sprite.play(downed_anim)
+		_play_animation(downed_anim, true)
 
 func _on_revived(_current: float) -> void:
 	if enemy:
 		return
 	_hit_timer = 0.0
-	_revive_timer = REVIVE_DURATION
+	_dash_timer = 0.0
+	_revive_timer = get_state_animation_duration(State.REVIVE)
 	current_state = State.REVIVE
 	if _using_profile() and _animated_sprite != null:
 		var revive_anim := profile.get_animation_for_state(State.REVIVE)
-		if profile.has_animation(revive_anim):
-			_animated_sprite.stop()
-			_animated_sprite.play(revive_anim)
+		_play_animation(revive_anim, true)
 
 func _process(delta: float) -> void:
 	_time += delta
@@ -335,20 +407,36 @@ func _process_player(delta: float) -> void:
 		_hit_timer = maxf(0.0, _hit_timer - delta)
 	if _revive_timer > 0.0:
 		_revive_timer = maxf(0.0, _revive_timer - delta)
+	if _dash_timer > 0.0:
+		_dash_timer = maxf(0.0, _dash_timer - delta)
 
 	var alive: bool = _health.is_alive() if _health != null else true
 	var dashing: bool = _dash.is_active() if _dash != null else false
 	var vel: Vector2 = _actor.velocity if _actor != null else Vector2.ZERO
 	var moving: bool = vel.length_squared() > 10.0
 
-	# Determine State Priority
+	# Track dash start
+	if dashing and not _was_dashing:
+		if _using_profile() and not profile.is_state_looping(State.DASH):
+			_dash_timer = maxf(get_state_animation_duration(State.DASH), _dash.remaining)
+		else:
+			_dash_timer = 0.0
+		if _using_profile():
+			var dash_anim := profile.get_animation_for_state(State.DASH)
+			_play_animation(dash_anim, true)
+	_was_dashing = dashing
+
+	# Determine State Priority: DOWNED > REVIVE > HIT > DASH > MOVE > IDLE
 	if not alive:
 		current_state = State.DOWNED
+		_hit_timer = 0.0
+		_revive_timer = 0.0
+		_dash_timer = 0.0
 	elif _revive_timer > 0.0:
 		current_state = State.REVIVE
 	elif _hit_timer > 0.0:
 		current_state = State.HIT
-	elif dashing:
+	elif dashing or _dash_timer > 0.0:
 		current_state = State.DASH
 	elif moving:
 		current_state = State.MOVE
@@ -366,15 +454,25 @@ func _process_player(delta: float) -> void:
 	if _using_profile():
 		_pivot.scale = Vector2.ONE
 		if _animated_sprite != null:
+			var flipped: bool = (_facing_direction < 0.0)
 			if profile.flip_h_with_facing:
-				_animated_sprite.flip_h = (_facing_direction < 0.0)
+				_animated_sprite.flip_h = flipped
+				if _scarf_sprite != null:
+					_scarf_sprite.flip_h = flipped
 			else:
 				_animated_sprite.flip_h = false
+				if _scarf_sprite != null:
+					_scarf_sprite.flip_h = false
 				_pivot.scale.x = _facing_direction
+
 			var anim_name: StringName = profile.get_animation_for_state(current_state)
-			if profile.has_animation(anim_name):
-				if _animated_sprite.animation != anim_name:
-					_animated_sprite.play(anim_name)
+			_play_animation(anim_name, false)
+
+			# Synchronize scarf overlay frame and progress with base sprite
+			if _scarf_sprite != null and _scarf_sprite.visible:
+				_scarf_sprite.frame = _animated_sprite.frame
+				_scarf_sprite.frame_progress = _animated_sprite.frame_progress
+
 		if current_state == State.DOWNED:
 			_halo.visible = true
 			_update_halo(delta)

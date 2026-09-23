@@ -1,154 +1,161 @@
-# Penguin Wars — Production Character Animation Pipeline Contract
+# Penguin Wars — Production Character Animation Pipeline Contract (v1.1)
 
-This document specifies the asset layout, naming, canvas, pivot, playback, and validation contract for exporting rendered 2D character animations from Blender into Godot.
+This document specifies the asset layout, dual-layer presentation rig, frame naming, canvas dimensions, pivot/anchor rules, one-shot playback rules, and automated validation for exporting rendered 2D character animations from Blender into Godot.
 
 ---
 
-## 1. Source Art vs. Runtime Assets
+## 1. Directory Layout & Environments
 
-| Asset Type | Location | Notes |
+The pipeline establishes a strict separation between source art, runtime production assets, and diagnostic test fixtures:
+
+| Environment | Path | Role & Constraints |
 | :--- | :--- | :--- |
-| **Source Art (Blender)** | `art/blender/characters/penguin/` | Rigs, reference images, `.blend` files, work-in-progress render previews. Strictly read-only for Godot runtime code. |
-| **Runtime Assets (Godot)** | `assets/characters/penguin/production/` | Production-ready transparent PNG frames consumed directly by Godot's `SpriteFrames`. |
+| **SOURCE** | `art/blender/characters/penguin/` | 3D rigs, `.blend` animation files, materials, reference cameras. **Strictly untouched by Godot runtime code.** |
+| **RUNTIME** | `assets/characters/penguin/production/` | Production destination for final rendered PNG frames. **Contains zero placeholder/fake art.** Subdivided into `base/` and `scarf/`. |
+| **TEST FIXTURES** | `tests/fixtures/character_animation/` | Geometric diagnostic placeholder frames used by test suites. Stamped `TEMPORARY TEST FIXTURE`. |
 
 > [!IMPORTANT]
-> Never place runtime-ready sprite frames inside `art/blender/`. Godot scenes and resources reference assets exclusively from `assets/characters/penguin/production/`.
+> The runtime production directory `assets/characters/penguin/production/` must never contain fake placeholder frames. All diagnostic fixtures reside in `tests/fixtures/character_animation/`.
 
 ---
 
-## 2. Canonical States & Directory Structure
+## 2. Centralized Contract Configuration
 
-Every character animation set consists of exactly six canonical states:
+Export specifications and runtime alignment constants are centralized in `scripts/data/character_animation_contract.gd`:
+
+| Contract Property | Value | Description |
+| :--- | :---: | :--- |
+| `CANVAS_SIZE` | `256 x 256` | Uniform square canvas dimension for all frames across all animations. |
+| `GROUND_ANCHOR` | `(128, 216)` | Ground contact baseline: horizontal center at $x = 128$, feet contact at $y = 216$. |
+| `SOURCE_FPS` | `24.0` | Authored and rendered frame rate. |
+| `RUNTIME_SCALE` | `(0.25, 0.25)` | Scale applied to the 256px sprite to yield a 64px character height. |
+| `RUNTIME_OFFSET` | `(0.0, -88.0)` | Vertical offset: $-(216 - 128) = -88$ to pin ground contact $(128, 216)$ to actor origin $(0, 0)$. |
+| `FILE_PREFIX` | `"penguin"` | Filename prefix for all exported frames. |
+
+All builders, validators, and tests reference `CharacterAnimationContract` as the single source of truth.
+
+---
+
+## 3. Two Synchronized Production Render Layers
+
+To support four local players with independent scarf color identities without duplicating sprite sheets, every animation is rendered into two synchronized layers:
 
 ```
 assets/characters/penguin/production/
-├── idle/      # Gentle breathing loop
-├── move/      # Waddle walk cycle loop
-├── dash/      # Aerodynamic forward burst lean
-├── hit/       # Recoil flinch reaction
-├── downed/    # Collapse to belly on ice + held KO pose
-└── revive/    # Push-up recovery get-up sequence
+├── base/          # Neutral penguin body (black feathers, white belly, orange feet & beak)
+│   ├── idle/
+│   ├── move/
+│   ├── dash/
+│   ├── hit/
+│   ├── downed/
+│   └── revive/
+└── scarf/         # Scarf overlay rendered white / neutral on transparent background
+    ├── idle/
+    ├── move/
+    ├── dash/
+    ├── hit/
+    ├── downed/
+    └── revive/
 ```
 
----
+### Layer Synchronization Rules
+Both `base/` and `scarf/` layers for any animation state must share identical:
+1. **Canvas Size**: Exact same $256 \times 256$ dimensions.
+2. **Frame Numbering**: Exact same contiguous 3-digit numbering (`000`, `001`, ...).
+3. **Frame Count**: Exactly matching total frame count (every base frame has a counterpart scarf frame).
+4. **Animation Timing**: 24.0 FPS.
+5. **Ground Anchor**: Exact same ground contact point $(128, 216)$.
 
-## 3. Frame Naming Convention
-
-Frames must follow a strict, deterministic, 3-digit zero-padded sequential naming format:
-
-$$\text{penguin\_}\langle\text{state}\rangle\text{\_}\langle\text{frame:03d}\rangle\text{.png}$$
-
-Examples:
-- `idle/`: `penguin_idle_000.png`, `penguin_idle_001.png`, `penguin_idle_002.png`, `penguin_idle_003.png`
-- `move/`: `penguin_move_000.png`, `penguin_move_001.png`, ..., `penguin_move_007.png`
-- `dash/`: `penguin_dash_000.png`, `penguin_dash_001.png`, ..., `penguin_dash_003.png`
-- `hit/`: `penguin_hit_000.png`, `penguin_hit_001.png`, `penguin_hit_002.png`
-- `downed/`: `penguin_downed_000.png`, `penguin_downed_001.png`, ..., `penguin_downed_005.png`
-- `revive/`: `penguin_revive_000.png`, `penguin_revive_001.png`, ..., `penguin_revive_005.png`
-
-**Rules**:
-- Start indexing at `000`.
-- Numbering must be strictly contiguous without gaps or duplicate numbers.
-- Do NOT encode version numbers in runtime filenames (e.g. no `_v1` or `_v2`). Versioning belongs in source art Git history.
-
----
-
-## 4. Canvas Dimensions & Ground Anchor Rule
-
-- **Canvas Size**: Uniform **$256 \times 256$ pixels** across all six states and all frames.
-- **Anchor / Pivot**:
-  - Horizontal Center: $x = 128$ px.
-  - Ground Plane Baseline: $y = 216$ px (where the penguin's feet make ground contact when standing).
-- **No Baked Translation**: The character's gameplay origin stays fixed at the anchor. Visual limbs, flippers, and body may squash, stretch, and lean around the anchor, but the character must not walk out of the frame. World translation is controlled 100% by Godot's `CharacterBody2D`.
-- **No Canvas Drifting**: All rendered frames must share an identical camera position and orthographic bounds in Blender.
+### Runtime Presentation Rig
+`CharacterVisual` instantiates two synchronized `AnimatedSprite2D` nodes under the visual pivot:
+```
+CharacterVisual
+└── visual pivot
+    ├── AnimatedSprite2D (_animated_sprite, base body — modulate = Color.WHITE)
+    └── AnimatedSprite2D (_scarf_sprite, scarf overlay — modulate = player.identity.tint)
+```
+- Base sprite modulate is locked to `Color.WHITE`.
+- Scarf overlay modulate is tinted to each player's unique identity color (`p.identity.tint`).
+- `flip_h`, `frame`, and `frame_progress` are locked in synchronization every tick.
 
 ---
 
-## 5. Frame Rate & Playback Contract
+## 4. Canonical States & Playback Contract
 
-All animations are authored and rendered at **24.0 FPS**.
-
-| Animation State | Speed (FPS) | Loop Flag | Expected Behavior |
+| State | Speed (FPS) | Loop Flag | Behavior & Timing Contract |
 | :--- | :---: | :---: | :--- |
-| `idle` | 24.0 | `true` | Loops continuously while alive and stationary. |
+| `idle` | 24.0 | `true` | Loops continuously while stationary and alive. |
 | `move` | 24.0 | `true` | Loops continuously while moving; flipped horizontally on facing. |
-| `dash` | 24.0 | `false` | Plays forward lean burst once; duration tracked by `DashController`. |
-| `hit` | 24.0 | `false` | Plays flinch recoil once; duration tracked by `_hit_timer`. |
-| `downed` | 24.0 | `false` | Plays collapse once, then **holds the final settled KO frame** while dead. |
-| `revive` | 24.0 | `false` | Plays push-up once, then seamlessly recovers to `idle` or `move`. |
+| `dash` | 24.0 | `false` | One-shot forward burst. Latches presentation until complete, then returns to `idle`/`move`. |
+| `hit` | 24.0 | `false` | One-shot recoil. Duration derived from frame count / FPS (e.g. 6 frames / 24 FPS = 0.25s). **Not** truncated by old constants. Successive hits restart animation from frame 0. |
+| `downed` | 24.0 | `false` | One-shot collapse to ice. Plays forward once to completion, then **holds settled final frame indefinitely** while dead without replaying or looping. Authoritative death interrupts any live one-shot immediately. |
+| `revive` | 24.0 | `false` | One-shot push-up recovery sequence. Completes forward once before returning visually to live state. |
 
 ---
 
-## 6. Downed / KO End-Frame Hold Behavior
+## 5. Arbitrary Frame Count Handling & Replacement Procedure
 
-When a player dies:
-1. `CharacterVisual` transitions to `DOWNED` and triggers `downed` animation from frame 0.
-2. The collapse sequence plays forward once.
-3. Upon reaching the final frame (e.g. `penguin_downed_005.png`), `AnimatedSprite2D` halts automatically (`loop = false`).
-4. `CharacterVisual` maintains the settled final frame as long as the player remains in `DOWNED`. It does **not** re-call `.play()`, preventing any re-looping or stuttering.
-5. When `Health.revived` emits, `CharacterVisual` transitions to `REVIVE`, playing the push-up sequence from frame 0 before returning to `IDLE`.
+Animation frame counts are variable and not hardcoded (e.g., approved Waddle V1.1 is 16 frames, Hit is 6 frames, Dash is 4 frames).
 
----
-
-## 7. Resource Construction & Profile Binding
-
-### `SpriteFrames` Resource
-Configured at `res://resources/characters/penguin_production_sprite_frames.tres`:
-- Contains all 6 animations (`idle`, `move`, `dash`, `hit`, `downed`, `revive`).
-- Each animation speed set to `24.0`.
-- Loop flags set according to Section 5.
-
-### `CharacterPresentationProfile` Resource
-Configured at `res://resources/characters/penguin_production_profile.tres`:
-```gdscript
-profile_name = "Penguin Production Rig v2"
-sprite_frames = preload("res://resources/characters/penguin_production_sprite_frames.tres")
-base_scale = Vector2(0.25, 0.25) # 256px * 0.25 = 64px character height
-offset = Vector2(0, -88)         # Aligns ground baseline (y=216) with Godot origin (0, 0)
-flip_h_with_facing = true
-anim_idle = &"idle"
-anim_move = &"move"
-anim_dash = &"dash"
-anim_hit = &"hit"
-anim_downed = &"downed"
-anim_revive = &"revive"
-```
-
----
-
-## 8. Validation Tool
-
-A dedicated validator tool is available at `scripts/tools/character_animation_validator.gd`.
-
-Run validation headlessly:
-```powershell
-godot --headless --script tests/character_animation_contract_test.gd
-```
-
-The validator checks:
-1. Presence of all 6 canonical state directories and animations.
-2. No unexpected files in runtime folders.
-3. Strict `penguin_<state>_###.png` naming starting at `000` with no gaps or duplicates.
-4. Consistent $256 \times 256$ dimensions across all frames and states.
-5. Exact 24.0 FPS configuration.
-6. Correct loop flags (`idle`/`move` looping; `dash`/`hit`/`downed`/`revive` non-looping).
-7. Valid profile animation mappings.
-
----
-
-## 9. Handoff Checklist for Real Sprite Export (Claude & Codex)
-
-When exporting real Blender renders into Godot:
-1. [ ] Render transparent background PNGs with anti-aliasing.
-2. [ ] Render from orthographic 2.5D camera ($30^\circ-35^\circ$ elevation).
-3. [ ] Crop/render to uniform $256 \times 256$ square canvas.
-4. [ ] Keep ground contact anchor centered horizontally ($x = 128$) and at ground line ($y = 216$).
-5. [ ] Save into `assets/characters/penguin/production/<state>/` using `penguin_<state>_###.png`.
-6. [ ] Re-run the automated validator to confirm 0 errors:
+### Real Asset Replacement Procedure:
+1. **Remove Existing Frame Set**: Delete the prior frame set for that state completely from both `base/<state>/` and `scarf/<state>/` before installing new renders. Never leave surplus frames from a previous revision.
+2. **Install New Frames**: Copy the complete new sequential frame sets for `base` and `scarf`.
+3. **Verify Numbering**: Ensure numbering starts at `000` with contiguous zero-padded 3-digit integers (`penguin_<state>_000.png`, `001`, ...).
+4. **Rebuild SpriteFrames Resources**:
+   ```powershell
+   godot --headless --script scripts/tools/build_production_profile.gd
+   ```
+5. **Run Validation & Acceptance Harness**:
    ```powershell
    godot --headless --script tests/character_animation_contract_test.gd
    ```
-7. [ ] Run real GPU smoke preview:
-   ```powershell
-   godot --script tests/render_smoke.gd
-   ```
+
+---
+
+## 6. Automated Pipeline Tools
+
+### Automated Validator (`scripts/tools/character_animation_validator.gd`)
+Validates on-disk directories and compiled resources:
+- Rejects any paths pointing to `art/blender/`.
+- Verifies existence of both `base` and `scarf` layers.
+- Verifies exact frame counts and counterpart matching between base and scarf.
+- Verifies transparent backgrounds on scarf overlay frames.
+- Verifies canvas dimensions ($256 \times 256$).
+- Verifies 24.0 FPS and canonical loop flags.
+- Verifies `CharacterPresentationProfile` resource bindings.
+
+### Resource Builder (`scripts/tools/build_production_profile.gd`)
+Discovers all sequential PNGs in each state directory, builds `SpriteFrames` for both `base` and `scarf`, and saves:
+- `resources/characters/penguin_fixture_sprite_frames.tres` (or production)
+- `resources/characters/penguin_fixture_scarf_sprite_frames.tres` (or production)
+- `resources/characters/penguin_fixture_profile.tres` (or production)
+
+CLI usage:
+```powershell
+# Build fixture profile from tests/fixtures/character_animation:
+godot --headless --script scripts/tools/build_production_profile.gd -- --fixture
+
+# Build production profile from assets/characters/penguin/production:
+godot --headless --script scripts/tools/build_production_profile.gd
+
+# Build from custom root:
+godot --headless --script scripts/tools/build_production_profile.gd -- --root=res://custom/path
+```
+
+---
+
+## 7. Handoff Checklist for Real Sprite Export (Claude & Codex)
+
+> [!NOTE]
+> Do NOT begin rendering actual production sprites until directed. When real export begins, follow this checklist:
+
+1. [ ] **Rig & Camera**: Ensure orthographic 2.5D camera ($30^\circ-35^\circ$ elevation) with identical framing across all 6 animations.
+2. [ ] **Canvas**: Uniform $256 \times 256$ pixels, RGBA with transparent background.
+3. [ ] **Anchor**: Penguin ground contact centered horizontally at $x = 128$, feet contact at $y = 216$.
+4. [ ] **Layers Rendered**:
+   - Render `base/` pass with penguin body only (scarf hidden/neutral).
+   - Render `scarf/` pass with scarf mesh only (body hidden), textured neutral white.
+5. [ ] **Replacement Protocol**: Wipe the target state directories before placing new frames.
+6. [ ] **File Naming**: `penguin_<state>_###.png` starting at `000`.
+7. [ ] **Build & Validate**: Run builder and acceptance test suite.
+8. [ ] **Preview**: Run GPU render smoke check (`godot --script tests/render_smoke.gd`).

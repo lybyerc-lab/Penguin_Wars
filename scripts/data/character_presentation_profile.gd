@@ -3,7 +3,7 @@ extends Resource
 ## Character presentation profile for Penguin Wars.
 ## Decouples character visuals and animation assets from authoritative gameplay systems.
 ## Maps canonical animation states (idle, move, dash, hit, downed, revive) to animation
-## assets (e.g. SpriteFrames) without gameplay systems needing to know file paths.
+## assets (SpriteFrames) for both base character body and colorized scarf overlay.
 
 enum State {
 	IDLE,
@@ -18,6 +18,7 @@ enum State {
 
 @export var profile_name: String = "Default"
 @export var sprite_frames: SpriteFrames
+@export var scarf_sprite_frames: SpriteFrames
 @export var base_scale: Vector2 = Vector2.ONE
 @export var offset: Vector2 = Vector2.ZERO
 @export var flip_h_with_facing: bool = true
@@ -46,9 +47,13 @@ func get_animation_for_state(state: int) -> StringName:
 		_:
 			return anim_idle
 
-## Checks if the profile has valid animation frames for the given animation name.
+## Checks if the base profile has valid animation frames for the given animation name.
 func has_animation(anim_name: StringName) -> bool:
 	return sprite_frames != null and sprite_frames.has_animation(anim_name)
+
+## Checks if the scarf overlay profile has valid animation frames for the given animation name.
+func has_scarf_animation(anim_name: StringName) -> bool:
+	return scarf_sprite_frames != null and scarf_sprite_frames.has_animation(anim_name)
 
 ## Returns whether the animation configured for the given state is set to loop.
 func is_state_looping(state: int) -> bool:
