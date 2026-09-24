@@ -95,7 +95,7 @@ CharacterVisual
 
 ## 5. Arbitrary Frame Count Handling & Replacement Procedure
 
-Animation frame counts are variable and not hardcoded (e.g., approved Waddle V1.1 is 16 frames, Hit is 6 frames, Dash is 4 frames).
+Animation frame counts are variable and not hardcoded. The current production export has Waddle V1.1 at 16 frames, Hit V1 at 7 frames, and Dash V1.1 at 10 frames; fixture counts remain independent.
 
 ### Real Asset Replacement Procedure:
 1. **Remove Existing Frame Set**: Delete the prior frame set for that state completely from both `base/<state>/` and `scarf/<state>/` before installing new renders. Never leave surplus frames from a previous revision.
@@ -144,18 +144,35 @@ godot --headless --script scripts/tools/build_production_profile.gd -- --root=re
 
 ---
 
-## 7. Handoff Checklist for Real Sprite Export (Claude & Codex)
+## 7. Production Export Verification
 
 > [!NOTE]
-> Do NOT begin rendering actual production sprites until directed. When real export begins, follow this checklist:
+> Character Integration V1 exported the locked source animations into the runtime folders. This checklist records the requirements used for that export:
 
-1. [ ] **Rig & Camera**: Ensure orthographic 2.5D camera ($30^\circ-35^\circ$ elevation) with identical framing across all 6 animations.
-2. [ ] **Canvas**: Uniform $256 \times 256$ pixels, RGBA with transparent background.
-3. [ ] **Anchor**: Penguin ground contact centered horizontally at $x = 128$, feet contact at $y = 216$.
-4. [ ] **Layers Rendered**:
+1. [x] **Rig & Camera**: Ensure orthographic 2.5D camera ($30^\circ-35^\circ$ elevation) with identical framing across all 6 animations.
+2. [x] **Canvas**: Uniform $256 \times 256$ pixels, RGBA with transparent background.
+3. [x] **Anchor**: Penguin ground contact centered horizontally at $x = 128$, feet contact at $y = 216$.
+4. [x] **Layers Rendered**:
    - Render `base/` pass with penguin body only (scarf hidden/neutral).
    - Render `scarf/` pass with scarf mesh only (body hidden), textured neutral white.
-5. [ ] **Replacement Protocol**: Wipe the target state directories before placing new frames.
-6. [ ] **File Naming**: `penguin_<state>_###.png` starting at `000`.
-7. [ ] **Build & Validate**: Run builder and acceptance test suite.
-8. [ ] **Preview**: Run GPU render smoke check (`godot --script tests/render_smoke.gd`).
+5. [x] **Replacement Protocol**: Wipe the target state directories before placing new frames.
+6. [x] **File Naming**: `penguin_<state>_###.png` starting at `000`.
+7. [x] **Build & Validate**: Run builder and acceptance test suite.
+8. [x] **Preview**: Run GPU render smoke check (`godot --script tests/render_smoke.gd`).
+
+---
+
+## 8. Character Integration V1 export result
+
+The current production profile binds the real locked Blender sources to CharacterVisual in the player scene. The body and neutral white scarf were exported as separate transparent RGBA layers at 256 x 256, 24 fps, using the existing contract scale and ground anchor. Source Blender files were copied byte-for-byte from the production-art worktree. Camera lens/shift was normalized in memory for consistent runtime framing; no source rig or pose was saved or redesigned. Godot ignores art/blender via .gdignore because source animation files are not runtime assets.
+
+| Runtime state | Locked source | Base frames | Scarf frames | Playback |
+| :--- | :--- | ---: | ---: | :--- |
+| idle | Idle V1 | 40 | 40 | loop; authoring closure key f41 excluded |
+| move | Waddle V1.1 | 16 | 16 | loop |
+| dash | Dash V1.1 | 10 | 10 | one shot |
+| hit | Hit V1 | 7 | 7 | one shot |
+| downed | KO V1 | 14 | 14 | one shot; hold settled frame |
+| revive | Revive V1 | 14 | 14 | one shot |
+
+The production profile and both SpriteFrames resources were built with the approved builder and validated by the animation contract test. Five real-renderer review captures are under docs/character-production-review. Visual acceptance remains subject to director review.

@@ -30,6 +30,10 @@ func _run() -> void:
 
 	check(v1 != null and v2 != null, "CharacterVisual exists on all players")
 
+	# This focused test covers the retained procedural fallback presentation.
+	v1.set_profile(null)
+	v2.set_profile(null)
+
 	# 1. Alive presentation initializes in IDLE
 	p1.velocity = Vector2.ZERO
 	v1._process_player(0.016)

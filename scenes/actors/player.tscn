@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 [ext_resource type="Script" path="res://scripts/actors/player.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/combat/health.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/input/local_player_input.gd" id="3"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/combat/dash_controller.gd" id="7"]
 [ext_resource type="Script" path="res://scripts/combat/hit_feedback.gd" id="8"]
 [ext_resource type="Script" path="res://scripts/visuals/character_visual.gd" id="9"]
+[ext_resource type="Resource" path="res://resources/characters/penguin_production_profile.tres" id="10"]
 [sub_resource type="CircleShape2D" id="Body"]
 radius = 16.0
 [node name="Player" type="CharacterBody2D"]
@@ -25,6 +26,7 @@ script = ExtResource("3")
 script = ExtResource("5")
 [node name="CharacterVisual" type="Node2D" parent="."]
 script = ExtResource("9")
+profile = ExtResource("10")
 [node name="Dash" type="Node" parent="."]
 script = ExtResource("7")
 [node name="HitFeedback" type="Node" parent="."]

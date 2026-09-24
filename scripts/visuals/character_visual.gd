@@ -791,6 +791,10 @@ func _draw() -> void:
 			s_scale_y = lerpf(12.0, 9.5, t)
 			alpha = lerpf(0.40, 0.34, t)
 
+	# Production frames use the contract ground anchor at the actor origin.
+	# The procedural fallback feet sit lower, so only its shadow needs +14.
+	if _using_profile():
+		sy = 0.0
 	draw_set_transform(Vector2(0, sy), 0, Vector2(sx / 20.0, s_scale_y / 20.0))
 	draw_circle(Vector2.ZERO, 20.0, Color(0.02, 0.08, 0.16, alpha))
 	draw_set_transform(Vector2.ZERO)

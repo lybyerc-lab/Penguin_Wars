@@ -1,0 +1,439 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_000.png" id="1_hhfcj"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_001.png" id="2_t4lfy"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_002.png" id="3_3f5v7"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_003.png" id="4_bmvtf"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_004.png" id="5_cg4ap"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_005.png" id="6_vvi1c"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_006.png" id="7_47o0b"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_007.png" id="8_pwb0t"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_008.png" id="9_gg1aq"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/dash/penguin_dash_009.png" id="10_1mwvd"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_000.png" id="11_u18sv"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_001.png" id="12_2lwdw"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_002.png" id="13_ld6f1"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_003.png" id="14_p5iyk"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_004.png" id="15_0qdy2"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_005.png" id="16_88w5n"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_006.png" id="17_cv0h5"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_007.png" id="18_w1405"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_008.png" id="19_s01g0"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_009.png" id="20_j8qla"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_010.png" id="21_t4fsw"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_011.png" id="22_2y5c0"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_012.png" id="23_aqnst"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/downed/penguin_downed_013.png" id="24_rtw13"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/hit/penguin_hit_000.png" id="25_5kguc"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/hit/penguin_hit_001.png" id="26_l0u2a"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/hit/penguin_hit_002.png" id="27_m16pw"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/hit/penguin_hit_003.png" id="28_0uy54"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/hit/penguin_hit_004.png" id="29_13l06"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/hit/penguin_hit_005.png" id="30_qxmck"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/hit/penguin_hit_006.png" id="31_f2mor"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_000.png" id="32_dcc4j"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_001.png" id="33_ljeqv"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_002.png" id="34_x4v1s"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_003.png" id="35_kbpit"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_004.png" id="36_df5r5"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_005.png" id="37_va7v8"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_006.png" id="38_3n1gd"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_007.png" id="39_rmkfk"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_008.png" id="40_2vcal"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_009.png" id="41_applj"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_010.png" id="42_o8ad7"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_011.png" id="43_qtvad"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_012.png" id="44_k7qdi"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_013.png" id="45_4s0h4"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_014.png" id="46_6n4se"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_015.png" id="47_ttisc"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_016.png" id="48_84kn5"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_017.png" id="49_01fb5"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_018.png" id="50_vf2sm"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_019.png" id="51_08gjk"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_020.png" id="52_yyd47"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_021.png" id="53_ic757"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_022.png" id="54_28tc2"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_023.png" id="55_ltsdb"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_024.png" id="56_5wgp6"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_025.png" id="57_6pf8u"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_026.png" id="58_o4hpe"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_027.png" id="59_h63im"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_028.png" id="60_j3x51"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_029.png" id="61_itvaw"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_030.png" id="62_8tsqc"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_031.png" id="63_c5oqd"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_032.png" id="64_ht0nu"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_033.png" id="65_6hjj4"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_034.png" id="66_aysqc"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_035.png" id="67_svnaq"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_036.png" id="68_hplyc"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_037.png" id="69_o5x6a"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_038.png" id="70_c2d26"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/idle/penguin_idle_039.png" id="71_yw0el"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_000.png" id="72_xddma"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_001.png" id="73_8opyc"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_002.png" id="74_nksy7"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_003.png" id="75_xo0go"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_004.png" id="76_x3rli"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_005.png" id="77_scemj"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_006.png" id="78_32vnv"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_007.png" id="79_jishk"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_008.png" id="80_hf1ds"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_009.png" id="81_y17it"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_010.png" id="82_ei8n4"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_011.png" id="83_ch3uw"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_012.png" id="84_gmybo"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_013.png" id="85_eae0b"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_014.png" id="86_3pwul"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/move/penguin_move_015.png" id="87_acuar"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_000.png" id="88_dirs3"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_001.png" id="89_5ogxg"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_002.png" id="90_lm5ml"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_003.png" id="91_3hqc3"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_004.png" id="92_ni7lb"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_005.png" id="93_7wv0c"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_006.png" id="94_mm8qp"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_007.png" id="95_rqu86"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_008.png" id="96_bccu1"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_009.png" id="97_3ud6t"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_010.png" id="98_gkgww"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_011.png" id="99_lckdj"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_012.png" id="100_pwx7i"]
+[ext_resource type="Texture2D" path="res://assets/characters/penguin/production/base/revive/penguin_revive_013.png" id="101_hvp01"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_hhfcj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_t4lfy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_3f5v7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_bmvtf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_cg4ap")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_vvi1c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_47o0b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_pwb0t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_gg1aq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_1mwvd")
+}],
+"loop": 0,
+"name": &"dash",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_u18sv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_2lwdw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_ld6f1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_p5iyk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_0qdy2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_88w5n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_cv0h5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_w1405")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_s01g0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_j8qla")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_t4fsw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_2y5c0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_aqnst")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_rtw13")
+}],
+"loop": 0,
+"name": &"downed",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("25_5kguc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_l0u2a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_m16pw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_0uy54")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_13l06")
+}, {
+"duration": 1.0,
+"texture": ExtResource("30_qxmck")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_f2mor")
+}],
+"loop": 0,
+"name": &"hit",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("32_dcc4j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_ljeqv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_x4v1s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_kbpit")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_df5r5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_va7v8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_3n1gd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_rmkfk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_2vcal")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_applj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("42_o8ad7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_qtvad")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_k7qdi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_4s0h4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("46_6n4se")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_ttisc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_84kn5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_01fb5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_vf2sm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_08gjk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_yyd47")
+}, {
+"duration": 1.0,
+"texture": ExtResource("53_ic757")
+}, {
+"duration": 1.0,
+"texture": ExtResource("54_28tc2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("55_ltsdb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("56_5wgp6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("57_6pf8u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("58_o4hpe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("59_h63im")
+}, {
+"duration": 1.0,
+"texture": ExtResource("60_j3x51")
+}, {
+"duration": 1.0,
+"texture": ExtResource("61_itvaw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("62_8tsqc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("63_c5oqd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("64_ht0nu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("65_6hjj4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("66_aysqc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("67_svnaq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("68_hplyc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("69_o5x6a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("70_c2d26")
+}, {
+"duration": 1.0,
+"texture": ExtResource("71_yw0el")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("72_xddma")
+}, {
+"duration": 1.0,
+"texture": ExtResource("73_8opyc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("74_nksy7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("75_xo0go")
+}, {
+"duration": 1.0,
+"texture": ExtResource("76_x3rli")
+}, {
+"duration": 1.0,
+"texture": ExtResource("77_scemj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("78_32vnv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("79_jishk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("80_hf1ds")
+}, {
+"duration": 1.0,
+"texture": ExtResource("81_y17it")
+}, {
+"duration": 1.0,
+"texture": ExtResource("82_ei8n4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("83_ch3uw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("84_gmybo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("85_eae0b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("86_3pwul")
+}, {
+"duration": 1.0,
+"texture": ExtResource("87_acuar")
+}],
+"loop": 1,
+"name": &"move",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("88_dirs3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("89_5ogxg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("90_lm5ml")
+}, {
+"duration": 1.0,
+"texture": ExtResource("91_3hqc3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("92_ni7lb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("93_7wv0c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("94_mm8qp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("95_rqu86")
+}, {
+"duration": 1.0,
+"texture": ExtResource("96_bccu1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("97_3ud6t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("98_gkgww")
+}, {
+"duration": 1.0,
+"texture": ExtResource("99_lckdj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("100_pwx7i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("101_hvp01")
+}],
+"loop": 0,
+"name": &"revive",
+"speed": 24.0
+}]

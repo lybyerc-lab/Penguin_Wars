@@ -113,16 +113,41 @@ func _run() -> void:
 	check(has_blender_err, "validator rejects attempts to load runtime assets from art/blender/")
 
 	# =========================================================================
-	# 3. PRODUCTION PATH CLEANLINESS VERIFICATION
+	# 3. REAL PRODUCTION FRAMES VALIDATION
 	# =========================================================================
-	print("3. Verifying production root contains no fake fixture artwork...")
-	var prod_da := DirAccess.open(Contract.PATH_PRODUCTION_ROOT)
-	check(prod_da != null, "production root directory exists: %s" % Contract.PATH_PRODUCTION_ROOT)
-	if prod_da != null:
-		var found_fake_pngs: Array[String] = []
-		_scan_for_pngs(Contract.PATH_PRODUCTION_ROOT, found_fake_pngs)
-		check(found_fake_pngs.is_empty(), "production root contains NO placeholder PNGs (found %d: %s)" % [found_fake_pngs.size(), str(found_fake_pngs)])
-
+	print("3. Validating real production frames and exact approved export counts...")
+	var production_errors := Validator.validate_directory_layout(Contract.PATH_PRODUCTION_ROOT)
+	for e in production_errors:
+		push_error("PRODUCTION DIR ERROR: " + e)
+	check(production_errors.is_empty(), "real production frame directory passes validation")
+	var expected_counts := {"idle": 40, "move": 16, "dash": 10, "hit": 7, "downed": 14, "revive": 14}
+	var fixture_pngs: Array[String] = []
+	_scan_for_pngs(Contract.PATH_FIXTURE_ROOT, fixture_pngs)
+	var fixture_hashes: Dictionary = {}
+	for fixture_path in fixture_pngs:
+		fixture_hashes[FileAccess.get_sha256(fixture_path)] = true
+	for layer in Contract.REQUIRED_LAYERS:
+		for state_name in Contract.CANONICAL_STATES:
+			var state_dir := DirAccess.open("%s/%s/%s" % [Contract.PATH_PRODUCTION_ROOT, layer, state_name])
+			check(state_dir != null, "%s/%s directory exists" % [layer, state_name])
+			if state_dir != null:
+				var png_count := 0
+				for file_name in state_dir.get_files():
+					if file_name.ends_with(".png"):
+						png_count += 1
+						var production_path := "%s/%s/%s/%s" % [Contract.PATH_PRODUCTION_ROOT, layer, state_name, file_name]
+						check(not fixture_hashes.has(FileAccess.get_sha256(production_path)), "production %s/%s contains no fixture frame %s" % [layer, state_name, file_name])
+				check(png_count == expected_counts[state_name], "%s/%s has exactly %d real frames" % [layer, state_name, expected_counts[state_name]])
+	var production_profile := load(Contract.PATH_PRODUCTION_PROFILE) as CharacterPresentationProfile
+	check(production_profile != null, "real production profile loads")
+	if production_profile != null:
+		var production_profile_errors := Validator.validate_profile(production_profile)
+		for e in production_profile_errors:
+			push_error("PRODUCTION PROFILE ERROR: " + e)
+		check(production_profile_errors.is_empty(), "real production profile passes validation")
+		for state_name in Contract.CANONICAL_STATES:
+			check(production_profile.sprite_frames.get_frame_count(state_name) == expected_counts[state_name], "compiled base %s count matches source" % state_name)
+			check(production_profile.scarf_sprite_frames.get_frame_count(state_name) == expected_counts[state_name], "compiled scarf %s count matches source" % state_name)
 	# =========================================================================
 	# 4. DIAGNOSTIC FIXTURE DIRECTORY VALIDATION
 	# =========================================================================
@@ -218,6 +243,11 @@ func _run() -> void:
 	var v2: CharacterVisual = p2.get_node("CharacterVisual") as CharacterVisual
 	var v3: CharacterVisual = p3.get_node("CharacterVisual") as CharacterVisual
 	var v4: CharacterVisual = p4.get_node("CharacterVisual") as CharacterVisual
+
+	# The real production profile is the default runtime binding before
+	# this test deliberately switches to the diagnostic fixture.
+	for visual in [v1, v2, v3, v4]:
+		check(visual.profile == production_profile, "player scene defaults to real production profile")
 
 	# Bind fixture profile to all 4 players
 	v1.set_profile(fixture_profile)
@@ -415,6 +445,41 @@ func _run() -> void:
 
 	check(v4.current_state == CharacterVisual.State.IDLE, "P4 is IDLE")
 	check(v4.animated_sprite.animation == &"idle", "P4 playing 'idle'")
+
+	# =========================================================================
+	# 15. REAL PRODUCTION PROFILE IN THE SAME 4-PLAYER ARENA
+	# =========================================================================
+	print("15. Verifying real production profile, state independence, and scarf tint...")
+	var production_visuals: Array[CharacterVisual] = [v1, v2, v3, v4]
+	var production_players: Array[PenguinPlayer] = [p1, p2, p3, p4]
+	for i in range(4):
+		var visual := production_visuals[i]
+		var player := production_players[i]
+		var actor_position := player.global_position
+		var rack_position := player.weapon_rack.position
+		visual.set_profile(production_profile)
+		visual._process_player(0.0)
+		check(player.global_position == actor_position, "P%d animation leaves gameplay position unchanged" % (i + 1))
+		check(player.weapon_rack.position == rack_position, "P%d animation leaves weapon rack origin unchanged" % (i + 1))
+		check(visual.profile == production_profile, "P%d uses real production profile" % (i + 1))
+		check(visual.animated_sprite.sprite_frames == production_profile.sprite_frames, "P%d shares base frames resource" % (i + 1))
+		check(visual.scarf_sprite.sprite_frames == production_profile.scarf_sprite_frames, "P%d shares scarf frames resource" % (i + 1))
+		check(visual.animated_sprite.modulate == Color.WHITE, "P%d body remains untinted" % (i + 1))
+		check(visual.scarf_sprite.modulate == player.identity.tint, "P%d scarf has its identity tint" % (i + 1))
+		check(visual.animated_sprite.frame == visual.scarf_sprite.frame, "P%d base/scarf frame sync" % (i + 1))
+		var collision := player.get_node("CollisionShape2D") as CollisionShape2D
+		check(collision != null and collision.shape is CircleShape2D and is_equal_approx(collision.shape.radius, 16.0), "P%d gameplay collision remains unchanged" % (i + 1))
+	for i in range(4):
+		for j in range(i + 1, 4):
+			check(production_visuals[i].scarf_sprite.modulate != production_visuals[j].scarf_sprite.modulate, "P%d and P%d scarf colors differ" % [i + 1, j + 1])
+	check(v1.animated_sprite.animation == &"move", "real P1 remains MOVE")
+	check(v2.animated_sprite.animation == &"dash", "real P2 remains DASH")
+	check(v3.animated_sprite.animation == &"hit", "real P3 remains HIT")
+	check(v4.animated_sprite.animation == &"idle", "real P4 remains IDLE")
+	check(is_equal_approx(v1.get_state_animation_duration(CharacterVisual.State.HIT), 7.0 / 24.0), "real Hit uses seven-frame duration")
+	check(is_equal_approx(v1.get_state_animation_duration(CharacterVisual.State.REVIVE), 14.0 / 24.0), "real Revive uses fourteen-frame duration")
+	check(not production_profile.sprite_frames.get_animation_loop(&"downed"), "real Downed plays once and holds")
+	check(not production_profile.sprite_frames.get_animation_loop(&"revive"), "real Revive plays once")
 
 	# Clean up
 	arena.free()
