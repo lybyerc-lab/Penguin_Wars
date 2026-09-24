@@ -795,6 +795,13 @@ func _draw() -> void:
 	# The procedural fallback feet sit lower, so only its shadow needs +14.
 	if _using_profile():
 		sy = 0.0
+	# Ground indicator is anchored to the actor, drawn behind its shadow and sprites.
+	if _actor is PenguinPlayer and (_health == null or _health.is_alive()):
+		var player := _actor as PenguinPlayer
+		var tint := player.identity.tint if player.identity != null else Color.WHITE
+		draw_set_transform(Vector2(0, sy), 0, Vector2((sx + 4.0) / 20.0, (s_scale_y + 3.0) / 20.0))
+		draw_arc(Vector2.ZERO, 20.0, 0, TAU, 32, Color(tint, 0.6), 2.0)
+		draw_set_transform(Vector2.ZERO)
 	draw_set_transform(Vector2(0, sy), 0, Vector2(sx / 20.0, s_scale_y / 20.0))
 	draw_circle(Vector2.ZERO, 20.0, Color(0.02, 0.08, 0.16, alpha))
 	draw_set_transform(Vector2.ZERO)
