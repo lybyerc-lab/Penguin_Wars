@@ -96,6 +96,9 @@ const TEX_SEAL = preload("res://assets/characters/seal_raider.svg")
 const HIT_DURATION: float = 0.18
 const REVIVE_DURATION: float = 0.35
 const PUPPET_BASE_SCALE: float = 0.70
+## Runtime-only cadence tune for the approved Waddle V1.1 frames. Gameplay
+## movement speed and the authored 24 fps frame resource remain unchanged.
+const MOVE_PLAYBACK_MULTIPLIER: float = 1.15
 
 func _ready() -> void:
 	_actor = get_parent() as CharacterBody2D
@@ -317,6 +320,8 @@ func get_state_animation_duration(state: State) -> float:
 func _play_animation(anim_name: StringName, restart: bool = false) -> void:
 	if not _using_profile() or _animated_sprite == null:
 		return
+	var playback_speed: float = MOVE_PLAYBACK_MULTIPLIER if anim_name == profile.get_animation_for_state(State.MOVE) else 1.0
+	_animated_sprite.speed_scale = playback_speed
 	if profile.has_animation(anim_name):
 		if restart:
 			_animated_sprite.stop()
@@ -325,6 +330,7 @@ func _play_animation(anim_name: StringName, restart: bool = false) -> void:
 			_animated_sprite.play(anim_name)
 
 	if _scarf_sprite != null and profile.has_scarf_animation(anim_name):
+		_scarf_sprite.speed_scale = playback_speed
 		if restart:
 			_scarf_sprite.stop()
 			_scarf_sprite.play(anim_name)

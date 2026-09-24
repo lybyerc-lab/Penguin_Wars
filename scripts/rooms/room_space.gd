@@ -35,7 +35,8 @@ static func apply(room: RoomDefinition, party: PartyRoster = null, encounter: En
 	if loot != null:
 		loot.supply_points = room.supply_points
 	if camera != null:
-		camera.framed_size = room.bounds.size + VIEW_MARGIN
+		camera.follow_party = room.kind == RoomDefinition.Kind.TOWN
+		camera.framed_size = Vector2(980, 560) if camera.follow_party else room.bounds.size + VIEW_MARGIN
 	if visual != null:
 		visual.bounds = room.bounds
 		visual.palette = int(room.palette)

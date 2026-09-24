@@ -473,9 +473,12 @@ func _run() -> void:
 		for j in range(i + 1, 4):
 			check(production_visuals[i].scarf_sprite.modulate != production_visuals[j].scarf_sprite.modulate, "P%d and P%d scarf colors differ" % [i + 1, j + 1])
 	check(v1.animated_sprite.animation == &"move", "real P1 remains MOVE")
+	check(is_equal_approx(v1.animated_sprite.speed_scale, CharacterVisual.MOVE_PLAYBACK_MULTIPLIER), "real Waddle V1.1 uses the runtime MOVE cadence multiplier")
+	check(is_equal_approx(v1.scarf_sprite.speed_scale, CharacterVisual.MOVE_PLAYBACK_MULTIPLIER), "real scarf stays cadence-matched to the moving base")
 	check(v2.animated_sprite.animation == &"dash", "real P2 remains DASH")
 	check(v3.animated_sprite.animation == &"hit", "real P3 remains HIT")
 	check(v4.animated_sprite.animation == &"idle", "real P4 remains IDLE")
+	check(is_equal_approx(v4.animated_sprite.speed_scale, 1.0), "non-MOVE production animation speed remains authored")
 	check(is_equal_approx(v1.get_state_animation_duration(CharacterVisual.State.HIT), 7.0 / 24.0), "real Hit uses seven-frame duration")
 	check(is_equal_approx(v1.get_state_animation_duration(CharacterVisual.State.REVIVE), 14.0 / 24.0), "real Revive uses fourteen-frame duration")
 	check(not production_profile.sprite_frames.get_animation_loop(&"downed"), "real Downed plays once and holds")

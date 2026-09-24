@@ -120,7 +120,8 @@ func _run() -> void:
 			run_cards.append(child)
 	check(run_cards.size() == 2, "expedition starts with 2 player corner cards")
 	check(run.room.kind == RoomDefinition.Kind.TOWN, "expedition starts in town")
-	check(run.room.bounds.size == Vector2(1200, 620), "enlarged town room bounds are 1200x620")
+	check(run.room.bounds == TownshipV01.WORLD_BOUNDS, "town room uses the full playable Township bounds")
+	check(run.get_node("Camera").follow_party, "Township uses the large-world follow camera mode")
 
 	# Travel to cave mouth (The Hollow Shelf)
 	travel(run, run.gates()[0])

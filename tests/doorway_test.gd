@@ -183,9 +183,11 @@ func _run() -> void:
 	check(town_gate.exit.presentation == RoomExit.Presentation.EXPEDITION_MOUTH,
 		  "the town mouth is dressed by data, not by the name of the cave beyond")
 	check(town_gate.is_town_mouth(), "the gate reads that dressing")
-	# One cave means one centred mouth; the offset is what keeps a second from stacking.
-	check(town_gate.exit.offset_along == 0.0, "a single cave mouth stays centred")
+	# One cave uses the locked Township route; the offset still keeps a second
+	# route from stacking while RoomExit remains the placement authority.
+	check(town_gate.exit.offset_along == TownshipV01.DEPARTURE_BOUNDARY.x, "a single cave mouth follows the Township expedition route")
 	check(town_gate.position == town_gate.exit.place_on(run.room.bounds), "the mouth sits where its data says")
+	check(town_gate.position == TownshipV01.DEPARTURE_BOUNDARY, "the data-driven mouth reaches the Frozen Coast boundary")
 
 	# One player alone inside threshold does NOT travel
 	players[0].global_position = town_gate.global_position

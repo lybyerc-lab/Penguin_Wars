@@ -12,6 +12,9 @@ var title: String = "Stall"
 var keeper: String = ""
 var tint: Color = Color("f0c987")
 var party: PartyRoster
+## The Township V0.1 scene owns the physical building art. Existing service
+## behavior remains visible as a small ground marker at the matching doorway.
+var structure_visible: bool = true
 
 func _ready() -> void:
 	z_index = -1
@@ -30,6 +33,9 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, RADIUS, Color(tint, 0.10))
 	draw_arc(Vector2.ZERO, RADIUS, 0, TAU, 48, Color(tint, 0.45), 2)
 	draw_set_transform(Vector2.ZERO)
+	if not structure_visible:
+		draw_string(ThemeDB.fallback_font, Vector2(-100, -10), title, HORIZONTAL_ALIGNMENT_CENTER, 200, 14, Color(tint.lightened(0.25)))
+		return
 	# Snow-block hut with a coloured roof so services read apart at a glance.
 	draw_colored_polygon(PackedVector2Array([Vector2(-58, -20), Vector2(58, -20), Vector2(58, -78), Vector2(-58, -78)]), Color("dfeef4"))
 	for row: int in range(3):

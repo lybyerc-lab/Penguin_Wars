@@ -92,6 +92,7 @@ func _ready() -> void:
 func enter_town() -> void:
 	cave = null
 	_load_room(region.town)
+	TownshipV01.build($Places, party)
 	_services = TownHub.build($Places, party)
 	overlay.services = _services
 	var mouths: Array[CaveDefinition] = region.caves
@@ -101,12 +102,16 @@ func enter_town() -> void:
 		spec.label = mouths[index].display_name
 		spec.hint = mouths[index].signpost
 		spec.side = RoomExit.Side.BOTTOM
-		# Spread along the wall so a second cave does not stack on the first.
-		spec.offset_along = (index - (mouths.size() - 1) * 0.5) * MOUTH_SPACING
+		# Township's expedition boundary is on the lower route. Placement still
+		# comes from RoomExit.place_on(), so data remains the doorway authority.
+		spec.offset_along = TownshipV01.DEPARTURE_BOUNDARY.x + (index - (mouths.size() - 1) * 0.5) * MOUTH_SPACING
 		spec.presentation = RoomExit.Presentation.EXPEDITION_MOUTH
 		var gate: PartyGate = _add_gate(spec)
 		gate.locked = false
+		# Travel remains owned by PartyGate at the clear expedition boundary
+		# beyond the physical Departure Gate.
 		gate.place_at_wall(room.bounds)
+		gate.visible = false
 	var doors: Array[Dictionary] = []
 	for gate: PartyGate in _gates:
 		if gate.exit != null:
@@ -116,7 +121,7 @@ func enter_town() -> void:
 				"presentation": int(gate.exit.presentation),
 			})
 	$Backdrop.doorways = doors
-	overlay.banner = "Step up to a building to trade.  Head through a passage to set out."
+	overlay.banner = "Explore Township.  Cross the Departure Gate and follow the route to set out."
 
 func enter_cave(target: CaveDefinition) -> void:
 	cave = target
@@ -156,6 +161,7 @@ func _load_room(next: RoomDefinition, entry_side: int = -1) -> void:
 	progression.in_town = room.kind == RoomDefinition.Kind.TOWN
 	$Loot.begin_room()
 	RoomSpace.apply(room, party, encounter, $Builder, $Loot, $Camera, $Backdrop, $Actors)
+	$Backdrop.visible = room.kind != RoomDefinition.Kind.TOWN
 	var entry: Vector2 = room.entry_point
 	if entry_side >= 0:
 		entry = _entry_from_side(entry_side, room.bounds)
