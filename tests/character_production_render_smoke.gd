@@ -2,7 +2,7 @@ extends SceneTree
 ## Real renderer review capture of the production character in the live arena.
 ## Run without --headless.
 
-const OUTPUT_DIR := "res://docs/character-production-review"
+const OUTPUT_DIR := "res://docs/character-production-review/scarf-visible-v2"
 
 func _initialize() -> void:
 	call_deferred("_run")
