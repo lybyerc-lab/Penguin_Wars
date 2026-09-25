@@ -88,25 +88,28 @@ func _draw() -> void:
 	_draw_route(PackedVector2Array([Vector2(0, -560), Vector2(0, -330), Vector2(0, -50)]), 170.0)
 	_draw_route(PackedVector2Array([Vector2(330, -50), Vector2(570, -30), Vector2(760, 80)]), 145.0)
 	_draw_route(PackedVector2Array([Vector2(0, 300), Vector2(35, 610), DEPARTURE_GATE, Vector2(150, 1080), Vector2(350, 1320), DEPARTURE_BOUNDARY]), 170.0)
+	_draw_elevation_layers()
 
 	# Central 11 x 9.2 metre gathering square.
 	var square := Rect2(-446, -368, 892, 736)
+	draw_rect(Rect2(square.position + Vector2(0, 16), square.size), Color("6f9fac", 0.55))
 	draw_rect(square.grow(22.0), Color("9fcbd9"))
 	draw_rect(square, Color("d9eff4"))
 	for x: float in range(-400, 401, 100):
 		draw_line(Vector2(x, square.position.y), Vector2(x + 35, square.end.y), Color("bddce5", 0.55), 2.0)
 	for y: float in range(-320, 321, 80):
 		draw_line(Vector2(square.position.x, y), Vector2(square.end.x, y), Color("eef9fb", 0.65), 2.0)
+	draw_line(Vector2(square.position.x, square.end.y), square.end, Color("7facb9"), 10.0)
 	draw_string(ThemeDB.fallback_font, Vector2(-115, 20), "TOWNSHIP SQUARE", HORIZONTAL_ALIGNMENT_CENTER, 230, 15, Color("577888"))
 
-	_draw_building(GREAT_HALL, Color("678fb1"), "GREAT HALL")
+	_draw_building(GREAT_HALL, Color("678fb1"), "GREAT HALL", &"none")
 	_draw_hall_steps()
-	_draw_building(WORKSHOP, Color("c98b5a"), "WORKSHOP")
-	_draw_building(HOME_A, Color("77a6a1"), "HOME")
-	_draw_building(HOME_B, Color("8c87ad"), "HOME")
-	_draw_building(FISH_SHED, Color("5f8ca0"), "FISH SHED")
-	_draw_building(NET_SHED, Color("6d9d8c"), "NET SHED")
-	_draw_building(LODGE, Color("b77868"), "LODGE")
+	_draw_building(WORKSHOP, Color("c98b5a"), "WORKSHOP", &"south")
+	_draw_building(HOME_A, Color("77a6a1"), "HOME", &"east")
+	_draw_building(HOME_B, Color("8c87ad"), "HOME", &"north")
+	_draw_building(FISH_SHED, Color("5f8ca0"), "FISH SHED", &"west")
+	_draw_building(NET_SHED, Color("6d9d8c"), "NET SHED", &"west")
+	_draw_building(LODGE, Color("b77868"), "LODGE", &"north")
 	_draw_market()
 	_draw_pond()
 	_draw_slide()
@@ -125,7 +128,32 @@ func _draw_route(points: PackedVector2Array, width: float) -> void:
 	draw_polyline(points, Color("e4f2f4"), width, true)
 	draw_polyline(points, Color("f8fdfe", 0.7), 4.0, true)
 
-func _draw_building(rect: Rect2, roof: Color, label: String) -> void:
+func _draw_elevation_layers() -> void:
+	# Shallow local platforms create hierarchy without changing traversal.
+	_draw_terrace(GREAT_HALL.grow(42.0), 24.0, Color("c3dfe6"))
+	_draw_terrace(WORKSHOP.grow(38.0), 14.0, Color("d4e9eb"))
+	_draw_terrace(HOME_A.grow(30.0), 11.0, Color("d1e8ea"))
+	_draw_terrace(HOME_B.grow(30.0), 11.0, Color("d1e8ea"))
+
+	# The east market/pond district sits in a broad, subtly lower basin.
+	var basin := PackedVector2Array([Vector2(430, -390), Vector2(1135, -390), Vector2(1190, 690), Vector2(520, 690), Vector2(470, 360)])
+	draw_colored_polygon(basin, Color("b8dce4"))
+	draw_polyline(basin, Color("8dbdca"), 9.0, true)
+	for y: float in [-330.0, 610.0]:
+		draw_line(Vector2(500, y), Vector2(1120, y), Color("d9eff3", 0.7), 4.0)
+
+	# Contour bands make the expedition route read as a gentle descent.
+	for band: Vector2 in [Vector2(72, 720), Vector2(118, 930), Vector2(210, 1145), Vector2(365, 1365)]:
+		draw_line(band + Vector2(-75, 0), band + Vector2(75, 0), Color("91bec9", 0.65), 7.0)
+		draw_line(band + Vector2(-66, -5), band + Vector2(66, -5), Color("f2fbfc", 0.75), 3.0)
+
+func _draw_terrace(rect: Rect2, rise: float, top_color: Color) -> void:
+	draw_rect(Rect2(rect.position + Vector2(0, rise), rect.size), Color("688f9c", 0.45))
+	draw_rect(rect, top_color)
+	draw_line(Vector2(rect.position.x, rect.end.y), rect.end, Color("88b4bf"), rise * 0.55)
+	draw_line(rect.position, Vector2(rect.end.x, rect.position.y), top_color.lightened(0.16), 5.0)
+
+func _draw_building(rect: Rect2, roof: Color, label: String, entrance_side: StringName) -> void:
 	draw_rect(Rect2(rect.position + Vector2(14, 17), rect.size), Color("29465a", 0.22))
 	draw_rect(rect, Color("d5e7ea"))
 	var cap := rect.grow(13.0)
@@ -134,12 +162,39 @@ func _draw_building(rect: Rect2, roof: Color, label: String) -> void:
 	for y: float in range(int(rect.position.y + 34), int(rect.end.y), 42):
 		draw_line(Vector2(rect.position.x, y), Vector2(rect.end.x, y), Color("afc9cf", 0.55), 2.0)
 	draw_string(ThemeDB.fallback_font, Vector2(rect.position.x, rect.get_center().y + 6), label, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 17, Color("183445"))
+	if entrance_side != &"none":
+		_draw_entrance(rect, entrance_side)
+
+func _draw_entrance(rect: Rect2, side: StringName) -> void:
+	var door := Color("274556")
+	var threshold := Color("f3d188")
+	var center := rect.get_center()
+	match side:
+		&"north":
+			draw_rect(Rect2(center.x - 28, rect.position.y, 56, 27), door)
+			draw_rect(Rect2(center.x - 48, rect.position.y - 28, 96, 28), threshold)
+			draw_line(Vector2(center.x, rect.position.y - 62), Vector2(center.x, rect.position.y - 30), Color("fff2bd"), 6.0)
+		&"south":
+			draw_rect(Rect2(center.x - 28, rect.end.y - 27, 56, 27), door)
+			draw_rect(Rect2(center.x - 48, rect.end.y, 96, 28), threshold)
+			draw_line(Vector2(center.x, rect.end.y + 62), Vector2(center.x, rect.end.y + 30), Color("fff2bd"), 6.0)
+		&"west":
+			draw_rect(Rect2(rect.position.x, center.y - 28, 27, 56), door)
+			draw_rect(Rect2(rect.position.x - 28, center.y - 48, 28, 96), threshold)
+			draw_line(Vector2(rect.position.x - 62, center.y), Vector2(rect.position.x - 30, center.y), Color("fff2bd"), 6.0)
+		&"east":
+			draw_rect(Rect2(rect.end.x - 27, center.y - 28, 27, 56), door)
+			draw_rect(Rect2(rect.end.x, center.y - 48, 28, 96), threshold)
+			draw_line(Vector2(rect.end.x + 62, center.y), Vector2(rect.end.x + 30, center.y), Color("fff2bd"), 6.0)
 
 func _draw_hall_steps() -> void:
 	for index: int in range(4):
 		var width: float = 300.0 + index * 38.0
 		draw_rect(Rect2(Vector2(44 - width * 0.5, -543 + index * 22), Vector2(width, 20)), Color("b6d3dc").lightened(index * 0.035))
 	draw_rect(Rect2(-36, -565, 160, 48), Color("314f62"))
+	draw_line(Vector2(44, -430), Vector2(44, -500), Color("fff2bd"), 7.0)
+	draw_line(Vector2(24, -450), Vector2(44, -430), Color("fff2bd"), 5.0)
+	draw_line(Vector2(64, -450), Vector2(44, -430), Color("fff2bd"), 5.0)
 
 func _draw_market() -> void:
 	var canopy := PackedVector2Array([Vector2(455, -315), Vector2(875, -315), Vector2(835, -135), Vector2(495, -135)])
@@ -151,6 +206,11 @@ func _draw_market() -> void:
 		draw_circle(post, 11.0, Color("684636"))
 		draw_circle(post, 6.0, Color("a87955"))
 	draw_string(ThemeDB.fallback_font, Vector2(490, -170), "FISH MARKET", HORIZONTAL_ALIGNMENT_CENTER, 360, 17, Color("513522"))
+	# The open west end and service pad now address the square directly.
+	draw_rect(Rect2(438, -58, 62, 80), Color("f3d188", 0.72))
+	draw_line(Vector2(410, -18), Vector2(470, -18), Color("fff2bd"), 7.0)
+	draw_line(Vector2(445, -40), Vector2(470, -18), Color("fff2bd"), 5.0)
+	draw_line(Vector2(445, 4), Vector2(470, -18), Color("fff2bd"), 5.0)
 
 func _draw_pond() -> void:
 	var center := Vector2(940, 430)

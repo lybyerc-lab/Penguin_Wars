@@ -87,6 +87,16 @@ func _ready() -> void:
 	encounter.state_changed.connect(_on_encounter_state)
 	enter_town()
 
+func _process(_delta: float) -> void:
+	if room == null or room.kind != RoomDefinition.Kind.TOWN:
+		$Camera.clear_focus()
+		return
+	for service: TownService in _services:
+		if is_instance_valid(service) and service.allows_camera_focus():
+			$Camera.set_focus(service.camera_focus_point)
+			return
+	$Camera.clear_focus()
+
 # --- places -------------------------------------------------------------
 
 func enter_town() -> void:

@@ -6,12 +6,14 @@ extends Node2D
 
 enum Kind { SHOP, NURSE, BLACKSMITH, TOWN_HALL }
 const RADIUS: float = 96.0
+const CAMERA_GROUP_RADIUS: float = 420.0
 
 var kind: Kind = Kind.SHOP
 var title: String = "Stall"
 var keeper: String = ""
 var tint: Color = Color("f0c987")
 var party: PartyRoster
+var camera_focus_point := Vector2.ZERO
 ## The Township V0.1 scene owns the physical building art. Existing service
 ## behavior remains visible as a small ground marker at the matching doorway.
 var structure_visible: bool = true
@@ -27,6 +29,16 @@ func occupants() -> Array[PenguinPlayer]:
 		if player.global_position.distance_to(global_position) <= RADIUS:
 			result.append(player)
 	return result
+
+## Camera focus is allowed when at least one player uses the pad and every
+## living party member remains close enough to share the same local moment.
+func allows_camera_focus() -> bool:
+	if party == null or occupants().is_empty():
+		return false
+	for player: PenguinPlayer in party.members(true):
+		if player.global_position.distance_to(global_position) > CAMERA_GROUP_RADIUS:
+			return false
+	return true
 
 func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.45))

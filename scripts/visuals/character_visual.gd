@@ -99,6 +99,8 @@ const PUPPET_BASE_SCALE: float = 0.70
 ## Runtime-only cadence tune for the approved Waddle V1.1 frames. Gameplay
 ## movement speed and the authored 24 fps frame resource remain unchanged.
 const MOVE_PLAYBACK_MULTIPLIER: float = 1.15
+const TOWNSHIP_SLIDE_META: StringName = &"township_sliding"
+const TOWNSHIP_SLIDE_LEAN: float = 0.09
 
 func _ready() -> void:
 	_actor = get_parent() as CharacterBody2D
@@ -420,6 +422,7 @@ func _process_player(delta: float) -> void:
 	var dashing: bool = _dash.is_active() if _dash != null else false
 	var vel: Vector2 = _actor.velocity if _actor != null else Vector2.ZERO
 	var moving: bool = vel.length_squared() > 10.0
+	var sliding: bool = alive and _actor != null and bool(_actor.get_meta(TOWNSHIP_SLIDE_META, false))
 
 	# Track dash start
 	if dashing and not _was_dashing:
@@ -432,7 +435,8 @@ func _process_player(delta: float) -> void:
 			_play_animation(dash_anim, true)
 	_was_dashing = dashing
 
-	# Determine State Priority: DOWNED > REVIVE > HIT > DASH > MOVE > IDLE
+	# Determine State Priority: DOWNED > REVIVE > HIT > DASH > SLIDE > MOVE > IDLE.
+	# Slide deliberately borrows a held Idle frame; it is presentation-only.
 	if not alive:
 		current_state = State.DOWNED
 		_hit_timer = 0.0
@@ -444,6 +448,8 @@ func _process_player(delta: float) -> void:
 		current_state = State.HIT
 	elif dashing or _dash_timer > 0.0:
 		current_state = State.DASH
+	elif sliding:
+		current_state = State.IDLE
 	elif moving:
 		current_state = State.MOVE
 	else:
@@ -459,6 +465,7 @@ func _process_player(delta: float) -> void:
 
 	if _using_profile():
 		_pivot.scale = Vector2.ONE
+		_pivot.rotation = TOWNSHIP_SLIDE_LEAN if sliding else 0.0
 		if _animated_sprite != null:
 			var flipped: bool = (_facing_direction < 0.0)
 			if profile.flip_h_with_facing:
@@ -473,6 +480,19 @@ func _process_player(delta: float) -> void:
 
 			var anim_name: StringName = profile.get_animation_for_state(current_state)
 			_play_animation(anim_name, false)
+			if sliding:
+				_animated_sprite.frame = 0
+				_animated_sprite.frame_progress = 0.0
+				_animated_sprite.pause()
+				if _scarf_sprite != null:
+					_scarf_sprite.frame = 0
+					_scarf_sprite.frame_progress = 0.0
+					_scarf_sprite.pause()
+			elif current_state == State.IDLE or current_state == State.MOVE:
+				if not _animated_sprite.is_playing():
+					_animated_sprite.play(anim_name)
+				if _scarf_sprite != null and _scarf_sprite.visible and not _scarf_sprite.is_playing():
+					_scarf_sprite.play(anim_name)
 
 			# Synchronize scarf overlay frame and progress with base sprite
 			if _scarf_sprite != null and _scarf_sprite.visible:
@@ -486,6 +506,7 @@ func _process_player(delta: float) -> void:
 			_halo.visible = false
 	else:
 		_pivot.scale = Vector2(_facing_direction * PUPPET_BASE_SCALE, PUPPET_BASE_SCALE)
+		_pivot.rotation = TOWNSHIP_SLIDE_LEAN if sliding else 0.0
 
 		# Execute State Animation
 		match current_state:
