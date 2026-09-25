@@ -96,11 +96,25 @@ const TEX_SEAL = preload("res://assets/characters/seal_raider.svg")
 const HIT_DURATION: float = 0.18
 const REVIVE_DURATION: float = 0.35
 const PUPPET_BASE_SCALE: float = 0.70
-## Runtime-only cadence tune for the approved Waddle V1.1 frames. Gameplay
-## movement speed and the authored 24 fps frame resource remain unchanged.
-const MOVE_PLAYBACK_MULTIPLIER: float = 1.15
+## One 16-frame Waddle loop covers about 128 gameplay pixels.  At the locked
+## 24 fps source rate this produces a 192 px/s reference speed; gameplay stays
+## authoritative and the animation follows the velocity it actually achieved.
+const WADDLE_CYCLE_DISTANCE: float = 128.0
+const WADDLE_REFERENCE_SPEED: float = WADDLE_CYCLE_DISTANCE * (24.0 / 16.0)
+const WADDLE_MIN_PLAYBACK_MULTIPLIER: float = 0.40
+const WADDLE_MAX_PLAYBACK_MULTIPLIER: float = 1.60
 const TOWNSHIP_SLIDE_META: StringName = &"township_sliding"
 const TOWNSHIP_SLIDE_LEAN: float = 0.09
+const TOWNSHIP_ELEVATION_META: StringName = &"township_elevation_level"
+const TOWNSHIP_ELEVATION_PIXELS_PER_LEVEL: float = 4.0
+const TOWNSHIP_ELEVATION_TRANSITION_SPEED: float = 48.0
+const TOWNSHIP_ELEVATION_TRANSITION_DURATION: float = 0.18
+const TOWNSHIP_ELEVATION_LEAN: float = 0.035
+
+var _township_elevation_level: int = 0
+var _township_elevation_offset_y: float = 0.0
+var _township_elevation_step_timer: float = 0.0
+var _township_elevation_step_direction: float = 0.0
 
 func _ready() -> void:
 	_actor = get_parent() as CharacterBody2D
@@ -322,7 +336,7 @@ func get_state_animation_duration(state: State) -> float:
 func _play_animation(anim_name: StringName, restart: bool = false) -> void:
 	if not _using_profile() or _animated_sprite == null:
 		return
-	var playback_speed: float = MOVE_PLAYBACK_MULTIPLIER if anim_name == profile.get_animation_for_state(State.MOVE) else 1.0
+	var playback_speed: float = get_waddle_playback_scale() if anim_name == profile.get_animation_for_state(State.MOVE) else 1.0
 	_animated_sprite.speed_scale = playback_speed
 	if profile.has_animation(anim_name):
 		if restart:
@@ -340,6 +354,17 @@ func _play_animation(anim_name: StringName, restart: bool = false) -> void:
 			_scarf_sprite.play(anim_name)
 		_scarf_sprite.frame = _animated_sprite.frame
 		_scarf_sprite.frame_progress = _animated_sprite.frame_progress
+
+## Public for focused presentation tests. This reads the velocity left by
+## PenguinPlayer.move_and_slide(), rather than a configured movement speed.
+func get_waddle_playback_scale() -> float:
+	if _actor == null:
+		return 1.0
+	var actual_speed: float = _actor.velocity.length()
+	return clampf(actual_speed / WADDLE_REFERENCE_SPEED, WADDLE_MIN_PLAYBACK_MULTIPLIER, WADDLE_MAX_PLAYBACK_MULTIPLIER)
+
+func get_township_elevation_level() -> int:
+	return _township_elevation_level
 
 func _on_animation_finished() -> void:
 	if not _using_profile() or profile == null or _animated_sprite == null:
@@ -423,6 +448,7 @@ func _process_player(delta: float) -> void:
 	var vel: Vector2 = _actor.velocity if _actor != null else Vector2.ZERO
 	var moving: bool = vel.length_squared() > 10.0
 	var sliding: bool = alive and _actor != null and bool(_actor.get_meta(TOWNSHIP_SLIDE_META, false))
+	_update_township_elevation(delta, sliding)
 
 	# Track dash start
 	if dashing and not _was_dashing:
@@ -465,7 +491,7 @@ func _process_player(delta: float) -> void:
 
 	if _using_profile():
 		_pivot.scale = Vector2.ONE
-		_pivot.rotation = TOWNSHIP_SLIDE_LEAN if sliding else 0.0
+		_pivot.rotation = TOWNSHIP_SLIDE_LEAN if sliding else _township_elevation_lean()
 		if _animated_sprite != null:
 			var flipped: bool = (_facing_direction < 0.0)
 			if profile.flip_h_with_facing:
@@ -506,7 +532,7 @@ func _process_player(delta: float) -> void:
 			_halo.visible = false
 	else:
 		_pivot.scale = Vector2(_facing_direction * PUPPET_BASE_SCALE, PUPPET_BASE_SCALE)
-		_pivot.rotation = TOWNSHIP_SLIDE_LEAN if sliding else 0.0
+		_pivot.rotation = TOWNSHIP_SLIDE_LEAN if sliding else _township_elevation_lean()
 
 		# Execute State Animation
 		match current_state:
@@ -522,6 +548,36 @@ func _process_player(delta: float) -> void:
 				_apply_pose_downed(delta)
 			State.REVIVE:
 				_apply_pose_revive(delta)
+
+func _update_township_elevation(delta: float, sliding: bool) -> void:
+	var requested_level: int = 0
+	if _actor != null:
+		requested_level = int(_actor.get_meta(TOWNSHIP_ELEVATION_META, 0))
+	if requested_level != _township_elevation_level:
+		_township_elevation_step_direction = signf(float(requested_level - _township_elevation_level))
+		_township_elevation_level = requested_level
+		_township_elevation_step_timer = TOWNSHIP_ELEVATION_TRANSITION_DURATION
+	var target_offset_y: float = -float(_township_elevation_level) * TOWNSHIP_ELEVATION_PIXELS_PER_LEVEL
+	if sliding:
+		# The slide owns its held pose. Its region has level zero, but keeping the
+		# visual root grounded here prevents an elevation effect from leaking in.
+		_township_elevation_offset_y = 0.0
+		_township_elevation_step_timer = 0.0
+		_pivot.position.y = 0.0
+		return
+	_township_elevation_offset_y = move_toward(
+		_township_elevation_offset_y,
+		target_offset_y,
+		TOWNSHIP_ELEVATION_TRANSITION_SPEED * delta
+	)
+	_pivot.position.y = _township_elevation_offset_y
+	_township_elevation_step_timer = maxf(0.0, _township_elevation_step_timer - delta)
+
+func _township_elevation_lean() -> float:
+	if _township_elevation_step_timer <= 0.0:
+		return 0.0
+	var progress: float = 1.0 - _township_elevation_step_timer / TOWNSHIP_ELEVATION_TRANSITION_DURATION
+	return sin(progress * PI) * _township_elevation_step_direction * TOWNSHIP_ELEVATION_LEAN
 
 func _apply_pose_idle(_delta: float) -> void:
 	_eyes.texture = TEX_EYES_ALERT

@@ -85,7 +85,7 @@ func _run() -> void:
 	check(not rider.has_meta(TownshipSnowSlide.META_ACTIVE), "leaving the slide clears its local presentation flag")
 	check(visual.current_state == CharacterVisual.State.MOVE, "normal Waddle resumes immediately after the slide")
 	check(visual.animated_sprite.is_playing(), "production MOVE playback resumes after the held slide pose")
-	check(is_equal_approx(visual.animated_sprite.speed_scale, CharacterVisual.MOVE_PLAYBACK_MULTIPLIER), "Waddle keeps the approved 1.15x cadence")
+	check(is_equal_approx(visual.animated_sprite.speed_scale, visual.get_waddle_playback_scale()), "Waddle resumes at the player's actual movement velocity")
 
 	run.free()
 	print("TOWNSHIP V0.2 TESTS: ", "PASS" if failures == 0 else "FAIL", " (", failures, " failures)")

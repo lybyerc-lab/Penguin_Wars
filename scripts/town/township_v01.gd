@@ -25,6 +25,16 @@ const MARKET_POSTS: Array[Vector2] = [
 	Vector2(499, -4), Vector2(863, -61), Vector2(463, -231), Vector2(827, -289),
 ]
 
+## Deliberately local presentation regions for Township V1. They do not alter
+## collision or movement: CharacterVisual reads the level per player and lifts
+## only its visual pivot while the gameplay root stays on the 2D ground plane.
+const ELEVATION_META: StringName = &"township_elevation_level"
+const ELEVATION_REGIONS: Array[Dictionary] = [
+	{"id": &"great_hall_steps", "bounds": Rect2(-205, -550, 500, 200), "level": 2},
+	{"id": &"workshop_terrace", "bounds": Rect2(-945, -250, 460, 220), "level": 2},
+	{"id": &"town_square", "bounds": Rect2(-430, -350, 860, 680), "level": 1},
+]
+
 var party: PartyRoster
 
 static func build(into: Node2D, roster: PartyRoster) -> TownshipV01:
@@ -39,6 +49,30 @@ func _ready() -> void:
 	_build_collision()
 	_build_slide()
 	queue_redraw()
+
+func _physics_process(_delta: float) -> void:
+	if party == null:
+		return
+	for player: PenguinPlayer in party.members():
+		player.set_meta(ELEVATION_META, elevation_level_at(player.global_position))
+
+func elevation_level_at(position: Vector2) -> int:
+	for region: Dictionary in ELEVATION_REGIONS:
+		if (region["bounds"] as Rect2).has_point(position):
+			return int(region["level"])
+	return 0
+
+func elevation_region_at(position: Vector2) -> StringName:
+	for region: Dictionary in ELEVATION_REGIONS:
+		if (region["bounds"] as Rect2).has_point(position):
+			return region["id"] as StringName
+	return &"base_ground"
+
+func _exit_tree() -> void:
+	if party == null:
+		return
+	for player: PenguinPlayer in party.members():
+		player.remove_meta(ELEVATION_META)
 
 func _build_collision() -> void:
 	_add_blocker("GreatHallCollision", GREAT_HALL.grow(-10.0))
