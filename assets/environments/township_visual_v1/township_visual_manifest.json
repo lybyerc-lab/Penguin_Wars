@@ -1,0 +1,152 @@
+{
+  "source_resolution": [
+    3584,
+    2016
+  ],
+  "camera_width_metres": 56.0,
+  "camera_ground_centre": [
+    0.0,
+    -2.5
+  ],
+  "godot_pixels_per_metre": [
+    81.0,
+    80.0
+  ],
+  "sprite_scale": [
+    1.265625,
+    1.586272619350546
+  ],
+  "background": "township_background.png",
+  "layers": {
+    "expedition_lodge": {
+      "file": "township_expedition_lodge.png",
+      "crop": [
+        2030,
+        993,
+        2454,
+        1528
+      ],
+      "size": [
+        424,
+        535
+      ]
+    },
+    "fish_shed": {
+      "file": "township_fish_shed.png",
+      "crop": [
+        2450,
+        517,
+        2671,
+        878
+      ],
+      "size": [
+        221,
+        361
+      ]
+    },
+    "fishers_stall": {
+      "file": "township_fishers_stall.png",
+      "crop": [
+        2105,
+        605,
+        2520,
+        917
+      ],
+      "size": [
+        415,
+        312
+      ]
+    },
+    "gate_bell": {
+      "file": "township_gate_bell.png",
+      "crop": [
+        1584,
+        1111,
+        2108,
+        1531
+      ],
+      "size": [
+        524,
+        420
+      ]
+    },
+    "great_hall": {
+      "file": "township_great_hall.png",
+      "crop": [
+        1488,
+        60,
+        2149,
+        635
+      ],
+      "size": [
+        661,
+        575
+      ]
+    },
+    "home_b": {
+      "file": "township_home_b.png",
+      "crop": [
+        1286,
+        1128,
+        1562,
+        1447
+      ],
+      "size": [
+        276,
+        319
+      ]
+    },
+    "net_shed": {
+      "file": "township_net_shed.png",
+      "crop": [
+        2217,
+        898,
+        2456,
+        1160
+      ],
+      "size": [
+        239,
+        262
+      ]
+    },
+    "nurse_hut": {
+      "file": "township_nurse_hut.png",
+      "crop": [
+        1106,
+        920,
+        1408,
+        1288
+      ],
+      "size": [
+        302,
+        368
+      ]
+    },
+    "slide_foreground": {
+      "file": "township_slide_foreground.png",
+      "crop": [
+        892,
+        640,
+        1181,
+        1219
+      ],
+      "size": [
+        289,
+        579
+      ]
+    },
+    "workshop": {
+      "file": "township_workshop.png",
+      "crop": [
+        1010,
+        426,
+        1474,
+        842
+      ],
+      "size": [
+        464,
+        416
+      ]
+    }
+  }
+}

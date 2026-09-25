@@ -19,6 +19,7 @@ const FISH_SHED := Rect2(869, -349, 184, 265)
 const NET_SHED := Rect2(574, 180, 230, 196)
 const LODGE := Rect2(374, 585, 403, 334)
 const MARKET_COUNTER := Rect2(507, -104, 334, 52)
+const PRODUCTION_BACKGROUND := "res://assets/environments/township_visual_v1/township_background.png"
 
 const MARKET_POSTS: Array[Vector2] = [
 	Vector2(499, -4), Vector2(863, -61), Vector2(463, -231), Vector2(827, -289),
@@ -42,7 +43,10 @@ func _ready() -> void:
 func _build_collision() -> void:
 	_add_blocker("GreatHallCollision", GREAT_HALL.grow(-10.0))
 	_add_blocker("WorkshopCollision", WORKSHOP.grow(-8.0))
-	_add_blocker("HomeACollision", HOME_A.grow(-8.0))
+	# The approved south-gable Nurse entrance uses the covered south-east
+	# passage. Two simple boxes preserve the footprint while opening that notch.
+	_add_blocker("HomeACollisionNorth", Rect2(-819, 369, 284, 191))
+	_add_blocker("HomeACollisionWest", Rect2(-819, 560, 216, 46))
 	_add_blocker("HomeBCollision", HOME_B.grow(-8.0))
 	_add_blocker("FishShedCollision", FISH_SHED.grow(-6.0))
 	_add_blocker("NetShedCollision", NET_SHED.grow(-6.0))
@@ -79,6 +83,10 @@ func _build_slide() -> void:
 	add_child(slide)
 
 func _draw() -> void:
+	# Keep the original procedural blockout as a missing-asset fallback. The
+	# production plate is otherwise the sole Township environment presentation.
+	if ResourceLoader.exists(PRODUCTION_BACKGROUND):
+		return
 	# Ground and the broad, curved routes from the locked blockout.
 	# Paint past the movement clamp so the follow camera never exposes the
 	# clear color at the outer landmarks.

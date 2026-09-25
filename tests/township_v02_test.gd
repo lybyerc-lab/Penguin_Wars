@@ -45,7 +45,7 @@ func _run() -> void:
 	check(hall != null and smith != null and nurse != null and market != null, "all service approaches exist")
 	check(hall.position.y > TownshipV01.GREAT_HALL.end.y, "Great Hall approach faces south toward the square")
 	check(smith.position.y > TownshipV01.WORKSHOP.end.y, "Workshop approach faces its direct square path")
-	check(nurse.position.x > TownshipV01.HOME_A.end.x, "home service approach faces east toward the square")
+	check(nurse.position.y > TownshipV01.HOME_A.end.y, "Nurse service approach faces the approved south-gable entrance")
 	check(market.position.x <= TownshipV01.MARKET_COUNTER.position.x, "Fish Market approach uses the open square-facing end")
 
 	var focus_offsets: Array[Vector2] = [Vector2(-45, -20), Vector2(45, -20), Vector2(-45, 30), Vector2(45, 30)]

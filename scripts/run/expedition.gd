@@ -103,6 +103,7 @@ func enter_town() -> void:
 	cave = null
 	_load_room(region.town)
 	TownshipV01.build($Places, party)
+	TownshipVisualV1.build($Places, $Actors)
 	_services = TownHub.build($Places, party)
 	overlay.services = _services
 	var mouths: Array[CaveDefinition] = region.caves

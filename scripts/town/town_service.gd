@@ -14,8 +14,8 @@ var keeper: String = ""
 var tint: Color = Color("f0c987")
 var party: PartyRoster
 var camera_focus_point := Vector2.ZERO
-## The Township V0.1 scene owns the physical building art. Existing service
-## behavior remains visible as a small ground marker at the matching doorway.
+## TownshipVisualV1 owns the physical building art. Existing service behavior
+## remains visible as a small ground marker at the matching doorway.
 var structure_visible: bool = true
 
 func _ready() -> void:
@@ -33,10 +33,16 @@ func occupants() -> Array[PenguinPlayer]:
 ## Camera focus is allowed when at least one player uses the pad and every
 ## living party member remains close enough to share the same local moment.
 func allows_camera_focus() -> bool:
-	if party == null or occupants().is_empty():
+	if party == null:
+		return false
+	var activators: Array[PenguinPlayer] = occupants()
+	if activators.is_empty():
 		return false
 	for player: PenguinPlayer in party.members(true):
-		if player.global_position.distance_to(global_position) > CAMERA_GROUP_RADIUS:
+		var close_to_activator: bool = activators.any(func(activator: PenguinPlayer) -> bool:
+			return player.global_position.distance_to(activator.global_position) <= CAMERA_GROUP_RADIUS
+		)
+		if not close_to_activator:
 			return false
 	return true
 
