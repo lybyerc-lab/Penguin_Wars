@@ -76,18 +76,20 @@ func _exit_tree() -> void:
 
 func _build_collision() -> void:
 	_add_blocker("GreatHallCollision", GREAT_HALL.grow(-10.0))
-	_add_blocker("WorkshopCollision", WORKSHOP.grow(-8.0))
-	# The approved south-gable Nurse entrance uses the covered south-east
-	# passage. Two simple boxes preserve the footprint while opening that notch.
-	_add_blocker("HomeACollisionNorth", Rect2(-819, 369, 284, 191))
-	_add_blocker("HomeACollisionWest", Rect2(-819, 560, 216, 46))
+	_add_blocker("WorkshopCollision", Rect2(-914, -487, 397, 327))
+	_add_blocker("WorkshopWestAnnexCollision", Rect2(-970, -369, 52, 75))
+	# Mobile review showed the old doorway notch let players enter the approved
+	# Nurse footprint. Keep the south-facing service pad outside the solid hut.
+	_add_blocker("HomeACollision", Rect2(-827, 361, 299, 253))
 	_add_blocker("HomeBCollision", HOME_B.grow(-8.0))
 	_add_blocker("FishShedCollision", FISH_SHED.grow(-6.0))
 	_add_blocker("NetShedCollision", NET_SHED.grow(-6.0))
 	_add_blocker("LodgeCollision", LODGE.grow(-8.0))
-	_add_blocker("MarketCounterCollision", MARKET_COUNTER)
-	# The four slender market canopy posts stay visual-only. A broad counter
-	# collision preserves the stall mass without snagging player shoulders.
+	_add_polygon_blocker("FishersStallCollision", PackedVector2Array([
+		Vector2(437, -250), Vector2(479, 20), Vector2(888, -43), Vector2(846, -312),
+	]))
+	_add_blocker("SlideDeckCollision", Rect2(-1115, -190, 169, 119))
+	_add_circle_blocker("BellCollision", Vector2(232, 536), 58.0)
 	_add_blocker("DepartureGateLeft", Rect2(DEPARTURE_GATE + Vector2(-190, -62), Vector2(42, 124)))
 	_add_blocker("DepartureGateRight", Rect2(DEPARTURE_GATE + Vector2(148, -62), Vector2(42, 124)))
 
@@ -104,6 +106,29 @@ func _add_blocker(node_name: String, rect: Rect2) -> void:
 	body.add_child(collision)
 	add_child(body)
 
+func _add_polygon_blocker(node_name: String, points: PackedVector2Array) -> void:
+	var body := StaticBody2D.new()
+	body.name = node_name
+	body.collision_layer = 1
+	body.collision_mask = 0
+	var collision := CollisionPolygon2D.new()
+	collision.polygon = points
+	body.add_child(collision)
+	add_child(body)
+
+func _add_circle_blocker(node_name: String, center: Vector2, radius: float) -> void:
+	var body := StaticBody2D.new()
+	body.name = node_name
+	body.collision_layer = 1
+	body.collision_mask = 0
+	var collision := CollisionShape2D.new()
+	var shape := CircleShape2D.new()
+	shape.radius = radius
+	collision.shape = shape
+	collision.position = center
+	body.add_child(collision)
+	add_child(body)
+
 func _build_slide() -> void:
 	var slide := TownshipSnowSlide.new()
 	slide.name = "SnowSlide"
@@ -113,6 +138,9 @@ func _build_slide() -> void:
 	var shape := RectangleShape2D.new()
 	shape.size = SLIDE_SIZE
 	collision.shape = shape
+	# Start the active chute south of the raised launch deck. The old centered
+	# Area began under the deck and made the penguin slide while visually hidden.
+	collision.position = Vector2(0, 90)
 	slide.add_child(collision)
 	add_child(slide)
 
@@ -178,127 +206,3 @@ func _draw_elevation_layers() -> void:
 	_draw_terrace(HOME_B.grow(30.0), 11.0, Color("d1e8ea"))
 
 	# The east market/pond district sits in a broad, subtly lower basin.
-	var basin := PackedVector2Array([Vector2(430, -390), Vector2(1135, -390), Vector2(1190, 690), Vector2(520, 690), Vector2(470, 360)])
-	draw_colored_polygon(basin, Color("b8dce4"))
-	draw_polyline(basin, Color("8dbdca"), 9.0, true)
-	for y: float in [-330.0, 610.0]:
-		draw_line(Vector2(500, y), Vector2(1120, y), Color("d9eff3", 0.7), 4.0)
-
-	# Contour bands make the expedition route read as a gentle descent.
-	for band: Vector2 in [Vector2(72, 720), Vector2(118, 930), Vector2(210, 1145), Vector2(365, 1365)]:
-		draw_line(band + Vector2(-75, 0), band + Vector2(75, 0), Color("91bec9", 0.65), 7.0)
-		draw_line(band + Vector2(-66, -5), band + Vector2(66, -5), Color("f2fbfc", 0.75), 3.0)
-
-func _draw_terrace(rect: Rect2, rise: float, top_color: Color) -> void:
-	draw_rect(Rect2(rect.position + Vector2(0, rise), rect.size), Color("688f9c", 0.45))
-	draw_rect(rect, top_color)
-	draw_line(Vector2(rect.position.x, rect.end.y), rect.end, Color("88b4bf"), rise * 0.55)
-	draw_line(rect.position, Vector2(rect.end.x, rect.position.y), top_color.lightened(0.16), 5.0)
-
-func _draw_building(rect: Rect2, roof: Color, label: String, entrance_side: StringName) -> void:
-	draw_rect(Rect2(rect.position + Vector2(14, 17), rect.size), Color("29465a", 0.22))
-	draw_rect(rect, Color("d5e7ea"))
-	var cap := rect.grow(13.0)
-	draw_rect(cap, roof)
-	draw_rect(cap, roof.lightened(0.23), false, 6.0)
-	for y: float in range(int(rect.position.y + 34), int(rect.end.y), 42):
-		draw_line(Vector2(rect.position.x, y), Vector2(rect.end.x, y), Color("afc9cf", 0.55), 2.0)
-	draw_string(ThemeDB.fallback_font, Vector2(rect.position.x, rect.get_center().y + 6), label, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 17, Color("183445"))
-	if entrance_side != &"none":
-		_draw_entrance(rect, entrance_side)
-
-func _draw_entrance(rect: Rect2, side: StringName) -> void:
-	var door := Color("274556")
-	var threshold := Color("f3d188")
-	var center := rect.get_center()
-	match side:
-		&"north":
-			draw_rect(Rect2(center.x - 28, rect.position.y, 56, 27), door)
-			draw_rect(Rect2(center.x - 48, rect.position.y - 28, 96, 28), threshold)
-			draw_line(Vector2(center.x, rect.position.y - 62), Vector2(center.x, rect.position.y - 30), Color("fff2bd"), 6.0)
-		&"south":
-			draw_rect(Rect2(center.x - 28, rect.end.y - 27, 56, 27), door)
-			draw_rect(Rect2(center.x - 48, rect.end.y, 96, 28), threshold)
-			draw_line(Vector2(center.x, rect.end.y + 62), Vector2(center.x, rect.end.y + 30), Color("fff2bd"), 6.0)
-		&"west":
-			draw_rect(Rect2(rect.position.x, center.y - 28, 27, 56), door)
-			draw_rect(Rect2(rect.position.x - 28, center.y - 48, 28, 96), threshold)
-			draw_line(Vector2(rect.position.x - 62, center.y), Vector2(rect.position.x - 30, center.y), Color("fff2bd"), 6.0)
-		&"east":
-			draw_rect(Rect2(rect.end.x - 27, center.y - 28, 27, 56), door)
-			draw_rect(Rect2(rect.end.x, center.y - 48, 28, 96), threshold)
-			draw_line(Vector2(rect.end.x + 62, center.y), Vector2(rect.end.x + 30, center.y), Color("fff2bd"), 6.0)
-
-func _draw_hall_steps() -> void:
-	for index: int in range(4):
-		var width: float = 300.0 + index * 38.0
-		draw_rect(Rect2(Vector2(44 - width * 0.5, -543 + index * 22), Vector2(width, 20)), Color("b6d3dc").lightened(index * 0.035))
-	draw_rect(Rect2(-36, -565, 160, 48), Color("314f62"))
-	draw_line(Vector2(44, -430), Vector2(44, -500), Color("fff2bd"), 7.0)
-	draw_line(Vector2(24, -450), Vector2(44, -430), Color("fff2bd"), 5.0)
-	draw_line(Vector2(64, -450), Vector2(44, -430), Color("fff2bd"), 5.0)
-
-func _draw_market() -> void:
-	var canopy := PackedVector2Array([Vector2(455, -315), Vector2(875, -315), Vector2(835, -135), Vector2(495, -135)])
-	draw_colored_polygon(canopy, Color("e5a85c"))
-	draw_polyline(canopy, Color("fff0c7"), 5.0, true)
-	draw_rect(MARKET_COUNTER, Color("79513e"))
-	draw_rect(MARKET_COUNTER, Color("c58a58"), false, 5.0)
-	for post: Vector2 in MARKET_POSTS:
-		draw_circle(post, 11.0, Color("684636"))
-		draw_circle(post, 6.0, Color("a87955"))
-	draw_string(ThemeDB.fallback_font, Vector2(490, -170), "FISH MARKET", HORIZONTAL_ALIGNMENT_CENTER, 360, 17, Color("513522"))
-	# The open west end and service pad now address the square directly.
-	draw_rect(Rect2(438, -58, 62, 80), Color("f3d188", 0.72))
-	draw_line(Vector2(410, -18), Vector2(470, -18), Color("fff2bd"), 7.0)
-	draw_line(Vector2(445, -40), Vector2(470, -18), Color("fff2bd"), 5.0)
-	draw_line(Vector2(445, 4), Vector2(470, -18), Color("fff2bd"), 5.0)
-
-func _draw_pond() -> void:
-	var center := Vector2(940, 430)
-	draw_set_transform(center, 0.0, Vector2(1.45, 0.78))
-	draw_circle(Vector2.ZERO, 120.0, Color("6bbbd1"))
-	draw_arc(Vector2.ZERO, 120.0, 0, TAU, 48, Color("e8fbff"), 8.0)
-	draw_circle(Vector2(-18, 6), 35.0, Color("295f7a"))
-	draw_set_transform(Vector2.ZERO)
-	draw_string(ThemeDB.fallback_font, Vector2(830, 445), "FISHING POND", HORIZONTAL_ALIGNMENT_CENTER, 220, 14, Color("285b70"))
-
-func _draw_slide() -> void:
-	var chute := PackedVector2Array([Vector2(-1035, -170), Vector2(-870, -220), Vector2(-725, 360), Vector2(-940, 400)])
-	draw_colored_polygon(chute, Color("edf9fb"))
-	draw_polyline(chute, Color("74b8cc"), 9.0, true)
-	for y: float in [-80.0, 40.0, 160.0, 280.0]:
-		draw_line(Vector2(-980 + y * 0.07, y), Vector2(-790 + y * 0.05, y + 22), Color("b5dce6"), 5.0)
-	draw_string(ThemeDB.fallback_font, Vector2(-1050, -245), "SNOW SLIDE", HORIZONTAL_ALIGNMENT_CENTER, 330, 16, Color("3d7082"))
-
-func _draw_bell() -> void:
-	var at := Vector2(232, 536)
-	draw_line(at + Vector2(-42, 52), at + Vector2(-28, -48), Color("77543d"), 13.0)
-	draw_line(at + Vector2(42, 52), at + Vector2(28, -48), Color("77543d"), 13.0)
-	draw_line(at + Vector2(-34, -42), at + Vector2(34, -42), Color("9b6d48"), 12.0)
-	draw_circle(at + Vector2(0, -10), 28.0, Color("d5a33f"))
-	draw_string(ThemeDB.fallback_font, at + Vector2(-60, 78), "BELL", HORIZONTAL_ALIGNMENT_CENTER, 120, 14, Color("69502e"))
-
-func _draw_departure_gate() -> void:
-	var timber := Color("6b4934")
-	for x: float in [DEPARTURE_GATE.x - 170.0, DEPARTURE_GATE.x + 170.0]:
-		draw_rect(Rect2(x - 19, DEPARTURE_GATE.y - 82, 38, 164), timber)
-		draw_rect(Rect2(x - 24, DEPARTURE_GATE.y - 88, 48, 18), Color("b5dce4"))
-	draw_line(DEPARTURE_GATE + Vector2(-170, -70), DEPARTURE_GATE + Vector2(170, -70), Color("8a6040"), 25.0)
-	draw_string(ThemeDB.fallback_font, DEPARTURE_GATE + Vector2(-155, -92), "DEPARTURE GATE", HORIZONTAL_ALIGNMENT_CENTER, 310, 18, Color("273f4d"))
-	draw_rect(Rect2(DEPARTURE_BOUNDARY + Vector2(-180, -28), Vector2(360, 56)), Color("73a9b8", 0.35))
-	draw_line(DEPARTURE_BOUNDARY + Vector2(-180, 0), DEPARTURE_BOUNDARY + Vector2(180, 0), Color("dff7fb"), 5.0)
-	draw_string(ThemeDB.fallback_font, DEPARTURE_BOUNDARY + Vector2(-190, -44), "FROZEN COAST — EXPEDITION BOUNDARY", HORIZONTAL_ALIGNMENT_CENTER, 380, 14, Color("315968"))
-
-func _draw_future_edges() -> void:
-	_draw_blocked_marker(Vector2(-1040, -760), "BLOCKED RIDGE")
-	_draw_blocked_marker(Vector2(980, -720), "FUTURE BRIDGE")
-	var plot := Rect2(-1110, 1080, 360, 250)
-	draw_rect(plot, Color("d8edf1", 0.75))
-	draw_rect(plot, Color("7394a2", 0.65), false, 4.0)
-	draw_string(ThemeDB.fallback_font, Vector2(plot.position.x, plot.get_center().y), "FUTURE BUILD PLOT", HORIZONTAL_ALIGNMENT_CENTER, plot.size.x, 15, Color("607985"))
-
-func _draw_blocked_marker(at: Vector2, text: String) -> void:
-	draw_line(at + Vector2(-90, -30), at + Vector2(90, 30), Color("8a6250"), 16.0)
-	draw_line(at + Vector2(-90, 30), at + Vector2(90, -30), Color("8a6250"), 16.0)
-	draw_string(ThemeDB.fallback_font, at + Vector2(-120, 65), text, HORIZONTAL_ALIGNMENT_CENTER, 240, 14, Color("6b4a3b"))
