@@ -13,6 +13,7 @@ const MOUTH_SPACING: float = 520.0
 const PANEL_RESERVE: float = 84.0
 
 @export_range(1, 4) var player_count: int = 2
+@export var mobile_preview: bool = false
 ## The place this run operates out of: one town and the caves reachable from it.
 @export var region: RegionDefinition = preload("res://resources/regions/kelphollow.tres")
 ## Whole-run dials. Null means the identity default: no modifiers.
@@ -36,8 +37,12 @@ var overlay: ExpeditionOverlay
 var _gates: Array[PartyGate] = []
 var _services: Array[TownService] = []
 var _routed: bool = false
+var _mobile_controls: TouchControls
 
 func _ready() -> void:
+	mobile_preview = mobile_preview or OS.has_feature("android") or "--mobile" in OS.get_cmdline_user_args()
+	if mobile_preview:
+		player_count = 1
 	if profile == null:
 		profile = ProfileStore.new()
 	campaign = profile.load_campaign()
@@ -55,6 +60,7 @@ func _ready() -> void:
 	session.builder = $Builder
 	session.camera = $Camera
 	session.actor_root = $Actors
+	session.mobile = mobile_preview
 	session.wire()
 	market.party = party
 	market.wallet = $Wallet
@@ -70,6 +76,8 @@ func _ready() -> void:
 	$HUD.progression = progression
 	$HUD.builder = $Builder
 	$HUD.setup()
+	if mobile_preview:
+		_setup_mobile_controls()
 	var boss_hud := BossHUD.new()
 	boss_hud.name = "BossHUD"
 	boss_hud.encounter = encounter
@@ -86,6 +94,32 @@ func _ready() -> void:
 	encounter.completed.connect(_on_room_cleared)
 	encounter.state_changed.connect(_on_encounter_state)
 	enter_town()
+
+func _setup_mobile_controls() -> void:
+	var members: Array[PenguinPlayer] = party.members()
+	if members.is_empty():
+		return
+	var layer := CanvasLayer.new()
+	layer.name = "MobileControls"
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(layer)
+	var root_control := Control.new()
+	root_control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(root_control)
+	_mobile_controls = TouchControls.new()
+	_mobile_controls.input_source = members[0].input_source
+	_mobile_controls.player = members[0]
+	root_control.add_child(_mobile_controls)
+	var inset := Vector2(28, 16)
+	if OS.has_feature("android"):
+		var safe: Rect2i = DisplayServer.get_display_safe_area()
+		var screen := Vector2(DisplayServer.window_get_size())
+		if safe.size.x > 0 and screen.x > 0:
+			var ratio: Vector2 = get_viewport().get_visible_rect().size / screen
+			inset.x = maxf(inset.x, maxf(safe.position.x, screen.x - safe.end.x) * ratio.x + 16)
+			inset.y = maxf(inset.y, maxf(safe.position.y, screen.y - safe.end.y) * ratio.y + 8)
+	_mobile_controls.safe_inset = inset
 
 func _process(_delta: float) -> void:
 	if room == null or room.kind != RoomDefinition.Kind.TOWN:
