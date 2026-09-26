@@ -40,11 +40,13 @@ func _process(delta: float) -> void:
 		target = framing_bounds.get_center().lerp(focus_point, 0.35)
 	position = position.lerp(target, 1.0 - exp(-5.0 * delta))
 	var viewport: Vector2 = get_viewport_rect().size
+
+	# Mobile HUD and touch controls deliberately overlay the world. Reserving
+	# large strips above and below the camera made the actual playable world
+	# shrink into the middle of wide phones. Keep only the ordinary safe pad so
+	# gameplay uses the full display; UI safe areas are handled by the controls.
 	var top_margin: float = 0.0
-	var bottom_margin: float = bottom_reserve
-	if mobile_layout:
-		top_margin = 140.0
-		bottom_margin = 55.0
+	var bottom_margin: float = 0.0 if mobile_layout else bottom_reserve
 	var safe_pad := Vector2(24.0, 20.0)
 	var usable := Vector2(viewport.x - safe_pad.x, maxf(100.0, viewport.y - top_margin - bottom_margin - safe_pad.y))
 	var required: Vector2
