@@ -89,6 +89,7 @@ func _ready() -> void:
 	overlay.party = party
 	overlay.market = market
 	overlay.journal = journal
+	overlay.mobile_layout = mobile_preview
 	add_child(overlay)
 	overlay.setup()
 	encounter.completed.connect(_on_room_cleared)
@@ -110,6 +111,7 @@ func _setup_mobile_controls() -> void:
 	_mobile_controls = TouchControls.new()
 	_mobile_controls.input_source = members[0].input_source
 	_mobile_controls.player = members[0]
+	_mobile_controls.action_pressed.connect(_on_mobile_context_action)
 	root_control.add_child(_mobile_controls)
 	var inset := Vector2(28, 16)
 	if OS.has_feature("android"):
@@ -122,6 +124,7 @@ func _setup_mobile_controls() -> void:
 	_mobile_controls.safe_inset = inset
 
 func _process(_delta: float) -> void:
+	_update_mobile_context_action()
 	if room == null or room.kind != RoomDefinition.Kind.TOWN:
 		$Camera.clear_focus()
 		return
@@ -130,6 +133,24 @@ func _process(_delta: float) -> void:
 			$Camera.set_focus(service.camera_focus_point)
 			return
 	$Camera.clear_focus()
+
+
+func _update_mobile_context_action() -> void:
+	if not mobile_preview or _mobile_controls == null:
+		return
+	if room == null or room.kind != RoomDefinition.Kind.TOWN or overlay == null:
+		_mobile_controls.set_context_action("")
+		return
+	var service: TownService = overlay.service_at(1)
+	if service == null:
+		_mobile_controls.set_context_action("")
+		return
+	_mobile_controls.set_context_action("TALK" if service.kind == TownService.Kind.TOWN_HALL else "SHOP")
+
+func _on_mobile_context_action() -> void:
+	if overlay == null:
+		return
+	overlay.toggle_mobile_service(1)
 
 # --- places -------------------------------------------------------------
 
