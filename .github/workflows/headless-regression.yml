@@ -14,7 +14,7 @@ permissions:
 jobs:
   headless-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
 
     steps:
       - name: Checkout
@@ -33,39 +33,77 @@ jobs:
       - name: Import project
         run: godot --headless --path . --editor --import --quit
 
-      - name: Run headless regression suite
-        shell: bash
-        run: |
-          set -euo pipefail
-          tests=(
-            tests/foundation_test.gd
-            tests/combat_feel_test.gd
-            tests/enemy_behavior_test.gd
-            tests/economy_test.gd
-            tests/stats_mobile_test.gd
-            tests/weapon_rack_test.gd
-            tests/weapon_tiers_test.gd
-            tests/weapon_maturation_test.gd
-            tests/weapon_presentation_test.gd
-            tests/snow_pickup_test.gd
-            tests/timed_waves_test.gd
-            tests/evolution_checkpoint_test.gd
-            tests/town_cave_test.gd
-            tests/seams_test.gd
-            tests/doorway_test.gd
-            tests/boss_test.gd
-            tests/character_animation_contract_test.gd
-            tests/character_presentation_seam_test.gd
-            tests/character_scarf_tint_test.gd
-            tests/penguin_presentation_test.gd
-            tests/township_v01_test.gd
-            tests/township_v02_test.gd
-            tests/township_visual_v1_test.gd
-            tests/township_locomotion_grounding_test.gd
-            tests/fullscreen_hud_test.gd
-          )
-          for test_file in "${tests[@]}"; do
-            echo "::group::$test_file"
-            godot --headless --path . --script "res://$test_file"
-            echo "::endgroup::"
-          done
+      - name: Foundation
+        run: godot --headless --path . --script res://tests/foundation_test.gd
+
+      - name: Combat feel
+        run: godot --headless --path . --script res://tests/combat_feel_test.gd
+
+      - name: Enemy behavior
+        run: godot --headless --path . --script res://tests/enemy_behavior_test.gd
+
+      - name: Economy
+        run: godot --headless --path . --script res://tests/economy_test.gd
+
+      - name: Stats and mobile
+        run: godot --headless --path . --script res://tests/stats_mobile_test.gd
+
+      - name: Weapon rack
+        run: godot --headless --path . --script res://tests/weapon_rack_test.gd
+
+      - name: Weapon tiers
+        run: godot --headless --path . --script res://tests/weapon_tiers_test.gd
+
+      - name: Weapon maturation
+        run: godot --headless --path . --script res://tests/weapon_maturation_test.gd
+
+      - name: Weapon presentation
+        run: godot --headless --path . --script res://tests/weapon_presentation_test.gd
+
+      - name: Snow pickup
+        run: godot --headless --path . --script res://tests/snow_pickup_test.gd
+
+      - name: Timed waves
+        run: godot --headless --path . --script res://tests/timed_waves_test.gd
+
+      - name: Evolution checkpoint
+        run: godot --headless --path . --script res://tests/evolution_checkpoint_test.gd
+
+      - name: Town and cave
+        run: godot --headless --path . --script res://tests/town_cave_test.gd
+
+      - name: Architecture seams
+        run: godot --headless --path . --script res://tests/seams_test.gd
+
+      - name: Doorways
+        run: godot --headless --path . --script res://tests/doorway_test.gd
+
+      - name: Boss
+        run: godot --headless --path . --script res://tests/boss_test.gd
+
+      - name: Character animation contract
+        run: godot --headless --path . --script res://tests/character_animation_contract_test.gd
+
+      - name: Character presentation seam
+        run: godot --headless --path . --script res://tests/character_presentation_seam_test.gd
+
+      - name: Character scarf tint
+        run: godot --headless --path . --script res://tests/character_scarf_tint_test.gd
+
+      - name: Penguin presentation
+        run: godot --headless --path . --script res://tests/penguin_presentation_test.gd
+
+      - name: Township V0.1
+        run: godot --headless --path . --script res://tests/township_v01_test.gd
+
+      - name: Township V0.2
+        run: godot --headless --path . --script res://tests/township_v02_test.gd
+
+      - name: Township visual V1
+        run: godot --headless --path . --script res://tests/township_visual_v1_test.gd
+
+      - name: Township locomotion grounding
+        run: godot --headless --path . --script res://tests/township_locomotion_grounding_test.gd
+
+      - name: Fullscreen HUD
+        run: godot --headless --path . --script res://tests/fullscreen_hud_test.gd
