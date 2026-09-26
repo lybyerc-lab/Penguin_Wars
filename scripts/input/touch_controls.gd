@@ -1,10 +1,16 @@
 class_name TouchControls
 extends Control
-## Tracks one movement finger; other fingers can dash without releasing movement.
+## Tracks one movement finger; other fingers can use the context action without
+## releasing movement. In ordinary play the right action remains Dash.
+signal action_pressed
+
 var input_source: LocalPlayerInput
 var player: PenguinPlayer
 var enabled: bool = true
 var safe_inset := Vector2.ZERO
+## Empty means the ordinary Dash action. Township services temporarily replace
+## the right action label without adding another permanent mobile button.
+var context_action_label: String = ""
 var _finger: int = -1
 var _stick := Vector2.ZERO
 const RADIUS: float = 78.0
@@ -14,6 +20,12 @@ func stick_center() -> Vector2:
 
 func dash_center() -> Vector2:
 	return Vector2(size.x - 145 - safe_inset.x, size.y - 130 - safe_inset.y)
+
+func set_context_action(label: String) -> void:
+	if context_action_label == label:
+		return
+	context_action_label = label
+	queue_redraw()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -32,7 +44,10 @@ func _input(event: InputEvent) -> void:
 				_move(event.position)
 				get_viewport().set_input_as_handled()
 			elif event.position.distance_to(dash_center()) <= 66:
-				input_source.touch_dash_pending = true
+				if context_action_label.is_empty():
+					input_source.touch_dash_pending = true
+				else:
+					action_pressed.emit()
 				get_viewport().set_input_as_handled()
 	elif event is InputEventScreenDrag and event.index == _finger:
 		_move(event.position)
@@ -66,5 +81,9 @@ func _draw() -> void:
 	draw_circle(stick_center() + _stick * 46, 30, Color("b8eeee"))
 	draw_circle(dash_center(), 66, Color(0.02, 0.09, 0.16, 0.8))
 	draw_arc(dash_center(), 66, 0, TAU, 48, Color("ffcb77"), 3)
-	var text: String = "DASH" if player == null or player.dash.cooldown_remaining <= 0 else "%.1fs" % player.dash.cooldown_remaining
-	draw_string(ThemeDB.fallback_font, dash_center() + Vector2(-30, 8), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color.WHITE)
+	var text: String
+	if not context_action_label.is_empty():
+		text = context_action_label
+	else:
+		text = "DASH" if player == null or player.dash.cooldown_remaining <= 0 else "%.1fs" % player.dash.cooldown_remaining
+	draw_string(ThemeDB.fallback_font, dash_center() + Vector2(-66, 8), text, HORIZONTAL_ALIGNMENT_CENTER, 132, 24, Color.WHITE)
