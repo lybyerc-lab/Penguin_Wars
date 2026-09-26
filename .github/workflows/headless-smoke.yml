@@ -13,12 +13,12 @@ permissions:
 
 jobs:
   foundation:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Godot 4.7.2
         uses: chickensoft-games/setup-godot@v2
