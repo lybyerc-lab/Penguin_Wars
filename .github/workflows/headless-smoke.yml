@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - planning/phase-a-build-pack-v1
+      - planning/**
+      - feature/**
   pull_request:
 
 permissions:
@@ -34,3 +35,6 @@ jobs:
 
       - name: Foundation integration test
         run: godot --headless --path . --script res://tests/foundation_test.gd
+
+      - name: Mobile expedition entry smoke
+        run: godot --headless --path . --script res://tests/mobile_expedition_test.gd
