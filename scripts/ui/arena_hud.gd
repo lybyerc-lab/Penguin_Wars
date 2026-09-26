@@ -93,7 +93,13 @@ func _process(_delta: float) -> void:
 
 	match encounter.state:
 		EncounterDirector.State.INTERMISSION:
-			_wave_label.text = "WAVE %d / %d · SHOP / READY" % [encounter.wave, encounter.definition.wave_count]
+			if encounter.auto_advance:
+				_wave_label.text = "WAVE %d CLEAR" % encounter.wave
+				_timer_label.visible = true
+				_timer_label.text = "NEXT WAVE %.1f" % encounter.intermission_time_remaining()
+				_timer_label.add_theme_color_override("font_color", Color("bdeee4"))
+			else:
+				_wave_label.text = "WAVE %d / %d · SHOP / READY" % [encounter.wave, encounter.definition.wave_count]
 		EncounterDirector.State.BOSS:
 			_wave_label.text = "WAVE %d / %d · BOSS" % [encounter.wave, encounter.definition.wave_count]
 		EncounterDirector.State.COMPLETE:
