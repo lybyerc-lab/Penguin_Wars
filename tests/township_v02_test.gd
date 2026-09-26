@@ -73,6 +73,13 @@ func _run() -> void:
 	rider.input_source.touch_movement = Vector2.ZERO
 	await settle(6)
 	var visual := rider.get_node("CharacterVisual") as CharacterVisual
+
+	# A SceneTree script resumed by physics_frame is not guaranteed to have run
+	# the cosmetic idle _process for that frame before these assertions.
+	# Drive the presentation seam explicitly so this test verifies the slide
+	# contract rather than runner-specific idle/physics scheduling order.
+	visual._process_player(0.0)
+
 	check(bool(rider.get_meta(TownshipSnowSlide.META_ACTIVE, false)), "slide marks its active rider locally")
 	check(visual.current_state == CharacterVisual.State.IDLE, "slide suppresses MOVE/Waddle presentation")
 	check(not visual.animated_sprite.is_playing(), "slide holds a stable production frame")
@@ -82,6 +89,7 @@ func _run() -> void:
 	rider.position = Vector2(0, 80)
 	rider.input_source.touch_movement = Vector2.RIGHT
 	await settle(6)
+	visual._process_player(0.0)
 	check(not rider.has_meta(TownshipSnowSlide.META_ACTIVE), "leaving the slide clears its local presentation flag")
 	check(visual.current_state == CharacterVisual.State.MOVE, "normal Waddle resumes immediately after the slide")
 	check(visual.animated_sprite.is_playing(), "production MOVE playback resumes after the held slide pose")
