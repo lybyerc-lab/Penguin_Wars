@@ -2,10 +2,6 @@ name: Penguin Wars Headless Regression
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - planning/**
-      - feature/**
   pull_request:
 
 permissions:
