@@ -1,0 +1,152 @@
+name: Penguin Wars Android Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - planning/phase-a-build-pack-v1
+    paths:
+      - .github/workflows/android-debug-apk.yml
+      - .github/ci/android-debug.keystore.b64
+      - export_presets.cfg
+      - project.godot
+
+permissions:
+  contents: read
+
+jobs:
+  android-debug-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      GODOT_VERSION: "4.7.2"
+      ANDROID_PLATFORM: "36"
+      ANDROID_BUILD_TOOLS: "36.0.0"
+      APK_PATH: "builds/penguin-wars-debug.apk"
+      GODOT_ANDROID_KEYSTORE_DEBUG_USER: "androiddebugkey"
+      GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: "android"
+      EXPECTED_DEBUG_CERT_SHA256: "0D:26:1E:DD:FE:5B:A7:A4:D0:0C:6D:21:EA:28:D1:C2:B4:C5:B1:E0:08:83:36:68:33:12:65:8E:84:BC:A1:BE"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools build-tools;36.0.0 platforms;android-36"
+
+      - name: Normalize Android environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ANDROID_SDK_ROOT:-}"
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+
+      - name: Set up Godot 4.7.2 with export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: true
+
+      - name: Verify pinned toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --version
+          java -version
+          sdkmanager --version
+          test -x "$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS/apksigner"
+          test -x "$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS/zipalign"
+          sdkmanager --list_installed | grep -E "platform-tools|build-tools;$ANDROID_BUILD_TOOLS|platforms;android-$ANDROID_PLATFORM"
+
+      - name: Restore stable CI debug signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          SIGNING_DIR="$RUNNER_TEMP/penguin-wars-signing"
+          mkdir -p "$SIGNING_DIR"
+          base64 --decode .github/ci/android-debug.keystore.b64 > "$SIGNING_DIR/debug.keystore"
+          chmod 600 "$SIGNING_DIR/debug.keystore"
+
+          ACTUAL_CERT_SHA256="$(
+            keytool -list -v               -keystore "$SIGNING_DIR/debug.keystore"               -storepass android               -alias androiddebugkey               | sed -n 's/^[[:space:]]*SHA256: //p'               | head -n 1
+          )"
+
+          test "$ACTUAL_CERT_SHA256" = "$EXPECTED_DEBUG_CERT_SHA256"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$SIGNING_DIR/debug.keystore" >> "$GITHUB_ENV"
+
+      - name: Import Godot project
+        run: godot --headless --path . --editor --import --quit
+
+      - name: Fast foundation check
+        run: godot --headless --path . --script res://tests/foundation_test.gd
+
+      - name: Export Android debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p builds
+          godot --headless --path . --export-debug Android
+          test -s "$APK_PATH"
+
+      - name: Validate APK
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP_ID="$(apkanalyzer manifest application-id "$APK_PATH")"
+          VERSION_NAME="$(apkanalyzer manifest version-name "$APK_PATH")"
+          VERSION_CODE="$(apkanalyzer manifest version-code "$APK_PATH")"
+          test "$APP_ID" = "org.lybyerlab.penguinwars"
+          test "$VERSION_NAME" = "0.1.0"
+          test "$VERSION_CODE" = "1"
+
+          ABIS="$(
+            unzip -Z1 "$APK_PATH"               | sed -n 's#^lib/\([^/]*\)/.*#\1#p'               | sort -u
+          )"
+          test "$ABIS" = "arm64-v8a"
+
+          "$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS/apksigner"             verify --verbose --print-certs "$APK_PATH"
+
+          "$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS/zipalign"             -c -P 16 -v 4 "$APK_PATH"
+
+          sha256sum "$APK_PATH" > "$APK_PATH.sha256"
+
+      - name: Write build provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "Penguin Wars Android Debug APK"
+            echo "commit=$GITHUB_SHA"
+            echo "godot=$(godot --version)"
+            echo "java=$(java -version 2>&1 | head -n 1)"
+            echo "android_platform=$ANDROID_PLATFORM"
+            echo "android_build_tools=$ANDROID_BUILD_TOOLS"
+            echo "package=org.lybyerlab.penguinwars"
+            echo "version_name=0.1.0"
+            echo "version_code=1"
+            echo "abi=arm64-v8a"
+            echo "debug_cert_sha256=$EXPECTED_DEBUG_CERT_SHA256"
+            cat "$APK_PATH.sha256"
+          } > builds/build-info.txt
+
+      - name: Upload one Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: penguin-wars-android-debug
+          path: |
+            builds/penguin-wars-debug.apk
+            builds/penguin-wars-debug.apk.sha256
+            builds/build-info.txt
+          if-no-files-found: error
+          retention-days: 14
