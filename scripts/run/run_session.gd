@@ -33,6 +33,9 @@ var roster: Array[CharacterDefinition] = DEFAULT_ROSTER.duplicate()
 
 func wire() -> void:
 	encounter.modifiers = modifiers
+	# Mobile has no keyboard/gamepad Ready binding. Legacy cave encounters
+	# advance after their existing intermission instead of dead-ending on input.
+	encounter.auto_advance = mobile
 	progression.modifiers = modifiers
 	progression.party = party
 	progression.wallet = wallet
