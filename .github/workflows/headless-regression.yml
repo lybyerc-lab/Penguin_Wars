@@ -1,0 +1,71 @@
+name: Penguin Wars Headless Regression
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - planning/**
+      - feature/**
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  headless-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot 4.7.2
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Import project
+        run: godot --headless --path . --editor --import --quit
+
+      - name: Run headless regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          tests=(
+            tests/foundation_test.gd
+            tests/combat_feel_test.gd
+            tests/enemy_behavior_test.gd
+            tests/economy_test.gd
+            tests/stats_mobile_test.gd
+            tests/weapon_rack_test.gd
+            tests/weapon_tiers_test.gd
+            tests/weapon_maturation_test.gd
+            tests/weapon_presentation_test.gd
+            tests/snow_pickup_test.gd
+            tests/timed_waves_test.gd
+            tests/evolution_checkpoint_test.gd
+            tests/town_cave_test.gd
+            tests/seams_test.gd
+            tests/doorway_test.gd
+            tests/boss_test.gd
+            tests/character_animation_contract_test.gd
+            tests/character_presentation_seam_test.gd
+            tests/character_scarf_tint_test.gd
+            tests/penguin_presentation_test.gd
+            tests/township_v01_test.gd
+            tests/township_v02_test.gd
+            tests/township_visual_v1_test.gd
+            tests/township_locomotion_grounding_test.gd
+            tests/fullscreen_hud_test.gd
+          )
+          for test_file in "${tests[@]}"; do
+            echo "::group::$test_file"
+            godot --headless --path . --script "res://$test_file"
+            echo "::endgroup::"
+          done
