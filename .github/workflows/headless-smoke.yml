@@ -1,0 +1,36 @@
+name: Penguin Wars Headless Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - planning/phase-a-build-pack-v1
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot 4.7.2
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+
+      - name: Verify Godot
+        run: godot --version
+
+      - name: Import project
+        run: godot --headless --path . --editor --import --quit
+
+      - name: Foundation integration test
+        run: godot --headless --path . --script res://tests/foundation_test.gd
