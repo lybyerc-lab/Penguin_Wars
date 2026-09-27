@@ -20,6 +20,10 @@ enum Palette { ICE, CAVE, DEEP }
 @export var exits: Array[RoomExit] = []
 ## Flavour line shown when the party arrives.
 @export var arrival_line: String = ""
+## Optional production presentation adapter. Empty keeps the procedural room visual.
+@export var environment_id: StringName = &""
+## Large outdoor spaces can follow the party without changing their gameplay kind.
+@export var camera_follow_party: bool = false
 
 ## Structures may not be placed hard against the wall.
 func build_bounds() -> Rect2:
