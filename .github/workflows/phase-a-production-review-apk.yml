@@ -111,6 +111,7 @@ jobs:
         run: |
           set -euo pipefail
           godot --headless --path . --script res://tests/foundation_test.gd
+          godot --headless --path . --script res://tests/mobile_expedition_test.gd
           godot --headless --path . --script res://tests/phase_a_combat_test.gd
           godot --headless --path . --script res://tests/phase_a_route_test.gd
           godot --headless --path . --script res://tests/frozen_coast_phase_a_visual_test.gd
@@ -143,7 +144,7 @@ jobs:
         run: |
           set -euo pipefail
           {
-            echo "Penguin Wars Phase A Review APK"
+            echo "Penguin Wars Frozen Coast Production Phase A Review APK"
             echo "commit=$GITHUB_SHA"
             echo "main_scene=res://scenes/prototypes/phase_a_expedition_review.tscn"
             echo "purpose=Township -> production Pass -> production Driftfield playtest"
