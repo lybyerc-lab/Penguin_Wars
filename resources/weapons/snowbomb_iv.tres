@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/phase_a/snowbomb.svg" id="2"]
+[resource]
+script = ExtResource("1")
+id = &"snowbomb_iv"
+display_name = "Snowbomb IV"
+family_id = &"snowbomb"
+tier = 4
+classes = Array[StringName]([&"snow", &"explosive", &"heavy"])
+damage = 160
+cooldown = 1.65
+reach = 255
+pattern = 3
+damage_kind = 1
+area_radius = 116.0
+travel_time = 0.42
+knockback = 240.0
+knockback = 
+tint = Color("f4cf88")
+held_texture = ExtResource("2")
+visual_scale = 0.44
