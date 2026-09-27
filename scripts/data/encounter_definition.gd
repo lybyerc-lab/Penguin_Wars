@@ -10,6 +10,13 @@ enum PacingMode { CLEAR_ALL, TIMED }
 @export_range(0.1, 10.0) var spawn_interval: float = 0.8
 @export_range(1, 20) var wave_count: int = 3
 @export var run_seed: int = 1729
+## Role introductions/caps let a room teach one enemy problem at a time without
+## creating a second encounter director. Existing encounters keep their old
+## cadence with these defaults.
+@export_range(1, 20) var charger_intro_wave: int = 1
+@export_range(1, 20) var ranged_intro_wave: int = 2
+@export_range(0, 40) var charger_cap: int = 40
+@export_range(0, 40) var ranged_cap: int = 40
 ## Legacy encounters wait for every enemy. Timed encounters survive until the
 ## per-wave duration expires and are enabled only by explicit encounter data.
 @export var pacing_mode: PacingMode = PacingMode.CLEAR_ALL
