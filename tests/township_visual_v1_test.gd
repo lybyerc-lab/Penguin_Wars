@@ -1,6 +1,6 @@
 extends SceneTree
-## Focused checks for the baked Township V1 presentation adapter, Nurse
-## approach correction, and player-neutral service camera focus.
+## Focused checks for the baked Township presentation adapter, mobile cleanup
+## occlusion/collision fixes, and player-neutral service camera focus.
 
 var failures: int = 0
 
@@ -69,15 +69,25 @@ func _run() -> void:
 	var occluders: Array[Node] = run.get_node("Actors").get_children().filter(func(node: Node) -> bool:
 		return node.has_meta(&"township_visual_layer")
 	)
-	check(occluders.size() == TownshipVisualV1.SORT_BASELINES.size(), "all ten bounded foreground occlusion layers load")
+	check(occluders.size() == TownshipVisualV1.SORT_BASELINES.size(), "all bounded foreground occlusion layers load")
+	check(TownshipVisualV1.SORT_BASELINES.size() == 18, "mobile cleanup replaces two oversized layers with ten depth-bounded layers")
+	check(run.get_node_or_null("Actors/TownshipOccluder_GateBell") == null, "old combined gate/bell occluder is gone")
+	check(run.get_node_or_null("Actors/TownshipOccluder_SlideForeground") == null, "old combined slide foreground occluder is gone")
+	check(run.get_node_or_null("Actors/TownshipOccluder_Bell") != null, "bell has its own sort depth")
+	check(run.get_node_or_null("Actors/TownshipOccluder_SlideDeck") != null, "slide deck has its own sort depth")
 
 	var nurse := service_of(run, TownService.Kind.NURSE)
 	check(nurse.position == Vector2(-644, 670), "Nurse pad uses the approved south-gable position")
 	check(run.services().size() == 4, "Lodge remains visual-only with no invented service")
-	check(not township.has_node("HomeACollision"), "solid Nurse rectangle was replaced")
-	var notch_point := Vector2(-565, 585)
-	check(not point_hits_rect_body(township.get_node("HomeACollisionNorth"), notch_point), "Nurse passage clears the north collision box")
-	check(not point_hits_rect_body(township.get_node("HomeACollisionWest"), notch_point), "Nurse passage clears the west collision box")
+	check(township.has_node("HomeACollision"), "Nurse uses one full approved footprint blocker")
+	check(point_hits_rect_body(township.get_node("HomeACollision"), Vector2(-565, 585)), "old Nurse corner notch is now blocked")
+
+	var fisher := service_of(run, TownService.Kind.SHOP)
+	check(fisher.position == Vector2(505, 72), "Fisher pad sits in front of the approved stall deck")
+	check(township.has_node("FishersStallCollision"), "Fisher stall has a full footprint collision polygon")
+	check(township.has_node("BellCollision"), "Departure bell now has collision")
+	check(township.has_node("SlideDeckCollision"), "slide launch deck now has collision")
+	check(township.has_node("WorkshopWestAnnexCollision"), "Workshop west annex now has collision")
 
 	var hall := service_of(run, TownService.Kind.TOWN_HALL)
 	var players: Array[PenguinPlayer] = run.party.members()
