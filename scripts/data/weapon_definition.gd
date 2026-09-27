@@ -1,7 +1,9 @@
 class_name WeaponDefinition
 extends Resource
-enum Pattern { SINGLE, ARC }
+
+enum Pattern { SINGLE, ARC, LINE, AREA }
 enum DamageKind { MELEE, RANGED }
+
 @export var damage_kind: DamageKind = DamageKind.RANGED
 ## Shared immutable definition. Cooldowns and modifiers live on WeaponController.
 @export var id: StringName
@@ -16,6 +18,12 @@ enum DamageKind { MELEE, RANGED }
 @export_range(10.0, 1000.0) var reach: float = 190.0
 @export var pattern: Pattern = Pattern.SINGLE
 @export_range(1.0, 360.0) var arc_degrees: float = 120.0
+## LINE is a narrow forward pierce. AREA locks a landing point and damages a
+## radius there; travel_time adds a readable thrown delay without a second
+## projectile/combat system.
+@export_range(1.0, 200.0) var line_width: float = 24.0
+@export_range(1.0, 300.0) var area_radius: float = 82.0
+@export_range(0.0, 2.0) var travel_time: float = 0.0
 @export var knockback: float = 90.0
 @export var tint: Color = Color("baf9ff")
 @export var held_texture: Texture2D
