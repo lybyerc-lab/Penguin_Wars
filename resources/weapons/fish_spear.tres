@@ -17,7 +17,6 @@ pattern = 2
 damage_kind = 0
 line_width = 21.0
 knockback = 135.0
-knockback = 
 tint = Color("8fdcf0")
 held_texture = ExtResource("2")
 visual_scale = 0.62
