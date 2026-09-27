@@ -16,6 +16,6 @@ damage_kind = 1
 area_radius = 116.0
 travel_time = 0.42
 knockback = 240.0
-tint = Color("f4cf88")
+tint = Color(0.95686275, 0.8117647, 0.53333336, 1)
 held_texture = ExtResource("2")
 visual_scale = 0.44
