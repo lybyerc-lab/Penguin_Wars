@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="PackedScene" path="res://scenes/actors/enemy.tscn" id="1"]
+
+[node name="Rolly" instance=ExtResource("1")]
+speed = 96.0
+contact_damage = 5.0
+contact_radius = 25.0
+hit_radius = 14.0
+
+[node name="CollisionShape2D" parent="." index="0"]
+scale = Vector2(0.76, 0.76)
+
+[node name="Health" parent="." index="1"]
+maximum = 16.0
+
+[node name="CharacterVisual" parent="." index="3"]
+scale = Vector2(0.76, 0.76)
