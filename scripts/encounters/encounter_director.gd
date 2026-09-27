@@ -276,6 +276,11 @@ func _on_enemy_defeated(enemy: ArenaEnemy, event: DamageEvent) -> void:
 	loot_available.emit(enemy.global_position)
 
 func _clear_projectiles() -> void:
+	if actor_root == null:
+		return
 	for node: Node in actor_root.get_children():
-		if node is EnemySnowball or node is CastleSnowball:
-			node._expire()
+		if node is CastleSnowball or node.is_in_group("enemy_projectiles"):
+			if node.has_method("_expire"):
+				node.call("_expire")
+			else:
+				node.queue_free()
