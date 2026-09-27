@@ -45,3 +45,6 @@ jobs:
 
       - name: Phase A combat smoke
         run: godot --headless --path . --script res://tests/phase_a_combat_test.gd
+
+      - name: Phase A route smoke
+        run: godot --headless --path . --script res://tests/phase_a_route_test.gd
