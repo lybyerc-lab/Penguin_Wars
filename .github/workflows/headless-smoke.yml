@@ -42,3 +42,6 @@ jobs:
 
       - name: Mobile expedition entry smoke
         run: godot --headless --path . --script res://tests/mobile_expedition_test.gd
+
+      - name: Phase A combat smoke
+        run: godot --headless --path . --script res://tests/phase_a_combat_test.gd
