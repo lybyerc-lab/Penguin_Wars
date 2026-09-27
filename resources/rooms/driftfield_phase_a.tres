@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/data/room_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/encounters/driftfield_phase_a.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"driftfield_phase_a"
+display_name = "Frozen Coast · Driftfield"
+kind = 0
+palette = 0
+bounds = Rect2(-720, -430, 1440, 860)
+spawn_ring = Vector2(675, 385)
+supply_points = Array[Vector2]([])
+entry_point = Vector2(0, 320)
+encounter = ExtResource("2")
+arrival_line = "The coast opens wide. Something is already moving in the snow."
