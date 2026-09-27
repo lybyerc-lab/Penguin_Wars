@@ -2,6 +2,9 @@ name: Penguin Wars Frozen Coast Production Review APK
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - feature/frozen-coast-phase-a-runtime-v1
   push:
     branches:
       - integration/frozen-coast-phase-a-production-v0-1
