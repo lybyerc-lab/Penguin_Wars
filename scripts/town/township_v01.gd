@@ -135,6 +135,7 @@ func _build_slide() -> void:
 	slide.position = SLIDE_CENTER
 	slide.rotation = -0.16
 	var collision := CollisionShape2D.new()
+	collision.name = "CollisionShape2D"
 	var shape := RectangleShape2D.new()
 	shape.size = SLIDE_SIZE
 	collision.shape = shape
