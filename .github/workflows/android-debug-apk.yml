@@ -13,6 +13,7 @@ on:
       - .github/ci/android-debug.keystore.b64
       - export_presets.cfg
       - project.godot
+      - .github/ci/android-review-build-request.txt
 
 permissions:
   contents: read
