@@ -72,6 +72,7 @@ func _run() -> void:
 	var township := run.get_node("Places/TownshipV01") as TownshipV01
 	check(township.has_node("BellCollision"), "bell has collision")
 	check(township.has_node("SlideDeckCollision"), "slide launch deck has collision")
+	check(township.has_node("WorkshopSlideSeamCollision"), "Workshop/slide visual pocket is sealed")
 	check(township.has_node("WorkshopWestAnnexCollision"), "Workshop west annex has collision")
 	check(township.has_node("HomeACollision"), "Nurse hut uses the full approved footprint")
 	check(township.has_node("FishersStallCollision"), "Fisher stall uses full-footprint collision")
