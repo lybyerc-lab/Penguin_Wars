@@ -1,13 +1,15 @@
 class_name TownshipVisualV1
 extends Node2D
-## Township-specific presentation adapter for the approved Blender V0.1.1
-## environment. Gameplay remains in the existing Node2D world; this node adds
-## one baked background and a small set of y-sorted occlusion sprites.
+## Township-specific presentation adapter for the approved Blender environment.
+## Gameplay remains in the existing Node2D world; this node adds one baked
+## background and bounded y-sorted occlusion sprites.
 
 const ASSET_ROOT := "res://assets/environments/township_visual_v1/"
 const MANIFEST_PATH := ASSET_ROOT + "township_visual_manifest.json"
 const BACKGROUND_CENTRE := Vector2(0.0, 200.0)
 
+## Mobile cleanup V1 split the old gate_bell and slide_foreground mega-layers
+## so each raised object sorts at its own physical depth.
 const SORT_BASELINES := {
 	"great_hall": -543.0,
 	"workshop": -161.0,
@@ -17,8 +19,16 @@ const SORT_BASELINES := {
 	"fish_shed": -84.0,
 	"net_shed": 376.0,
 	"expedition_lodge": 919.0,
-	"gate_bell": 917.0,
-	"slide_foreground": 390.0,
+	"bell": 598.0,
+	"gate": 900.0,
+	"gate_sled": 754.0,
+	"gate_crates": 782.0,
+	"route_signpost": 1006.0,
+	"slide_deck": -55.0,
+	"slide_bank_1": 96.0,
+	"slide_bank_2": 240.0,
+	"slide_bank_3": 368.0,
+	"slide_bank_4": 520.0,
 }
 
 var actor_layer: Node2D
