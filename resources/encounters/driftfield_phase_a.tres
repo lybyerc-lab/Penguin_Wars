@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/encounter_definition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/actors/rolly.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/actors/tuskbull.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/actors/skua_slinger.tscn" id="4"]
+
+[resource]
+script = ExtResource("1")
+enemy_scene = ExtResource("2")
+charger_scene = ExtResource("3")
+ranged_scene = ExtResource("4")
+base_count = 6
+spawn_interval = 0.65
+wave_count = 4
+run_seed = 260927
+charger_intro_wave = 3
+ranged_intro_wave = 2
+charger_cap = 1
+ranged_cap = 2
+intermission_duration = 2.5
+difficulty_multiplier = 1.0
