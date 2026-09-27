@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="RegionDefinition" load_steps=7 format=3]
+[ext_resource type="Script" path="res://scripts/data/region_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/room_definition.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/cave_definition.gd" id="3"]
+[ext_resource type="Resource" path="res://resources/rooms/penguin_town.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/rooms/frozen_coast_pass_phase_a.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/rooms/driftfield_phase_a.tres" id="6"]
+[ext_resource type="Resource" path="res://resources/caves/hollow_shelf.tres" id="7"]
+
+[resource]
+script = ExtResource("1")
+id = &"kelphollow_phase_a_review"
+display_name = "Kelphollow · Phase A Review"
+town = ExtResource("4")
+expedition_entry_id = &"frozen_coast_pass_phase_a"
+expedition_rooms = Array[ExtResource("2")]([ExtResource("5"), ExtResource("6")])
+caves = Array[ExtResource("3")]([ExtResource("7")])
