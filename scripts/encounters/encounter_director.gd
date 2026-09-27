@@ -159,10 +159,21 @@ func _despawn_ordinary_enemies() -> void:
 
 func _spawn_enemy() -> void:
 	var selected: PackedScene = definition.enemy_scene
-	# Fixed introduction cadence is predictable; placement remains seeded.
-	if wave >= 2 and _spawn_index % 4 == 3 and definition.ranged_scene != null:
+	# Fixed introduction cadence stays predictable; room data decides when each
+	# role enters and how many may pressure the screen at once.
+	if (
+		wave >= definition.ranged_intro_wave
+		and _spawn_index % 4 == 3
+		and definition.ranged_scene != null
+		and _alive_ranged_count() < definition.ranged_cap
+	):
 		selected = definition.ranged_scene
-	elif _spawn_index % 3 == 2 and definition.charger_scene != null:
+	elif (
+		wave >= definition.charger_intro_wave
+		and _spawn_index % 3 == 2
+		and definition.charger_scene != null
+		and _alive_charger_count() < definition.charger_cap
+	):
 		selected = definition.charger_scene
 	_spawn_index += 1
 	var enemy := selected.instantiate() as ArenaEnemy
@@ -185,6 +196,20 @@ func _spawn_enemy() -> void:
 	enemy.defeated.connect(_on_enemy_defeated)
 	actor_root.add_child(enemy)
 	alive_count += 1
+
+func _alive_charger_count() -> int:
+	var count: int = 0
+	for node: Node in actor_root.get_children():
+		if node is ArenaEnemy and (node as ArenaEnemy).behavior is ChargeBehavior:
+			count += 1
+	return count
+
+func _alive_ranged_count() -> int:
+	var count: int = 0
+	for node: Node in actor_root.get_children():
+		if node is ArenaEnemy and (node as ArenaEnemy).behavior is RangedBehavior:
+			count += 1
+	return count
 
 ## Room and run scaling, applied identically to every enemy including a boss.
 ## Called before the node enters the tree, where Health takes current from
