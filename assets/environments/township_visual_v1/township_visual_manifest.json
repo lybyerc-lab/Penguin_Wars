@@ -20,133 +20,93 @@
   "layers": {
     "expedition_lodge": {
       "file": "township_expedition_lodge.png",
-      "crop": [
-        2030,
-        993,
-        2454,
-        1528
-      ],
-      "size": [
-        424,
-        535
-      ]
+      "crop": [2030, 993, 2454, 1528],
+      "size": [424, 535]
     },
     "fish_shed": {
       "file": "township_fish_shed.png",
-      "crop": [
-        2450,
-        517,
-        2671,
-        878
-      ],
-      "size": [
-        221,
-        361
-      ]
+      "crop": [2450, 517, 2671, 878],
+      "size": [221, 361]
     },
     "fishers_stall": {
       "file": "township_fishers_stall.png",
-      "crop": [
-        2105,
-        605,
-        2520,
-        917
-      ],
-      "size": [
-        415,
-        312
-      ]
-    },
-    "gate_bell": {
-      "file": "township_gate_bell.png",
-      "crop": [
-        1584,
-        1111,
-        2108,
-        1531
-      ],
-      "size": [
-        524,
-        420
-      ]
+      "crop": [2105, 605, 2520, 917],
+      "size": [415, 312]
     },
     "great_hall": {
       "file": "township_great_hall.png",
-      "crop": [
-        1488,
-        60,
-        2149,
-        635
-      ],
-      "size": [
-        661,
-        575
-      ]
+      "crop": [1488, 60, 2149, 635],
+      "size": [661, 575]
     },
     "home_b": {
       "file": "township_home_b.png",
-      "crop": [
-        1286,
-        1128,
-        1562,
-        1447
-      ],
-      "size": [
-        276,
-        319
-      ]
+      "crop": [1286, 1128, 1562, 1447],
+      "size": [276, 319]
     },
     "net_shed": {
       "file": "township_net_shed.png",
-      "crop": [
-        2217,
-        898,
-        2456,
-        1160
-      ],
-      "size": [
-        239,
-        262
-      ]
+      "crop": [2217, 898, 2456, 1160],
+      "size": [239, 262]
     },
     "nurse_hut": {
       "file": "township_nurse_hut.png",
-      "crop": [
-        1106,
-        920,
-        1408,
-        1288
-      ],
-      "size": [
-        302,
-        368
-      ]
-    },
-    "slide_foreground": {
-      "file": "township_slide_foreground.png",
-      "crop": [
-        892,
-        640,
-        1181,
-        1219
-      ],
-      "size": [
-        289,
-        579
-      ]
+      "crop": [1106, 920, 1408, 1288],
+      "size": [302, 368]
     },
     "workshop": {
       "file": "township_workshop.png",
-      "crop": [
-        1010,
-        426,
-        1474,
-        842
-      ],
-      "size": [
-        464,
-        416
-      ]
+      "crop": [1010, 426, 1474, 842],
+      "size": [464, 416]
+    },
+    "bell": {
+      "file": "township_bell.png",
+      "crop": [1905, 1117, 2045, 1263],
+      "size": [140, 146]
+    },
+    "gate": {
+      "file": "township_gate.png",
+      "crop": [1610, 1243, 2070, 1483],
+      "size": [460, 240]
+    },
+    "gate_sled": {
+      "file": "township_gate_sled.png",
+      "crop": [1589, 1286, 1699, 1354],
+      "size": [110, 68]
+    },
+    "gate_crates": {
+      "file": "township_gate_crates.png",
+      "crop": [2008, 1304, 2070, 1373],
+      "size": [62, 69]
+    },
+    "route_signpost": {
+      "file": "township_route_signpost.png",
+      "crop": [1924, 1443, 2027, 1527],
+      "size": [103, 84]
+    },
+    "slide_deck": {
+      "file": "township_slide_deck.png",
+      "crop": [904, 640, 1148, 842],
+      "size": [244, 202]
+    },
+    "slide_bank_1": {
+      "file": "township_slide_bank_1.png",
+      "crop": [897, 784, 1136, 917],
+      "size": [239, 133]
+    },
+    "slide_bank_2": {
+      "file": "township_slide_bank_2.png",
+      "crop": [926, 905, 1157, 1008],
+      "size": [231, 103]
+    },
+    "slide_bank_3": {
+      "file": "township_slide_bank_3.png",
+      "crop": [953, 996, 1128, 1088],
+      "size": [175, 92]
+    },
+    "slide_bank_4": {
+      "file": "township_slide_bank_4.png",
+      "crop": [983, 1076, 1123, 1209],
+      "size": [140, 133]
     }
   }
 }
