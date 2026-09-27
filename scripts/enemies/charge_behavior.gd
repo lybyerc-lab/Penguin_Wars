@@ -6,6 +6,10 @@ enum State { APPROACH, WINDUP, CHARGE, RECOVER }
 @export var charge_speed: float = 360.0
 @export var charge_time: float = 0.65
 @export var recovery_time: float = 1.1
+## Phase A Tuskbulls opt into a longer punish window when their committed lane
+## hits solid world collision. Ordinary chargers keep the old behavior.
+@export var crash_on_world_collision: bool = false
+@export var crash_recovery_time: float = 1.55
 var state: State = State.APPROACH
 var remaining: float = 0.0
 var direction := Vector2.RIGHT
@@ -39,8 +43,13 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 func contact_enabled() -> bool:
 	return state in [State.APPROACH, State.CHARGE]
 
+func on_world_collision() -> void:
+	if crash_on_world_collision and state == State.CHARGE:
+		state = State.RECOVER
+		remaining = crash_recovery_time
+
 func on_damage(event: DamageEvent) -> void:
-	# Heavy cleaver hits interrupt a rush; light lance hits still push the actor.
+	# Heavy hits interrupt a rush; light hits still push the actor.
 	if event.impulse.length() >= 250.0 and state in [State.WINDUP, State.CHARGE]:
 		state = State.RECOVER
 		remaining = recovery_time
