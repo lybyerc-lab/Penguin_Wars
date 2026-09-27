@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/room_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/room_exit.gd" id="2"]
+
+[sub_resource type="Resource" id="exit_pass_home"]
+script = ExtResource("2")
+target_id = &""
+label = "Back to Kelphollow"
+hint = "Town is behind you."
+side = 3
+presentation = 1
+
+[sub_resource type="Resource" id="exit_pass_driftfield"]
+script = ExtResource("2")
+target_id = &"driftfield_phase_a"
+label = "Driftfield"
+hint = "The coast opens beyond the pass."
+side = 2
+presentation = 0
+
+[resource]
+script = ExtResource("1")
+id = &"frozen_coast_pass_phase_a"
+display_name = "Frozen Coast · Pass"
+kind = 1
+palette = 0
+bounds = Rect2(-660, -380, 1320, 760)
+spawn_ring = Vector2(620, 340)
+supply_points = Array[Vector2]([])
+entry_point = Vector2(0, 270)
+exits = Array[ExtResource("2")]([SubResource("exit_pass_home"), SubResource("exit_pass_driftfield")])
+arrival_line = "The shelter of Kelphollow falls away behind you."
