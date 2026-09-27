@@ -44,6 +44,8 @@ func _physics_process(delta: float) -> void:
 	velocity = intended + _knockback
 	_knockback = _knockback.move_toward(Vector2.ZERO, 1000.0 * delta)
 	move_and_slide()
+	if behavior is ChargeBehavior and get_slide_collision_count() > 0:
+		(behavior as ChargeBehavior).on_world_collision()
 	global_position = global_position.clamp(arena_bounds.position, arena_bounds.end)
 	if global_position.distance_to(target.global_position) < contact_radius and _attack_remaining <= 0.0 and (behavior == null or behavior.contact_enabled()):
 		target.health.take_damage(DamageEvent.new(contact_damage))
