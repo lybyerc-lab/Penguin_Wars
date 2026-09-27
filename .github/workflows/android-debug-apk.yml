@@ -6,6 +6,7 @@ on:
     branches:
       - planning/phase-a-build-pack-v1
       - feature/mobile-expedition-entry-v1
+      - feature/mobile-township-usability-v1
     paths:
       - .github/workflows/android-debug-apk.yml
       - .github/ci/android-debug.keystore.b64
