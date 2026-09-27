@@ -161,23 +161,35 @@ func enter_town() -> void:
 	TownshipVisualV1.build($Places, $Actors)
 	_services = TownHub.build($Places, party)
 	overlay.services = _services
-	var mouths: Array[CaveDefinition] = region.caves
-	for index: int in range(mouths.size()):
+	if region.has_expedition():
+		var first_room: RoomDefinition = region.expedition_room(region.expedition_entry_id)
 		var spec := RoomExit.new()
-		spec.target_id = mouths[index].id
-		spec.label = mouths[index].display_name
-		spec.hint = mouths[index].signpost
+		spec.target_id = first_room.id
+		spec.label = first_room.display_name
+		spec.hint = "Frozen Coast expedition"
 		spec.side = RoomExit.Side.BOTTOM
-		# Township's expedition boundary is on the lower route. Placement still
-		# comes from RoomExit.place_on(), so data remains the doorway authority.
-		spec.offset_along = TownshipV01.DEPARTURE_BOUNDARY.x + (index - (mouths.size() - 1) * 0.5) * MOUTH_SPACING
+		spec.offset_along = TownshipV01.DEPARTURE_BOUNDARY.x
 		spec.presentation = RoomExit.Presentation.EXPEDITION_MOUTH
 		var gate: PartyGate = _add_gate(spec)
 		gate.locked = false
-		# Travel remains owned by PartyGate at the clear expedition boundary
-		# beyond the physical Departure Gate.
 		gate.place_at_wall(room.bounds)
 		gate.visible = false
+	else:
+		var mouths: Array[CaveDefinition] = region.caves
+		for index: int in range(mouths.size()):
+			var spec := RoomExit.new()
+			spec.target_id = mouths[index].id
+			spec.label = mouths[index].display_name
+			spec.hint = mouths[index].signpost
+			spec.side = RoomExit.Side.BOTTOM
+			# Township's expedition boundary is on the lower route. Placement still
+			# comes from RoomExit.place_on(), so data remains the doorway authority.
+			spec.offset_along = TownshipV01.DEPARTURE_BOUNDARY.x + (index - (mouths.size() - 1) * 0.5) * MOUTH_SPACING
+			spec.presentation = RoomExit.Presentation.EXPEDITION_MOUTH
+			var gate: PartyGate = _add_gate(spec)
+			gate.locked = false
+			gate.place_at_wall(room.bounds)
+			gate.visible = false
 	var doors: Array[Dictionary] = []
 	for gate: PartyGate in _gates:
 		if gate.exit != null:
@@ -305,22 +317,42 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 	if spec == null:
 		return
 	var opposite: int = _opposite_side(spec.side)
-	# A town exit names a cave; a cave exit names a room inside that cave.
+	# A town exit may begin the outdoor expedition or enter a legacy cave
+	# directly. Expedition stays the only code that resolves either route.
 	if room.kind == RoomDefinition.Kind.TOWN:
+		var field_entry: RoomDefinition = region.expedition_room(spec.target_id)
+		if field_entry != null:
+			cave = null
+			_enter_room(field_entry, opposite)
+			return
 		var chosen: CaveDefinition = region.cave(spec.target_id)
 		if chosen == null:
-			push_error("Region %s has no cave named %s" % [region.id, spec.target_id])
+			push_error("Region %s has no destination named %s" % [region.id, spec.target_id])
 			return
 		enter_cave(chosen)
 		return
+
 	if spec.leads_outside():
-		journal.record_cave(cave)
+		if cave != null:
+			journal.record_cave(cave)
 		save_profile()
 		enter_town()
 		return
-	var next: RoomDefinition = cave.room(spec.target_id)
+
+	var field_room: RoomDefinition = region.expedition_room(spec.target_id)
+	if field_room != null:
+		cave = null
+		_enter_room(field_room, opposite)
+		return
+
+	var target_cave: CaveDefinition = region.cave(spec.target_id)
+	if target_cave != null:
+		enter_cave(target_cave)
+		return
+
+	var next: RoomDefinition = cave.room(spec.target_id) if cave != null else null
 	if next == null:
-		push_error("Cave %s has no room named %s" % [cave.id, spec.target_id])
+		push_error("Region %s has no route destination named %s" % [region.id, spec.target_id])
 		return
 	_enter_room(next, opposite)
 
