@@ -75,7 +75,13 @@ func _run() -> void:
 	check(township.has_node("WorkshopWestAnnexCollision"), "Workshop west annex has collision")
 	check(township.has_node("HomeACollision"), "Nurse hut uses the full approved footprint")
 	check(township.has_node("FishersStallCollision"), "Fisher stall uses full-footprint collision")
-	var occluders: Array[Node] = run.get_node("Actors").get_children().filter(func(node: Node) -> bool:\n\t\treturn node.has_meta(&"township_visual_layer")\n\t)\n	check(occluders.size() == 18, "mobile cleanup loads 18 depth-bounded Township occluders")\n	check(run.get_node_or_null("Actors/TownshipOccluder_Bell") != null, "bell is split to its own sort line")\n	check(run.get_node_or_null("Actors/TownshipOccluder_SlideDeck") != null, "slide deck is split to its own sort line")\n	var slide_collision := township.get_node("SnowSlide/CollisionShape2D") as CollisionShape2D
+	var occluders: Array[Node] = run.get_node("Actors").get_children().filter(func(node: Node) -> bool:
+		return node.has_meta(&"township_visual_layer")
+	)
+	check(occluders.size() == 18, "mobile cleanup loads 18 depth-bounded Township occluders")
+	check(run.get_node_or_null("Actors/TownshipOccluder_Bell") != null, "bell is split to its own sort line")
+	check(run.get_node_or_null("Actors/TownshipOccluder_SlideDeck") != null, "slide deck is split to its own sort line")
+	var slide_collision := township.get_node("SnowSlide/CollisionShape2D") as CollisionShape2D
 	check(slide_collision != null and slide_collision.position.y > 0.0, "slide active area starts south of the raised deck")
 
 	run.free()
