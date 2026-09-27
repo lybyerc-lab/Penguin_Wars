@@ -169,10 +169,10 @@ func _run() -> void:
 
 	director.wave = 3
 	director._spawn_index = 0
-	for index: int in range(12):
+	for index: int in range(DRIFTFIELD.base_count + 4):
 		director._spawn_enemy()
 	counts = _role_counts(arena)
-	check(counts["skua"] == 2 and counts["tuskbull"] == 1 and counts["rolly"] == 9, "wave 3 adds one Tuskbull while preserving swarm pressure")
+	check(counts["skua"] == 2 and counts["tuskbull"] == 1 and counts["rolly"] == 7, "wave 3 adds one Tuskbull while preserving swarm pressure")
 	_clear_enemies(arena)
 
 	arena.free()
