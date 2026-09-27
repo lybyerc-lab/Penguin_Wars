@@ -1,0 +1,157 @@
+{
+  "note": "CANDIDATE staging layers for Township mobile cleanup V1. Replaces runtime layers 'gate_bell' and 'slide_foreground' only. All other runtime layers unchanged. Crops are in township_background.png pixel space (3584x2016), same convention as township_visual_manifest.json. sort_baseline is the Godot y to put in TownshipVisualV1.SORT_BASELINES.",
+  "replaces": [
+    "gate_bell",
+    "slide_foreground"
+  ],
+  "source_resolution": [
+    3584,
+    2016
+  ],
+  "sprite_scale": [
+    1.265625,
+    1.586272619350546
+  ],
+  "layers": {
+    "bell": {
+      "file": "township_bell.png",
+      "crop": [
+        1905,
+        1117,
+        2045,
+        1263
+      ],
+      "size": [
+        140,
+        146
+      ],
+      "sort_baseline": 598.0
+    },
+    "gate": {
+      "file": "township_gate.png",
+      "crop": [
+        1610,
+        1243,
+        2070,
+        1483
+      ],
+      "size": [
+        460,
+        240
+      ],
+      "sort_baseline": 900.0
+    },
+    "gate_sled": {
+      "file": "township_gate_sled.png",
+      "crop": [
+        1589,
+        1286,
+        1699,
+        1354
+      ],
+      "size": [
+        110,
+        68
+      ],
+      "sort_baseline": 754.0
+    },
+    "gate_crates": {
+      "file": "township_gate_crates.png",
+      "crop": [
+        2008,
+        1304,
+        2070,
+        1373
+      ],
+      "size": [
+        62,
+        69
+      ],
+      "sort_baseline": 782.0
+    },
+    "route_signpost": {
+      "file": "township_route_signpost.png",
+      "crop": [
+        1924,
+        1443,
+        2027,
+        1527
+      ],
+      "size": [
+        103,
+        84
+      ],
+      "sort_baseline": 1006.0
+    },
+    "slide_deck": {
+      "file": "township_slide_deck.png",
+      "crop": [
+        904,
+        640,
+        1148,
+        842
+      ],
+      "size": [
+        244,
+        202
+      ],
+      "sort_baseline": -55.0
+    },
+    "slide_bank_1": {
+      "file": "township_slide_bank_1.png",
+      "crop": [
+        897,
+        784,
+        1136,
+        917
+      ],
+      "size": [
+        239,
+        133
+      ],
+      "sort_baseline": 96.0
+    },
+    "slide_bank_2": {
+      "file": "township_slide_bank_2.png",
+      "crop": [
+        926,
+        905,
+        1157,
+        1008
+      ],
+      "size": [
+        231,
+        103
+      ],
+      "sort_baseline": 240.0
+    },
+    "slide_bank_3": {
+      "file": "township_slide_bank_3.png",
+      "crop": [
+        953,
+        996,
+        1128,
+        1088
+      ],
+      "size": [
+        175,
+        92
+      ],
+      "sort_baseline": 368.0
+    },
+    "slide_bank_4": {
+      "file": "township_slide_bank_4.png",
+      "crop": [
+        983,
+        1076,
+        1123,
+        1209
+      ],
+      "size": [
+        140,
+        133
+      ],
+      "sort_baseline": 520.0
+    }
+  }
+}
