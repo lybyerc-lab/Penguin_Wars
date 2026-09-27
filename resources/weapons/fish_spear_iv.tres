@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/phase_a/fish_spear.svg" id="2"]
+[resource]
+script = ExtResource("1")
+id = &"fish_spear_iv"
+display_name = "Fish Spear IV"
+family_id = &"fish_spear"
+tier = 4
+classes = Array[StringName]([&"fish", &"harpoon"])
+damage = 144
+cooldown = 0.78
+reach = 125
+pattern = 2
+damage_kind = 0
+line_width = 28.0
+knockback = 195.0
+knockback = 
+tint = Color("8fdcf0")
+held_texture = ExtResource("2")
+visual_scale = 0.62
