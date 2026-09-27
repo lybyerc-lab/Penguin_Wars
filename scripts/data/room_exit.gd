@@ -24,6 +24,10 @@ enum Presentation { STANDARD, EXPEDITION_MOUTH, CRYSTAL, FRACTURED }
 ## Legacy / override position. When side is set, place_on() computes the real
 ## position from the room bounds; this field is only a fallback.
 @export var position := Vector2(500, 0)
+## Outdoor production routes may arrive at an authored point rather than the
+## opposite edge of a rectangular logical room.
+@export var arrival_override_enabled: bool = false
+@export var arrival_position := Vector2.ZERO
 
 func leads_outside() -> bool:
 	return target_id == &""
