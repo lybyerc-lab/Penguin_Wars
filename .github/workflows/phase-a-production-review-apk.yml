@@ -88,6 +88,19 @@ jobs:
           test "$ACTUAL_CERT_SHA256" = "$EXPECTED_DEBUG_CERT_SHA256"
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$SIGNING_DIR/debug.keystore" >> "$GITHUB_ENV"
 
+      - name: Import Godot project
+        run: godot --headless --path . --editor --import --quit
+
+      - name: Focused Phase A checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --script res://tests/foundation_test.gd
+          godot --headless --path . --script res://tests/mobile_expedition_test.gd
+          godot --headless --path . --script res://tests/phase_a_combat_test.gd
+          godot --headless --path . --script res://tests/phase_a_route_test.gd
+          godot --headless --path . --script res://tests/frozen_coast_phase_a_visual_test.gd
+
       - name: Select Phase A review scene
         shell: bash
         run: |
@@ -102,19 +115,6 @@ jobs:
               raise SystemExit("shipping main scene marker not found")
           p.write_text(s.replace(old, new, 1))
           PY
-
-      - name: Import Godot project
-        run: godot --headless --path . --editor --import --quit
-
-      - name: Focused Phase A checks
-        shell: bash
-        run: |
-          set -euo pipefail
-          godot --headless --path . --script res://tests/foundation_test.gd
-          godot --headless --path . --script res://tests/mobile_expedition_test.gd
-          godot --headless --path . --script res://tests/phase_a_combat_test.gd
-          godot --headless --path . --script res://tests/phase_a_route_test.gd
-          godot --headless --path . --script res://tests/frozen_coast_phase_a_visual_test.gd
 
       - name: Export Phase A review APK
         shell: bash
