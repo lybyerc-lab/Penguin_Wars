@@ -30,6 +30,23 @@ func _draw() -> void:
 		elif charge.state == ChargeBehavior.State.RECOVER:
 			draw_arc(Vector2(0, -44), 10, _time * 4, _time * 4 + 4, 16, Color("ffd49c"), 2)
 		return
+	var skua := _enemy.behavior as SkuaSlingerBehavior
+	if skua != null:
+		# Perched-artillery language: small bird silhouette, amber arc dots, and
+		# a red-orange landing ring. The ring is skua.locked_target itself.
+		draw_arc(Vector2(0, -23), 18, PI, TAU, 20, Color("89c5ed"), 9)
+		draw_circle(Vector2(0, -45), 6, Color("effbff"))
+		if skua.state == RangedBehavior.State.WINDUP:
+			var start := Vector2(18, -18)
+			var target := to_local(skua.locked_target)
+			var control := (start + target) * 0.5 + Vector2(0, -clampf(start.distance_to(target) * 0.22, 30.0, 76.0))
+			for index: int in range(1, 9):
+				var t: float = float(index) / 9.0
+				var inv: float = 1.0 - t
+				var point: Vector2 = start * inv * inv + control * 2.0 * inv * t + target * t * t
+				draw_circle(point, 3.0, Color("f4cf88", 0.86))
+			draw_arc(target, skua.landing_radius, 0.0, TAU, 32, Color("ff7d5c", 0.78), 2.5)
+		return
 	var ranged := _enemy.behavior as RangedBehavior
 	if ranged != null:
 		# Blue winter cap, pompom and a held snowball mark the ranged silhouette.
