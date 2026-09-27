@@ -110,6 +110,25 @@ func _run() -> void:
 	check(bomb_outside.health.is_alive(), "Snowbomb radius is bounded")
 	_clear_enemies(arena)
 
+	# Skua Slinger: the landing point is committed during the tell. Moving after
+	# the windup starts should dodge the egg rather than drag the telegraph.
+	var skua := _spawn(arena, SKUA, Vector2.ZERO)
+	var artillery := skua.behavior as SkuaSlingerBehavior
+	player.position = Vector2(250, 0)
+	artillery.movement(skua, player, 1.0)
+	check(artillery.state == RangedBehavior.State.WINDUP, "Skua Slinger enters a readable artillery windup")
+	var locked_landing: Vector2 = artillery.locked_target
+	player.position = Vector2(250, 110)
+	artillery.movement(skua, player, artillery.windup_time + 0.01)
+	var eggs: Array[Node] = get_nodes_in_group("enemy_projectiles")
+	var egg := eggs[0] as SkuaIceEgg if not eggs.is_empty() else null
+	if egg != null:
+		egg.set_physics_process(false)
+	check(egg != null and egg.landing_position == locked_landing, "Skua egg lands on the warned point instead of homing")
+	if egg != null:
+		egg.free()
+	_clear_enemies(arena)
+
 	# Tuskbull: the warned charge locks direction and a hard-terrain collision
 	# enters the longer crash punish window.
 	var bull := _spawn(arena, TUSKBULL, Vector2.ZERO)
