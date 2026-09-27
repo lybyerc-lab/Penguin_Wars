@@ -43,8 +43,8 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 func contact_enabled() -> bool:
 	return state in [State.APPROACH, State.CHARGE]
 
-func on_world_collision() -> void:
-	if crash_on_world_collision and state == State.CHARGE:
+func on_world_collision(hard_impact: bool = true) -> void:
+	if crash_on_world_collision and hard_impact and state == State.CHARGE:
 		state = State.RECOVER
 		remaining = crash_recovery_time
 
