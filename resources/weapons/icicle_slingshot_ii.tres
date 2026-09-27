@@ -16,7 +16,6 @@ reach = 335
 pattern = 0
 damage_kind = 1
 knockback = 52.0
-knockback = 
 tint = Color("bdefff")
 held_texture = ExtResource("2")
 visual_scale = 0.52
