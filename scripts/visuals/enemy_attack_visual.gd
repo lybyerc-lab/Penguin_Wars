@@ -22,11 +22,28 @@ func _draw() -> void:
 			var length: float = charge.charge_speed * charge.charge_time
 			var perpendicular := charge.direction.orthogonal() * 20.0
 			var end: Vector2 = charge.direction * length
-			draw_colored_polygon(PackedVector2Array([perpendicular, end + perpendicular, end - perpendicular, -perpendicular]), Color(1, 0.49, 0.29, 0.19))
-			draw_line(perpendicular, end + perpendicular, Color("ffb47d"), 2)
-			draw_line(-perpendicular, end - perpendicular, Color("ffb47d"), 2)
-			draw_line(end + perpendicular, end, Color("ffdc9f"), 3)
-			draw_line(end - perpendicular, end, Color("ffdc9f"), 3)
+			draw_colored_polygon(PackedVector2Array([perpendicular, end + perpendicular, end - perpendicular, -perpendicular]), Color(1, 0.49, 0.29, 0.13))
+			draw_line(perpendicular, end + perpendicular, Color("ff8d6a", 0.88), 2.5)
+			draw_line(-perpendicular, end - perpendicular, Color("ff8d6a", 0.88), 2.5)
+			if charge.crash_on_world_collision:
+				# Tuskbull V1: amber direction chevrons and snow streaks inside a
+				# translucent lane. Never a giant opaque arrow over the player.
+				for fraction: float in [0.30, 0.55, 0.80]:
+					var center: Vector2 = charge.direction * length * fraction
+					var side: Vector2 = charge.direction.orthogonal() * 7.0
+					var back: Vector2 = charge.direction * -10.0
+					draw_line(center + side, center + back, Color("f4cf88", 0.86), 2.0)
+					draw_line(center - side, center + back, Color("f4cf88", 0.86), 2.0)
+				for offset: float in [-14.0, -5.0, 6.0, 15.0]:
+					var streak_start: Vector2 = charge.direction * 30.0 + charge.direction.orthogonal() * offset
+					draw_line(streak_start, streak_start + charge.direction * 26.0, Color("dff8ff", 0.52), 2.0)
+			else:
+				draw_line(end + perpendicular, end, Color("ffdc9f"), 3)
+				draw_line(end - perpendicular, end, Color("ffdc9f"), 3)
+		elif charge.state == ChargeBehavior.State.CHARGE and charge.crash_on_world_collision:
+			for offset: float in [-15.0, -5.0, 5.0, 15.0]:
+				var trail: Vector2 = -charge.direction * 20.0 + charge.direction.orthogonal() * offset
+				draw_line(trail, trail - charge.direction * 34.0, Color("dff8ff", 0.58), 2.5)
 		elif charge.state == ChargeBehavior.State.RECOVER:
 			draw_arc(Vector2(0, -44), 10, _time * 4, _time * 4 + 4, 16, Color("ffd49c"), 2)
 		return
