@@ -1,0 +1,9 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://scenes/run/expedition.tscn" id="1"]
+[ext_resource type="Resource" path="res://resources/regions/kelphollow_phase_a_review.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/characters/phase_a_tester.tres" id="3"]
+
+[node name="PhaseAExpeditionReview" instance=ExtResource("1")]
+player_count = 1
+region = ExtResource("2")
+roster = Array[Resource]([ExtResource("3")])
