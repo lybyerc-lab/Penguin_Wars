@@ -9,7 +9,10 @@ target_id = &"frozen_coast_pass_phase_a"
 label = "Back through the Pass"
 hint = "Kelphollow lies behind you."
 side = 3
+offset_along = -1077.0
 presentation = 0
+arrival_override_enabled = true
+arrival_position = Vector2(-1737.0, -1000.0)
 
 [resource]
 script = ExtResource("1")
@@ -17,10 +20,12 @@ id = &"driftfield_phase_a"
 display_name = "Frozen Coast · Driftfield"
 kind = 0
 palette = 0
-bounds = Rect2(-720, -430, 1440, 860)
-spawn_ring = Vector2(675, 385)
+bounds = Rect2(-2320, -2860, 3320, 1780)
+spawn_ring = Vector2(1450, 720)
 supply_points = Array[Vector2]([])
-entry_point = Vector2(0, 320)
+entry_point = Vector2(-1737, -1160)
+environment_id = &"frozen_coast_phase_a_v0_1"
+camera_follow_party = true
 encounter = ExtResource("3")
 exits = Array[ExtResource("2")]([SubResource("exit_driftfield_pass")])
 arrival_line = "The coast opens wide. Something is already moving in the snow."
