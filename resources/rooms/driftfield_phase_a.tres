@@ -1,6 +1,15 @@
-[gd_resource type="Resource" script_class="RoomDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=4 format=3]
 [ext_resource type="Script" path="res://scripts/data/room_definition.gd" id="1"]
-[ext_resource type="Resource" path="res://resources/encounters/driftfield_phase_a.tres" id="2"]
+[ext_resource type="Script" path="res://scripts/data/room_exit.gd" id="2"]
+[ext_resource type="Resource" path="res://resources/encounters/driftfield_phase_a.tres" id="3"]
+
+[sub_resource type="Resource" id="exit_driftfield_pass"]
+script = ExtResource("2")
+target_id = &"frozen_coast_pass_phase_a"
+label = "Back through the Pass"
+hint = "Kelphollow lies behind you."
+side = 3
+presentation = 0
 
 [resource]
 script = ExtResource("1")
@@ -12,5 +21,6 @@ bounds = Rect2(-720, -430, 1440, 860)
 spawn_ring = Vector2(675, 385)
 supply_points = Array[Vector2]([])
 entry_point = Vector2(0, 320)
-encounter = ExtResource("2")
+encounter = ExtResource("3")
+exits = Array[ExtResource("2")]([SubResource("exit_driftfield_pass")])
 arrival_line = "The coast opens wide. Something is already moving in the snow."
