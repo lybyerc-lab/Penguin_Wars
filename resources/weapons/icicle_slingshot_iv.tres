@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/weapons/phase_a/icicle_slingshot.svg" id="2"]
+[resource]
+script = ExtResource("1")
+id = &"icicle_slingshot_iv"
+display_name = "Icicle Slingshot IV"
+family_id = &"icicle_slingshot"
+tier = 4
+classes = Array[StringName]([&"ice", &"precision", &"swift"])
+damage = 72
+cooldown = 0.42
+reach = 335
+pattern = 0
+damage_kind = 1
+knockback = 70.0
+knockback = 
+tint = Color("bdefff")
+held_texture = ExtResource("2")
+visual_scale = 0.52
