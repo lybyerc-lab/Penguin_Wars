@@ -8,6 +8,7 @@ const MANIFEST_PATH := ASSET_ROOT + "frozen_coast_phase_a_manifest_v0_1_candidat
 const GUIDES_PATH := ASSET_ROOT + "frozen_coast_phase_a_guides_v0_1.json"
 const RIM_ALPHA: float = 0.45
 const NO_STUN_GROUP := &"tuskbull_no_stun"
+const ENEMY_PHYSICS_LAYER_MASK: int = 4
 
 var actor_layer: Node2D
 var _actor_occluders: Array[Node2D] = []
@@ -199,15 +200,34 @@ func _build_soft_zones() -> void:
 		var area := Area2D.new()
 		area.name = "Soft_%s" % zone_name.to_pascal_case()
 		area.collision_layer = 0
-		area.collision_mask = 0
-		area.monitoring = false
+		area.collision_mask = ENEMY_PHYSICS_LAYER_MASK
+		area.monitoring = true
 		area.monitorable = false
 		area.set_meta(&"soft_terrain_id", StringName(zone_name))
 		var polygon := CollisionPolygon2D.new()
+		polygon.name = "Collision"
 		polygon.polygon = _packed_points(raw_points)
 		area.add_child(polygon)
+		area.body_entered.connect(_on_soft_zone_body_entered)
+		area.body_exited.connect(_on_soft_zone_body_exited)
 		add_child(area)
 		_soft_zones.append(area)
+
+func _on_soft_zone_body_entered(body: Node2D) -> void:
+	var enemy := body as ArenaEnemy
+	if enemy == null:
+		return
+	var charge := enemy.behavior as ChargeBehavior
+	if charge != null and charge.crash_on_world_collision:
+		charge.enter_soft_charge_zone()
+
+func _on_soft_zone_body_exited(body: Node2D) -> void:
+	var enemy := body as ArenaEnemy
+	if enemy == null:
+		return
+	var charge := enemy.behavior as ChargeBehavior
+	if charge != null and charge.crash_on_world_collision:
+		charge.exit_soft_charge_zone()
 
 func _exit_tree() -> void:
 	for occluder: Node2D in _actor_occluders:
