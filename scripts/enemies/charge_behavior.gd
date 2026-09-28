@@ -10,13 +10,13 @@ enum State { APPROACH, WINDUP, CHARGE, RECOVER }
 ## hits solid world collision. Ordinary chargers keep the old behavior.
 @export var crash_on_world_collision: bool = false
 @export var crash_recovery_time: float = 1.55
-## Provisional Phase A tuning: authored soft snow slows a committed charge to 60% speed.
-## Exposed here so the phone playtest can tune one number without changing the terrain seam.
-@export_range(0.1, 1.0, 0.05) var soft_charge_speed_multiplier: float = 0.60
+## Per-enemy opt-in for authored soft snow. Tuskbull uses 0.65 as the
+## provisional Phase A phone-tuning value; ordinary chargers remain at 1.0.
+@export_range(0.1, 1.0, 0.05) var soft_charge_speed_multiplier: float = 1.0
 var state: State = State.APPROACH
 var remaining: float = 0.0
 var direction := Vector2.RIGHT
-var _soft_charge_zone_depth: int = 0
+var _soft_charge_active: bool = false
 
 func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2:
 	remaining = maxf(0.0, remaining - delta)
@@ -32,14 +32,13 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 			if remaining <= 0.0:
 				state = State.CHARGE
 				remaining = charge_time
-				return direction * charge_speed
+				return direction * _current_charge_speed()
 		State.CHARGE:
 			if remaining <= 0.0:
 				state = State.RECOVER
 				remaining = recovery_time
 			else:
-				var speed_scale := soft_charge_speed_multiplier if _soft_charge_zone_depth > 0 else 1.0
-				return direction * charge_speed * speed_scale
+				return direction * _current_charge_speed()
 		State.RECOVER:
 			if remaining <= 0.0:
 				state = State.APPROACH
@@ -53,14 +52,14 @@ func on_world_collision(hard_impact: bool = true) -> void:
 		state = State.RECOVER
 		remaining = crash_recovery_time
 
-func enter_soft_charge_zone() -> void:
-	_soft_charge_zone_depth += 1
-
-func exit_soft_charge_zone() -> void:
-	_soft_charge_zone_depth = maxi(0, _soft_charge_zone_depth - 1)
+func set_soft_charge_active(active: bool) -> void:
+	_soft_charge_active = active
 
 func soft_charge_active() -> bool:
-	return _soft_charge_zone_depth > 0
+	return _soft_charge_active
+
+func _current_charge_speed() -> float:
+	return charge_speed * (soft_charge_speed_multiplier if soft_charge_active() else 1.0)
 
 func on_damage(event: DamageEvent) -> void:
 	# Heavy hits interrupt a rush; light hits still push the actor.

@@ -3,6 +3,7 @@ extends SceneTree
 ## route/combat behavior; this verifies the approved environment package wires in.
 
 var failures: int = 0
+const TUSKBULL: PackedScene = preload("res://scenes/actors/tuskbull.tscn")
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -43,30 +44,63 @@ func _run() -> void:
 	var pillar := visual.get_node_or_null("PillarA") as StaticBody2D
 	check(pillar != null and not pillar.is_in_group(&"tuskbull_no_stun"), "Pillar A remains a Tuskbull hard-impact object")
 
-	var tuskbull := load("res://scenes/actors/tuskbull.tscn").instantiate() as ArenaEnemy
-	actors.add_child(tuskbull)
-	tuskbull.set_physics_process(false)
-	await process_frame
-	var charge := tuskbull.behavior as ChargeBehavior
+	# The authored areas slow only an opted-in Tuskbull. They do not alter the
+	# committed state or invoke the existing hard-impact recovery path.
+	var soft_zone := drift_0
+	check(soft_zone != null, "an authored soft drift is available for runtime verification")
+
+	var bull := TUSKBULL.instantiate() as ArenaEnemy
+	actors.add_child(bull)
+	bull.set_physics_process(false)
+	var charge := bull.behavior as ChargeBehavior
+	var target := PenguinPlayer.new()
+	target.position = Vector2.RIGHT * 1000.0
+	bull.position = Vector2.ZERO
+	charge.state = ChargeBehavior.State.CHARGE
+	charge.remaining = 2.0
+	charge.direction = Vector2.RIGHT
+	var normal_velocity := charge.movement(bull, target, 0.01)
+	check(is_equal_approx(normal_velocity.length(), charge.charge_speed), "normal Tuskbull charge uses normal speed")
+
+	if soft_zone != null:
+		var polygon := soft_zone.get_child(0) as CollisionPolygon2D
+		var triangles := Geometry2D.triangulate_polygon(polygon.polygon)
+		check(triangles.size() >= 3, "authored soft drift polygon has a usable interior")
+		var zone_center := (
+			polygon.polygon[triangles[0]]
+			+ polygon.polygon[triangles[1]]
+			+ polygon.polygon[triangles[2]]
+		) / 3.0
+		bull.position = zone_center
+		await physics_frame
+		await physics_frame
+		charge.state = ChargeBehavior.State.CHARGE
+		charge.remaining = 2.0
+		charge.direction = Vector2.RIGHT
+		var drift_velocity := charge.movement(bull, target, 0.01)
+		check(charge.soft_charge_active(), "entering an authored soft drift is detected")
+		check(is_equal_approx(drift_velocity.length(), charge.charge_speed * charge.soft_charge_speed_multiplier), "soft drift applies the provisional Tuskbull slowdown")
+		check(charge.state == ChargeBehavior.State.CHARGE, "soft drift leaves the Tuskbull in CHARGE")
+		check(not is_equal_approx(charge.remaining, charge.crash_recovery_time), "soft drift never triggers crash recovery")
+
+		bull.position = Vector2.ZERO
+		await physics_frame
+		await physics_frame
+		charge.state = ChargeBehavior.State.CHARGE
+		charge.remaining = 2.0
+		charge.direction = Vector2.RIGHT
+		var restored_velocity := charge.movement(bull, target, 0.01)
+		check(not charge.soft_charge_active(), "leaving authored soft drift clears the slowdown")
+		check(is_equal_approx(restored_velocity.length(), charge.charge_speed), "leaving soft drift restores normal charge speed")
+
 	charge.state = ChargeBehavior.State.CHARGE
 	charge.remaining = 0.5
 	charge.direction = Vector2.RIGHT
-	var normal_charge := charge.movement(tuskbull, null, 0.0)
-	check(is_equal_approx(normal_charge.length(), charge.charge_speed), "Tuskbull uses normal charge speed outside soft snow")
-	visual._on_soft_zone_body_entered(tuskbull)
-	var slowed_charge := charge.movement(tuskbull, null, 0.0)
-	check(charge.state == ChargeBehavior.State.CHARGE, "soft drift keeps Tuskbull in committed CHARGE state")
-	check(is_equal_approx(slowed_charge.length(), charge.charge_speed * 0.60), "soft drift applies the provisional 60% charge-speed multiplier")
-	visual._on_soft_zone_body_entered(tuskbull)
-	visual._on_soft_zone_body_exited(tuskbull)
-	check(charge.soft_charge_active(), "overlapping soft drifts do not restore full speed early")
-	visual._on_soft_zone_body_exited(tuskbull)
-	var restored_charge := charge.movement(tuskbull, null, 0.0)
-	check(not charge.soft_charge_active() and is_equal_approx(restored_charge.length(), charge.charge_speed), "leaving soft drift restores normal charge speed")
 	charge.on_world_collision(false)
 	check(charge.state == ChargeBehavior.State.CHARGE, "no-stun blocker leaves a committed Tuskbull charge active")
 	charge.on_world_collision(true)
 	check(charge.state == ChargeBehavior.State.RECOVER and is_equal_approx(charge.remaining, charge.crash_recovery_time), "hard impact enters Tuskbull crash recovery")
+	target.free()
 
 	host.free()
 	print("FROZEN COAST PHASE A VISUAL TESTS: ", "PASS" if failures == 0 else "FAIL", " (", failures, " failures)")

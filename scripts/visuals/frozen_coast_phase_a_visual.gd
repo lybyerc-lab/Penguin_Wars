@@ -13,6 +13,7 @@ const ENEMY_PHYSICS_LAYER_MASK: int = 4
 var actor_layer: Node2D
 var _actor_occluders: Array[Node2D] = []
 var _soft_zones: Array[Area2D] = []
+var _soft_drift_behaviors: Dictionary = {}
 var _hard_bodies: Array[StaticBody2D] = []
 var _manifest: Dictionary = {}
 var _guides: Dictionary = {}
@@ -35,6 +36,29 @@ func _ready() -> void:
 	_build_occluders()
 	_build_collision()
 	_build_soft_zones()
+
+func _physics_process(_delta: float) -> void:
+	if actor_layer == null or _soft_zones.is_empty():
+		return
+	var current: Dictionary = {}
+	for child: Node in actor_layer.get_children():
+		if child is not Node2D:
+			continue
+		var charge := _soft_drift_behavior(child as Node2D)
+		if charge == null:
+			continue
+		var in_soft_drift := false
+		for area: Area2D in _soft_zones:
+			var polygon := area.get_child(0) as CollisionPolygon2D
+			if Geometry2D.is_point_in_polygon(area.to_local((child as Node2D).global_position), polygon.polygon):
+				in_soft_drift = true
+				break
+		charge.set_soft_charge_active(in_soft_drift)
+		current[charge] = true
+	for prior: Variant in _soft_drift_behaviors:
+		if is_instance_valid(prior) and not current.has(prior):
+			(prior as ChargeBehavior).set_soft_charge_active(false)
+	_soft_drift_behaviors = current
 
 func foreground_layer_count() -> int:
 	return _actor_occluders.size()
@@ -208,28 +232,23 @@ func _build_soft_zones() -> void:
 		polygon.name = "Collision"
 		polygon.polygon = _packed_points(raw_points)
 		area.add_child(polygon)
-		area.body_entered.connect(_on_soft_zone_body_entered)
-		area.body_exited.connect(_on_soft_zone_body_exited)
 		add_child(area)
 		_soft_zones.append(area)
 
-func _on_soft_zone_body_entered(body: Node2D) -> void:
-	var enemy := body as ArenaEnemy
-	if enemy == null:
-		return
-	var charge := enemy.behavior as ChargeBehavior
-	if charge != null and charge.crash_on_world_collision:
-		charge.enter_soft_charge_zone()
-
-func _on_soft_zone_body_exited(body: Node2D) -> void:
-	var enemy := body as ArenaEnemy
-	if enemy == null:
-		return
-	var charge := enemy.behavior as ChargeBehavior
-	if charge != null and charge.crash_on_world_collision:
-		charge.exit_soft_charge_zone()
+func _soft_drift_behavior(body: Node2D) -> ChargeBehavior:
+	if body is not ArenaEnemy:
+		return null
+	var charge := (body as ArenaEnemy).behavior as ChargeBehavior
+	if charge == null or not charge.crash_on_world_collision or is_equal_approx(charge.soft_charge_speed_multiplier, 1.0):
+		return null
+	return charge
 
 func _exit_tree() -> void:
+	for behavior: Variant in _soft_drift_behaviors:
+		if not is_instance_valid(behavior):
+			continue
+		(behavior as ChargeBehavior).set_soft_charge_active(false)
+	_soft_drift_behaviors.clear()
 	for occluder: Node2D in _actor_occluders:
 		if is_instance_valid(occluder):
 			occluder.queue_free()
