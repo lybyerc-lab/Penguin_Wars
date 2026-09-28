@@ -16,6 +16,10 @@ const THRESHOLD_WIDTH: float = 130.0
 const TOWN_MOUTH_WIDTH: float = 210.0
 ## Deliberate dwell time for passing through a doorway.
 const DWELL: float = 0.4
+## Extra space beyond the travel threshold that an arriving party must clear
+## before the reciprocal doorway can be used. This covers authored arrivals
+## that sit just outside the threshold without imposing a time cooldown.
+const ARRIVAL_CLEARANCE: float = 60.0
 ## Visual depth of the passage "tunnel" drawn beyond the room edge.
 const PASSAGE_DEPTH: float = 55.0
 ## Width reserved for caption text.
@@ -33,6 +37,9 @@ var locked: bool = true:
 var lock_reason: String = "Clear the room first"
 var dwell: float = 0.0
 var spent: bool = false
+## Set only on the reciprocal doorway after a room transition. The guard drops
+## permanently once every living penguin has left its expanded arrival area.
+var arrival_protected: bool = false
 ## Set by place_at_wall(); the threshold rectangle in local coordinates.
 var threshold := Rect2(-65, -45, 130, 90)
 ## Procedural open transition (0.0 = fully barricaded, 1.0 = fully open passage).
@@ -94,6 +101,29 @@ func standing() -> int:
 			count += 1
 	return count
 
+## Prevent an arriving party from immediately retriggering this doorway while
+## continuing to hold the direction used for the previous room transition.
+func protect_arrival() -> void:
+	arrival_protected = true
+	dwell = 0.0
+	queue_redraw()
+
+func arrival_area() -> Rect2:
+	return threshold.grow(ARRIVAL_CLEARANCE)
+
+func _party_cleared_arrival() -> bool:
+	if party == null:
+		return false
+	var living: Array[PenguinPlayer] = party.members(true)
+	if living.is_empty():
+		return false
+	var area: Rect2 = arrival_area()
+	for player: PenguinPlayer in living:
+		var local: Vector2 = player.global_position - global_position
+		if area.has_point(local):
+			return false
+	return true
+
 ## Living penguins still needed in the threshold.
 func missing() -> int:
 	if party == null:
@@ -113,6 +143,13 @@ func _physics_process(delta: float) -> void:
 		queue_redraw()
 
 	if spent or party == null:
+		return
+
+	if arrival_protected:
+		dwell = 0.0
+		if _party_cleared_arrival():
+			arrival_protected = false
+		queue_redraw()
 		return
 
 	var living: int = party.members(true).size()

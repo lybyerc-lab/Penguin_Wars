@@ -74,6 +74,9 @@ jobs:
       - name: Doorways
         run: godot --headless --path . --script res://tests/doorway_test.gd
 
+      - name: Reciprocal gate arrival
+        run: godot --headless --path . --script res://tests/reciprocal_gate_arrival_test.gd
+
       - name: Boss
         run: godot --headless --path . --script res://tests/boss_test.gd
 

@@ -299,6 +299,14 @@ func _add_gate(spec: RoomExit) -> PartyGate:
 	_gates.append(gate)
 	return gate
 
+## Arm only the doorway that leads back to the place the party just left. The
+## destination's own RoomExit data remains the authority for that relationship.
+func _protect_reciprocal_gate(target_id: StringName) -> void:
+	for gate: PartyGate in _gates:
+		if gate.exit != null and gate.exit.target_id == target_id:
+			gate.protect_arrival()
+			return
+
 ## Hand campaign state to the profile store. The in-memory default returns
 ## false, so a caller can tell a real save from a held one.
 func save_profile() -> bool:
@@ -331,6 +339,7 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 		if field_entry != null:
 			cave = null
 			_enter_room(field_entry, opposite, spec.arrival_override_enabled, spec.arrival_position)
+			_protect_reciprocal_gate(&"")
 			return
 		var chosen: CaveDefinition = region.cave(spec.target_id)
 		if chosen == null:
@@ -340,16 +349,20 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 		return
 
 	if spec.leads_outside():
+		var reciprocal_target: StringName = cave.id if cave != null else room.id
 		if cave != null:
 			journal.record_cave(cave)
 		save_profile()
 		enter_town()
+		_protect_reciprocal_gate(reciprocal_target)
 		return
 
 	var field_room: RoomDefinition = region.expedition_room(spec.target_id)
 	if field_room != null:
+		var previous_field_id: StringName = room.id
 		cave = null
 		_enter_room(field_room, opposite, spec.arrival_override_enabled, spec.arrival_position)
+		_protect_reciprocal_gate(previous_field_id)
 		return
 
 	var target_cave: CaveDefinition = region.cave(spec.target_id)
@@ -361,7 +374,9 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 	if next == null:
 		push_error("Region %s has no route destination named %s" % [region.id, spec.target_id])
 		return
+	var previous_room_id: StringName = room.id
 	_enter_room(next, opposite)
+	_protect_reciprocal_gate(previous_room_id)
 
 func _on_room_cleared() -> void:
 	journal.record_room(room)
