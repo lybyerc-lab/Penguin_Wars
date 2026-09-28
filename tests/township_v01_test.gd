@@ -30,7 +30,7 @@ func _run() -> void:
 
 	if township != null:
 		check(township.get_node_or_null("GreatHallCollision") is StaticBody2D, "Great Hall has simple collision")
-		check(township.get_node_or_null("MarketCounterCollision") is StaticBody2D, "market counter has simple collision")
+		check(township.get_node_or_null("FishersStallCollision") is StaticBody2D, "Fisher's Stall has the approved footprint collision")
 		check(township.get_node_or_null("MarketPostCollision") == null, "slender market posts do not create snag collisions")
 		var slide := township.get_node_or_null("SnowSlide") as TownshipSnowSlide
 		check(slide != null, "snow slide has a physical runtime zone")
