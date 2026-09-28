@@ -27,6 +27,8 @@ func _run() -> void:
 	check(visual.get_node_or_null("BackgroundPlate") != null, "production background plate loads")
 	check(visual.foreground_layer_count() == 29, "all 29 approved foreground layers are created")
 	check(visual.soft_zone_count() == 8, "all 8 authored soft drift zones are retained")
+	var drift_0 := visual.get_node_or_null("Soft_Drift0") as Area2D
+	check(drift_0 != null and drift_0.monitoring and drift_0.collision_mask == 4, "soft drifts monitor the enemy physics layer without becoming solid")
 	check(visual.hard_body_count() >= 12, "production hard collision bodies are created")
 
 	for layer_name: StringName in [&"rim_passw", &"rim_passe_w", &"rim_passe_m", &"rim_passe_e"]:
@@ -41,10 +43,26 @@ func _run() -> void:
 	var pillar := visual.get_node_or_null("PillarA") as StaticBody2D
 	check(pillar != null and not pillar.is_in_group(&"tuskbull_no_stun"), "Pillar A remains a Tuskbull hard-impact object")
 
-	var charge := ChargeBehavior.new()
-	charge.crash_on_world_collision = true
+	var tuskbull := load("res://scenes/actors/tuskbull.tscn").instantiate() as ArenaEnemy
+	actors.add_child(tuskbull)
+	tuskbull.set_physics_process(false)
+	await process_frame
+	var charge := tuskbull.behavior as ChargeBehavior
 	charge.state = ChargeBehavior.State.CHARGE
 	charge.remaining = 0.5
+	charge.direction = Vector2.RIGHT
+	var normal_charge := charge.movement(tuskbull, null, 0.0)
+	check(is_equal_approx(normal_charge.length(), charge.charge_speed), "Tuskbull uses normal charge speed outside soft snow")
+	visual._on_soft_zone_body_entered(tuskbull)
+	var slowed_charge := charge.movement(tuskbull, null, 0.0)
+	check(charge.state == ChargeBehavior.State.CHARGE, "soft drift keeps Tuskbull in committed CHARGE state")
+	check(is_equal_approx(slowed_charge.length(), charge.charge_speed * 0.60), "soft drift applies the provisional 60% charge-speed multiplier")
+	visual._on_soft_zone_body_entered(tuskbull)
+	visual._on_soft_zone_body_exited(tuskbull)
+	check(charge.soft_charge_active(), "overlapping soft drifts do not restore full speed early")
+	visual._on_soft_zone_body_exited(tuskbull)
+	var restored_charge := charge.movement(tuskbull, null, 0.0)
+	check(not charge.soft_charge_active() and is_equal_approx(restored_charge.length(), charge.charge_speed), "leaving soft drift restores normal charge speed")
 	charge.on_world_collision(false)
 	check(charge.state == ChargeBehavior.State.CHARGE, "no-stun blocker leaves a committed Tuskbull charge active")
 	charge.on_world_collision(true)
