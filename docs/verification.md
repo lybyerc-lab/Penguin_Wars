@@ -1,5 +1,32 @@
 # Verification record
 
+## Actor Grounding V1 runtime integration
+
+September 29, 2026. `integration/frozen-coast-phase-a-production-v0-1`
+integrates the locked Actor Grounding V1 runtime package as presentation-only
+behavior. The player and enemy gameplay roots, collision shapes, movement
+speed, dash distance, hit logic, and Phase A encounter pressure remain
+unchanged. The integration adds soft contact and directional cast shadows,
+subtle player motion responses, enemy grounding responses, front-flipper
+weapon anchoring, and a fixed eight-sprite snow-effect pool. Township publishes
+the locked `-38.5` degree sun with a `103.5 px/m` cast scale; Frozen Coast
+publishes `-51.6` degrees and `139.2 px/m`.
+
+Godot 4.7.2 project import passed on Windows. The focused Actor Grounding,
+character presentation, weapon presentation, Phase A pressure/combat/route,
+reciprocal gate, Frozen Coast visual, Township grounding, character animation,
+scarf-tint, and penguin presentation checks passed. Headless smoke passed, and
+the complete headless regression workflow passed all 28 suites. A real OpenGL
+renderer sanity pass also completed with the production shadows and player
+identity rings visible. The Android production-review APK workflow is the
+release evidence for package identity, signing, ARM64 contents, 16 KB zip
+alignment, and provenance.
+
+Phone review still owns presentation tuning for shadow opacity and length,
+ambient tint strength, motion-response weight, and snow-effect density. Those
+values are presentation parameters; this pass does not change combat pressure
+or movement mechanics.
+
 ## Evolution Feel v1 integration
 
 September 22, 2026. `integration/evolution-feel-v1` starts from the shared

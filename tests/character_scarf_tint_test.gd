@@ -19,11 +19,12 @@ func _run() -> void:
 		var tints: Array[Color] = []
 		for player in players:
 			var visual := player.get_node("CharacterVisual") as CharacterVisual
-			if visual.profile == null or visual.animated_sprite.modulate != Color.WHITE:
-				push_error("Base presentation is missing or tinted at count %d" % count)
+			if visual.profile == null or not visual.animated_sprite.modulate.is_equal_approx(CharacterVisual.AMBIENT_TINT):
+				push_error("Base presentation is missing the Actor Grounding ambient tint at count %d" % count)
 				quit(1)
 				return
-			if visual.scarf_sprite.modulate != player.identity.tint or tints.has(player.identity.tint):
+			var expected_scarf: Color = player.identity.tint * CharacterVisual.SCARF_TINT_MULTIPLIER
+			if not visual.scarf_sprite.modulate.is_equal_approx(expected_scarf) or tints.has(expected_scarf):
 				push_error("Scarf tint is missing or reused at count %d" % count)
 				quit(1)
 				return
@@ -31,7 +32,7 @@ func _run() -> void:
 				push_error("Base and scarf are not synchronized at count %d" % count)
 				quit(1)
 				return
-			tints.append(player.identity.tint)
+			tints.append(expected_scarf)
 		print("SCARF TINT PASS ", count, " players: ", tints)
 		arena.queue_free()
 		await process_frame

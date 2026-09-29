@@ -1,6 +1,9 @@
 class_name ChargeBehavior
 extends EnemyBehavior
 
+signal charge_started(direction: Vector2)
+signal crashed
+
 enum State { APPROACH, WINDUP, CHARGE, RECOVER }
 @export var windup_time: float = 0.75
 @export var charge_speed: float = 360.0
@@ -32,6 +35,7 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 			if remaining <= 0.0:
 				state = State.CHARGE
 				remaining = charge_time
+				charge_started.emit(direction)
 				return direction * _current_charge_speed()
 		State.CHARGE:
 			if remaining <= 0.0:
@@ -51,6 +55,7 @@ func on_world_collision(hard_impact: bool = true) -> void:
 	if crash_on_world_collision and hard_impact and state == State.CHARGE:
 		state = State.RECOVER
 		remaining = crash_recovery_time
+		crashed.emit()
 
 func set_soft_charge_active(active: bool) -> void:
 	_soft_charge_active = active

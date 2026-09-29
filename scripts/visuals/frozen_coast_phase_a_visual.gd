@@ -9,6 +9,7 @@ const GUIDES_PATH := ASSET_ROOT + "frozen_coast_phase_a_guides_v0_1.json"
 const RIM_ALPHA: float = 0.45
 const NO_STUN_GROUP := &"tuskbull_no_stun"
 const ENEMY_PHYSICS_LAYER_MASK: int = 4
+const ACTOR_SUN_META := &"actor_sun"
 
 var actor_layer: Node2D
 var _actor_occluders: Array[Node2D] = []
@@ -28,6 +29,11 @@ static func build(into: Node2D, actors: Node2D) -> FrozenCoastPhaseAVisual:
 func _ready() -> void:
 	z_index = -8
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	get_tree().set_meta(ACTOR_SUN_META, {
+		"region": &"frozen_coast",
+		"angle_deg": -51.6,
+		"len_per_m": 139.2,
+	})
 	_manifest = _load_json(MANIFEST_PATH, "Frozen Coast Phase A manifest")
 	_guides = _load_json(GUIDES_PATH, "Frozen Coast Phase A guides")
 	if _manifest.is_empty() or _guides.is_empty():

@@ -28,13 +28,45 @@ func configure_rack_slot(slot: int) -> void:
 func firing_phase_delay() -> float:
 	return definition.cooldown * 0.12 * float(rack_slot) if definition != null else 0.0
 
-## A cosmetic origin for held art and attack effects. Inventory slots remain
-## stable, including holes left by maturation, so weapon count stays legible.
+## A cosmetic flipper origin for held art and attack effects. Slot identity and
+## firing phase remain stable; only occupied weapons are centred in the fan.
 func presentation_origin(angle: float, thrust: float = 0.0) -> Vector2:
-	var lateral: float = (float(rack_slot) - 2.5) * 11.0
-	var forward := Vector2.from_angle(angle) * (33.0 + thrust)
+	var facing: float = 1.0
+	var sway_x: float = 0.0
+	var lift: float = 0.0
+	var visual := wielder.get_node_or_null("CharacterVisual") as CharacterVisual if wielder != null else null
+	if visual != null:
+		facing = visual.facing_direction()
+		sway_x = visual.presentation_sway_x()
+		lift = visual.presentation_lift()
+	var lane: Vector2i = _occupied_lane()
+	var lateral: float = (float(lane.x) - (float(lane.y) - 1.0) * 0.5) * 7.0
+	var anchor := Vector2(11.0 * facing + sway_x * 0.6 * facing, -11.0 - lift * 1.5)
+	var forward := Vector2.from_angle(angle) * (_hold_distance() + thrust)
 	var side := Vector2.from_angle(angle + PI * 0.5) * lateral
-	return forward + side + Vector2(0, 2)
+	return anchor + forward + side
+
+func _occupied_lane() -> Vector2i:
+	if wielder == null or wielder.weapon_rack == null:
+		return Vector2i(0, 1)
+	var occupied_index: int = 0
+	var occupied_count: int = 0
+	for slot: int in range(wielder.weapon_rack.capacity()):
+		if wielder.weapon_rack.weapon_at(slot) == null:
+			continue
+		if slot == rack_slot:
+			occupied_index = occupied_count
+		occupied_count += 1
+	return Vector2i(occupied_index, maxi(1, occupied_count))
+
+func _hold_distance() -> float:
+	if definition == null:
+		return 8.0
+	match definition.id:
+		&"icicle_slingshot":
+			return 9.0
+		_:
+			return 8.0
 
 func _physics_process(delta: float) -> void:
 	_remaining = maxf(0.0, _remaining - delta)

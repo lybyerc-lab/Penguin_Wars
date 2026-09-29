@@ -1,6 +1,7 @@
 class_name WeaponVisual
 extends Node2D
 ## Visible held art follows weapon aim; animation never drives damage timing.
+const AMBIENT_TINT := Color(0.88, 0.91, 0.96)
 var _weapon: WeaponController
 var _sprite: Sprite2D
 
@@ -16,6 +17,7 @@ func _process(_delta: float) -> void:
 	var pattern: WeaponDefinition.Pattern = _weapon.definition.pattern
 	_sprite.texture = _weapon.definition.held_texture
 	_sprite.scale = Vector2.ONE * _weapon.definition.visual_scale
+	_sprite.modulate = AMBIENT_TINT
 	_sprite.visible = not (pattern == WeaponDefinition.Pattern.AREA and _weapon.is_projectile_in_flight())
 	var progress: float = _weapon.attack_progress()
 	var active: bool = _weapon.is_attacking()
@@ -34,3 +36,19 @@ func _process(_delta: float) -> void:
 	position = _weapon.presentation_origin(angle, thrust)
 	rotation = angle
 	_sprite.flip_v = cos(angle) < 0.0
+	var grip_offset: Vector2 = _grip_offset()
+	if _sprite.flip_v:
+		grip_offset.y = -grip_offset.y
+	_sprite.offset = grip_offset
+	_sprite.rotation = PI * 0.5 if _weapon.definition.id == &"icicle_slingshot" else 0.0
+
+func _grip_offset() -> Vector2:
+	match _weapon.definition.id:
+		&"fish_spear":
+			return Vector2(24.0, 0.0)
+		&"icicle_slingshot":
+			return Vector2(0.0, -22.0)
+		&"snowbomb":
+			return Vector2(26.0, -3.0)
+		_:
+			return Vector2.ZERO
