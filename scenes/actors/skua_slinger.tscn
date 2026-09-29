@@ -15,6 +15,7 @@ maximum = 22.0
 
 [node name="CharacterVisual" parent="." index="3"]
 scale = Vector2(0.92, 0.92)
+enemy_art_id = &"skua_slinger"
 
 [node name="Behavior" type="Node" parent="."]
 script = ExtResource("2")

@@ -18,6 +18,7 @@ maximum = 92.0
 
 [node name="CharacterVisual" parent="." index="3"]
 scale = Vector2(1.55, 1.55)
+enemy_art_id = &"tuskbull"
 
 [node name="Behavior" type="Node" parent="."]
 script = ExtResource("2")

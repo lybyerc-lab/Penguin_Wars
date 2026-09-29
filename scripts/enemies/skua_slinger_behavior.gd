@@ -23,6 +23,8 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 			egg.landing_radius = landing_radius
 			egg.position = enemy.position
 			egg.landing_position = locked_target
+			var facing: float = -1.0 if direction.x < 0.0 else 1.0
+			egg.release_offset = Vector2(SkuaIceEgg.RELEASE_OFFSET_RIGHT.x * facing, SkuaIceEgg.RELEASE_OFFSET_RIGHT.y)
 			enemy.get_parent().add_child(egg)
 			state = State.RECOVER
 			remaining = shot_cooldown

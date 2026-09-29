@@ -92,6 +92,9 @@ jobs:
       - name: Actor Grounding V1
         run: godot --headless --path . --script res://tests/actor_grounding_v1_test.gd
 
+      - name: Production Enemy Set V1
+        run: godot --headless --path . --script res://tests/production_enemy_set_v1_test.gd
+
       - name: Character scarf tint
         run: godot --headless --path . --script res://tests/character_scarf_tint_test.gd
 

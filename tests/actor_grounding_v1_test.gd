@@ -128,16 +128,16 @@ func _run() -> void:
 	var enemy_collision_before: Transform2D = enemy_collision.global_transform
 	var contact_before: float = enemy.contact_radius
 	var hit_before: float = enemy.hit_radius
-	enemy_visual._time = 0.0
 	enemy.velocity = Vector2.ZERO
 	enemy_visual._process_enemy(0.0)
-	check(is_equal_approx(enemy_visual._enemy_body.position.y, -21.0), "placeholder enemy art is re-anchored to y -21")
+	check(enemy_visual.enemy_art_id == &"rolly" and enemy_visual._enemy_anim != null, "Rolly uses the production enemy presentation")
+	check(enemy_visual._enemy_anim.position == Vector2.ZERO and enemy_visual._enemy_anim.rotation == 0.0, "production enemy art stays on the authored ground anchor without procedural bob")
 	check(enemy_visual.get_node_or_null("GroundShadow/CastShadow") != null and enemy_visual.get_node_or_null("GroundShadow/ContactShadow") != null, "enemy has contact and cast shadows")
 	enemy.velocity = Vector2(96.0, 0.0)
 	enemy_visual._process_enemy(1.0 / 60.0)
 	check(enemy.global_position == enemy_root_before and enemy_collision.global_transform == enemy_collision_before, "enemy grounding does not move gameplay root or collision")
 	check(enemy.contact_radius == contact_before and enemy.hit_radius == hit_before, "enemy contact and hit radii remain unchanged")
-	check(enemy_visual._enemy_body.position.y > -24.0 and enemy_visual._enemy_body.position.y < -18.0, "enemy bob stays additive around the new visual anchor")
+	check(enemy_visual._enemy_anim.animation == &"move" and enemy_visual._enemy_anim.position == Vector2.ZERO and enemy_visual._enemy_anim.rotation == 0.0, "production motion comes from rendered move frames without procedural wobble")
 
 	# The snow system allocates exactly eight reusable sprites and drops request 9.
 	var pool_host := Node2D.new()

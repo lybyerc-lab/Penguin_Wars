@@ -17,6 +17,7 @@ enum State {
 }
 
 @export var enemy: bool = false
+@export var enemy_art_id: StringName = &""
 @export var profile: ProfileResource:
 	set = set_profile
 
@@ -47,8 +48,16 @@ var _actor: CharacterBody2D
 var _health: Health
 var _dash: DashController
 
-# Legacy enemy sprite
+# Enemy presentation. Production Phase A enemies use the AnimatedSprite2D;
+# unrelated enemies retain the legacy seal Sprite2D path.
 var _enemy_body: Sprite2D
+var _enemy_anim: AnimatedSprite2D
+var _enemy_one_shot: StringName = &""
+var _enemy_previous_behavior_state: int = -1
+var _enemy_last_windup_progress: float = 0.0
+var _enemy_crash_path: bool = false
+var _enemy_crash_phase: int = -1
+var _enemy_recoil_local := Vector2.ZERO
 
 # Shared actor grounding nodes. They move only presentation; the actor root,
 # collision shape and y-sort/contact origin remain authoritative.
@@ -112,6 +121,9 @@ const TEX_KO_STAR = preload("res://assets/characters/playable_v1/ko_star.svg")
 const TEX_SEAL = preload("res://assets/characters/seal_raider.svg")
 const TEX_SHADOW_CONTACT = preload("res://assets/effects/grounding_v1/ag_shadow_contact.png")
 const TEX_SHADOW_CAST = preload("res://assets/effects/grounding_v1/ag_shadow_cast.png")
+const ROLLY_FRAMES: SpriteFrames = preload("res://resources/characters/enemies/rolly_frames.tres")
+const SKUA_SLINGER_FRAMES: SpriteFrames = preload("res://resources/characters/enemies/skua_slinger_frames.tres")
+const TUSKBULL_FRAMES: SpriteFrames = preload("res://resources/characters/enemies/tuskbull_frames.tres")
 
 const AMBIENT_TINT := Color(0.88, 0.91, 0.96)
 const SCARF_TINT_MULTIPLIER := Color(0.95, 0.96, 0.99)
@@ -121,6 +133,47 @@ const DEFAULT_ACTOR_SUN := {
 	"region": &"frozen_coast",
 	"angle_deg": -51.6,
 	"len_per_m": 139.2,
+}
+const TUSKBULL_CRASH_RECOIL_WORLD: float = 26.0
+const TUSKBULL_RECOVER_DURATION: float = 10.0 / 24.0
+
+const ENEMY_ART := {
+	&"rolly": {
+		"frames": ROLLY_FRAMES,
+		"offset": Vector2(0.0, -34.0),
+		"move_speed": 96.0,
+		"contact_size": Vector2(36.8, 13.2),
+		"contact_position": Vector2.ZERO,
+		"cast_width": 28.9,
+		"cast_frozen": 80.5,
+		"cast_township": 60.1,
+		"contact_alpha": 0.60,
+		"cast_alpha": 0.24,
+	},
+	&"skua_slinger": {
+		"frames": SKUA_SLINGER_FRAMES,
+		"offset": Vector2(0.0, -56.0),
+		"move_speed": 68.0,
+		"contact_size": Vector2(28.3, 9.8),
+		"contact_position": Vector2(-1.1, 0.0),
+		"cast_width": 21.7,
+		"cast_frozen": 105.3,
+		"cast_township": 78.3,
+		"contact_alpha": 0.60,
+		"cast_alpha": 0.24,
+	},
+	&"tuskbull": {
+		"frames": TUSKBULL_FRAMES,
+		"offset": Vector2(0.0, -80.0),
+		"move_speed": 54.0,
+		"contact_size": Vector2(64.5, 16.8),
+		"contact_position": Vector2(2.6, -0.6),
+		"cast_width": 45.2,
+		"cast_frozen": 83.4,
+		"cast_township": 61.9,
+		"contact_alpha": 0.65,
+		"cast_alpha": 0.26,
+	},
 }
 
 const MOVE_FRAME_RESPONSE := [
@@ -170,17 +223,38 @@ func _ready() -> void:
 		_setup_player()
 
 func _setup_enemy() -> void:
+	_health = _actor.get_node_or_null("Health") as Health if _actor != null else null
 	_setup_ground_shadow(false)
-	_enemy_body = Sprite2D.new()
-	_enemy_body.texture = TEX_SEAL
-	_enemy_body.scale = Vector2.ONE * 0.55
-	_enemy_body.position.y = -21
-	_enemy_body.modulate = AMBIENT_TINT
-	add_child(_enemy_body)
+	if ENEMY_ART.has(enemy_art_id):
+		var art: Dictionary = ENEMY_ART[enemy_art_id]
+		_enemy_anim = AnimatedSprite2D.new()
+		_enemy_anim.name = "ProductionEnemy"
+		_enemy_anim.sprite_frames = art["frames"] as SpriteFrames
+		_enemy_anim.centered = true
+		_enemy_anim.offset = art["offset"] as Vector2
+		_enemy_anim.scale = Vector2.ONE * (0.5 / maxf(0.001, scale.x))
+		_enemy_anim.modulate = AMBIENT_TINT
+		_enemy_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		_enemy_anim.animation_finished.connect(_on_enemy_animation_finished)
+		add_child(_enemy_anim)
+		_play_enemy_animation(&"idle")
+		if _health != null and not _health.damaged.is_connected(_on_enemy_damaged):
+			_health.damaged.connect(_on_enemy_damaged)
+	else:
+		_enemy_body = Sprite2D.new()
+		_enemy_body.name = "LegacySeal"
+		_enemy_body.texture = TEX_SEAL
+		_enemy_body.scale = Vector2.ONE * 0.55
+		_enemy_body.position.y = -21
+		_enemy_body.modulate = AMBIENT_TINT
+		add_child(_enemy_body)
 	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior if _actor != null else null
 	if charge != null:
 		charge.charge_started.connect(_on_enemy_charge_started)
 		charge.crashed.connect(_on_enemy_crashed)
+	var behavior := _actor.get_node_or_null("Behavior") as EnemyBehavior if _actor != null else null
+	if behavior != null:
+		_enemy_previous_behavior_state = int(behavior.get("state"))
 
 func _setup_ground_shadow(player_shadow: bool) -> void:
 	_ground_shadow = Node2D.new()
@@ -520,13 +594,16 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _process_enemy(delta: float) -> void:
-	if _actor == null or _enemy_body == null:
+	if _actor == null:
 		return
 	var moving: bool = _actor.velocity.length_squared() > 20.0
-	var alive: bool = true
-	var health_node := _actor.get_node_or_null("Health") as Health
-	if health_node != null:
-		alive = health_node.is_alive()
+	var alive: bool = _health.is_alive() if _health != null else true
+	if _enemy_anim != null:
+		_process_production_enemy(moving)
+		_update_enemy_grounding(0.0, alive, delta)
+		return
+	if _enemy_body == null:
+		return
 	var bob: float = sin(_time * 13.0) * 2.2 if moving and alive else sin(_time * 2.5) * 0.7
 	_enemy_body.position.y = -21 + bob
 	_enemy_body.rotation = sin(_time * 13.0) * 0.06 if moving and alive else 0.0
@@ -534,6 +611,152 @@ func _process_enemy(delta: float) -> void:
 	if not alive:
 		_enemy_body.rotation = PI * 0.5
 	_update_enemy_grounding(bob, alive, delta)
+
+func _process_production_enemy(moving: bool) -> void:
+	_update_production_enemy_facing()
+	_enemy_anim.flip_h = _facing_direction < 0.0
+	match enemy_art_id:
+		&"skua_slinger":
+			_process_skua_animation(moving)
+		&"tuskbull":
+			_process_tuskbull_animation(moving)
+		_:
+			_process_rolly_animation(moving)
+	_update_tuskbull_recoil()
+
+func _update_production_enemy_facing() -> void:
+	var skua := _actor.get_node_or_null("Behavior") as SkuaSlingerBehavior
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior
+	if skua != null and skua.state in [RangedBehavior.State.WINDUP, RangedBehavior.State.RECOVER]:
+		if absf(skua.direction.x) > 0.001:
+			_facing_direction = signf(skua.direction.x)
+	elif charge != null and charge.state in [ChargeBehavior.State.WINDUP, ChargeBehavior.State.CHARGE, ChargeBehavior.State.RECOVER]:
+		if absf(charge.direction.x) > 0.001:
+			_facing_direction = signf(charge.direction.x)
+	elif absf(_actor.velocity.x) > 1.0:
+		_facing_direction = signf(_actor.velocity.x)
+
+func _process_rolly_animation(moving: bool) -> void:
+	if not _enemy_one_shot.is_empty():
+		return
+	_play_enemy_animation(&"move" if moving else &"idle", _enemy_move_speed_scale() if moving else 1.0)
+
+func _process_skua_animation(moving: bool) -> void:
+	var skua := _actor.get_node_or_null("Behavior") as SkuaSlingerBehavior
+	if skua == null:
+		_process_rolly_animation(moving)
+		return
+	var state: int = int(skua.state)
+	if state == RangedBehavior.State.WINDUP:
+		_enemy_one_shot = &""
+		var progress: float = clampf(1.0 - skua.remaining / maxf(0.001, skua.windup_time), 0.0, 1.0)
+		_enemy_last_windup_progress = progress
+		_drive_enemy_animation(&"windup", floori(progress * 19.0), 19)
+	elif _enemy_previous_behavior_state == RangedBehavior.State.WINDUP and state == RangedBehavior.State.RECOVER:
+		if _enemy_one_shot.is_empty():
+			_start_enemy_one_shot(&"throw" if _enemy_last_windup_progress >= 0.9 else &"hit")
+	elif _enemy_one_shot.is_empty():
+		_play_enemy_animation(&"move" if moving else &"idle", _enemy_move_speed_scale() if moving else 1.0)
+	_enemy_previous_behavior_state = state
+
+func _process_tuskbull_animation(moving: bool) -> void:
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior
+	if charge == null:
+		_process_rolly_animation(moving)
+		return
+	var state: int = int(charge.state)
+	match charge.state:
+		ChargeBehavior.State.WINDUP:
+			_enemy_one_shot = &""
+			var progress: float = clampf(1.0 - charge.remaining / maxf(0.001, charge.windup_time), 0.0, 1.0)
+			_enemy_last_windup_progress = progress
+			_drive_enemy_animation(&"windup", floori(progress * 20.0), 20)
+		ChargeBehavior.State.CHARGE:
+			_enemy_one_shot = &""
+			var charge_scale: float = charge._current_charge_speed() / maxf(0.001, charge.charge_speed)
+			_play_enemy_animation(&"charge", charge_scale)
+		ChargeBehavior.State.RECOVER:
+			if _enemy_crash_path:
+				var phase: int = 0 if charge.remaining > charge.crash_recovery_time - 0.25 else (1 if charge.remaining > TUSKBULL_RECOVER_DURATION else 2)
+				if phase != _enemy_crash_phase:
+					_enemy_crash_phase = phase
+					match phase:
+						0:
+							_start_enemy_one_shot(&"crash")
+						1:
+							_enemy_one_shot = &""
+							_play_enemy_animation(&"stunned")
+						2:
+							_start_enemy_one_shot(&"recover")
+			elif _enemy_previous_behavior_state != ChargeBehavior.State.RECOVER:
+				_start_enemy_one_shot(&"recover")
+		ChargeBehavior.State.APPROACH:
+			if _enemy_previous_behavior_state == ChargeBehavior.State.RECOVER:
+				_enemy_crash_path = false
+				_enemy_crash_phase = -1
+				_enemy_one_shot = &""
+			if _enemy_one_shot.is_empty():
+				_play_enemy_animation(&"move" if moving else &"idle", _enemy_move_speed_scale() if moving else 1.0)
+	_enemy_previous_behavior_state = state
+
+func _play_enemy_animation(animation: StringName, speed_scale: float = 1.0) -> void:
+	if _enemy_anim == null or not _enemy_anim.sprite_frames.has_animation(animation):
+		return
+	_enemy_anim.speed_scale = speed_scale
+	if _enemy_anim.animation != animation:
+		_enemy_anim.play(animation)
+	elif _enemy_anim.sprite_frames.get_animation_loop(animation) and not _enemy_anim.is_playing():
+		_enemy_anim.play(animation)
+
+func _drive_enemy_animation(animation: StringName, requested_frame: int, frame_count: int) -> void:
+	if _enemy_anim == null or not _enemy_anim.sprite_frames.has_animation(animation):
+		return
+	if _enemy_anim.animation != animation:
+		_enemy_anim.play(animation)
+	_enemy_anim.pause()
+	_enemy_anim.frame = clampi(requested_frame, 0, frame_count - 1)
+	_enemy_anim.frame_progress = 0.0
+
+func _start_enemy_one_shot(animation: StringName) -> void:
+	if _enemy_anim == null or not _enemy_anim.sprite_frames.has_animation(animation):
+		return
+	_enemy_one_shot = animation
+	_enemy_anim.speed_scale = 1.0
+	_enemy_anim.stop()
+	_enemy_anim.play(animation)
+
+func _on_enemy_animation_finished() -> void:
+	if _enemy_anim != null and _enemy_anim.animation == _enemy_one_shot:
+		_enemy_one_shot = &""
+
+func _enemy_move_speed_scale() -> float:
+	var art: Dictionary = ENEMY_ART.get(enemy_art_id, {})
+	return clampf(_actor.velocity.length() / maxf(0.001, float(art.get("move_speed", 72.0))), 0.6, 1.4)
+
+func _on_enemy_damaged(event: DamageEvent) -> void:
+	if _enemy_anim == null or _health == null or not _health.is_alive():
+		return
+	var skua := _actor.get_node_or_null("Behavior") as SkuaSlingerBehavior
+	if skua != null and skua.state == RangedBehavior.State.WINDUP and event.impulse.length() >= 250.0:
+		_start_enemy_one_shot(&"hit")
+		return
+	if _enemy_anim.animation in [&"idle", &"move"]:
+		_start_enemy_one_shot(&"hit")
+
+func _update_tuskbull_recoil() -> void:
+	if _enemy_anim == null or enemy_art_id != &"tuskbull":
+		_enemy_recoil_local = Vector2.ZERO
+		return
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior
+	var strength: float = 0.0
+	if _enemy_crash_path and charge != null and charge.state == ChargeBehavior.State.RECOVER:
+		strength = 1.0 if charge.remaining > TUSKBULL_RECOVER_DURATION else clampf(charge.remaining / TUSKBULL_RECOVER_DURATION, 0.0, 1.0)
+		var direction: Vector2 = charge.direction.normalized() if charge.direction.length_squared() > 0.0 else Vector2.RIGHT
+		var world_delta: Vector2 = -direction * TUSKBULL_CRASH_RECOIL_WORLD * strength
+		_enemy_recoil_local = to_local(_actor.global_position + world_delta) - to_local(_actor.global_position)
+	else:
+		_enemy_recoil_local = Vector2.ZERO
+	_enemy_anim.position = _enemy_recoil_local
 
 func _process_player(delta: float) -> void:
 	if _pivot == null:
@@ -795,18 +1018,31 @@ func _update_enemy_grounding(bob: float, alive: bool, delta: float) -> void:
 	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior
 	var skua := _actor.get_node_or_null("Behavior") as SkuaSlingerBehavior
 	var heavy: bool = charge != null and charge.crash_on_world_collision
-	var peak: float = clampf(-bob / 2.2, 0.0, 1.0)
+	var production: bool = _enemy_anim != null and ENEMY_ART.has(enemy_art_id)
+	var peak: float = 0.0 if production else clampf(-bob / 2.2, 0.0, 1.0)
 	var scale_at_peak: float = 0.95 if heavy else 0.92
 	var alpha_at_peak: float = 0.88 if heavy else 0.80
 	var bob_scale: float = lerpf(1.0, scale_at_peak, peak)
 	var bob_alpha: float = lerpf(1.0, alpha_at_peak, peak)
-	var contact_scale := Vector2(42.0 / 128.0, 14.5 / 64.0) * bob_scale
-	var cast_scale := Vector2(
-		(72.0 if sun.get("region", &"frozen_coast") == &"frozen_coast" else 54.0) / 256.0,
-		34.0 / 64.0
-	) * bob_scale
-	var contact_alpha: float = (0.65 if heavy else 0.60) * bob_alpha
-	var cast_alpha: float = (0.26 if heavy else 0.24) * bob_alpha
+	var contact_size := Vector2(42.0, 14.5)
+	var contact_position := Vector2.ZERO
+	var cast_width: float = 34.0
+	var cast_length: float = 72.0 if sun.get("region", &"frozen_coast") == &"frozen_coast" else 54.0
+	var contact_alpha: float = 0.65 if heavy else 0.60
+	var cast_alpha: float = 0.26 if heavy else 0.24
+	if production:
+		var art: Dictionary = ENEMY_ART[enemy_art_id]
+		contact_size = art["contact_size"] as Vector2
+		var configured_position: Vector2 = art["contact_position"] as Vector2
+		contact_position = Vector2(configured_position.x * _facing_direction, configured_position.y)
+		cast_width = float(art["cast_width"])
+		cast_length = float(art["cast_frozen"] if sun.get("region", &"frozen_coast") == &"frozen_coast" else art["cast_township"])
+		contact_alpha = float(art["contact_alpha"])
+		cast_alpha = float(art["cast_alpha"])
+	var contact_scale := Vector2(contact_size.x / 128.0, contact_size.y / 64.0) * bob_scale
+	var cast_scale := Vector2(cast_length / 256.0, cast_width / 64.0) * bob_scale
+	contact_alpha *= bob_alpha
+	cast_alpha *= bob_alpha
 	var contact_rotation: float = 0.0
 	if skua != null and skua.state == RangedBehavior.State.WINDUP:
 		contact_scale.x *= 1.08
@@ -817,7 +1053,8 @@ func _update_enemy_grounding(bob: float, alive: bool, delta: float) -> void:
 	if _enemy_crash_timer > 0.0:
 		var crash_strength: float = _enemy_crash_timer / 0.25
 		contact_scale *= Vector2.ONE.lerp(Vector2(1.20, 0.90), crash_strength)
-	_contact_shadow.position = Vector2.ZERO
+	_ground_shadow.position = _enemy_recoil_local
+	_contact_shadow.position = contact_position
 	_contact_shadow.rotation = contact_rotation
 	_contact_shadow.scale = contact_scale
 	_contact_shadow.modulate = Color(SHADOW_COLOR, contact_alpha)
@@ -869,11 +1106,20 @@ func _on_player_frame_changed() -> void:
 		_emit_snow_kick(Vector2(-4.0, 1.0), 0.5)
 
 func _on_enemy_charge_started(direction: Vector2) -> void:
+	if _enemy_anim != null and enemy_art_id == &"tuskbull":
+		_enemy_crash_path = false
+		_enemy_crash_phase = -1
+		_enemy_one_shot = &""
+		_play_enemy_animation(&"charge")
 	_emit_dash_puff(direction, 1.5)
 
 func _on_enemy_crashed() -> void:
 	_enemy_crash_timer = 0.25
 	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior if _actor != null else null
+	if _enemy_anim != null and enemy_art_id == &"tuskbull":
+		_enemy_crash_path = true
+		_enemy_crash_phase = 0
+		_start_enemy_one_shot(&"crash")
 	_emit_dash_puff(charge.direction if charge != null else Vector2.RIGHT, 1.8)
 
 func _process_tuskbull_snow(delta: float, charge: ChargeBehavior, heavy: bool) -> void:

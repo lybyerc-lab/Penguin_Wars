@@ -1,0 +1,2227 @@
+{
+ "name": "Penguin Wars - Production Enemy Set V1 (Phase A: Rolly, Skua Slinger, Tuskbull)",
+ "status": "art deliverable for review; not integrated",
+ "source_blend": "art/blender/characters/enemies/penguin_wars_phase_a_enemies_production_v1_r2.blend",
+ "source_history": [
+  "art/blender/characters/enemies/penguin_wars_phase_a_enemies_production_v1.blend (pass 1, kept unchanged)"
+ ],
+ "units": "Godot px (\"px\") are world pixels (Godot px = 81*x, -80*y Blender metres). \"local\" = inside CharacterVisual, i.e. world / CharacterVisual.scale. Texture px (\"tex\") are PNG pixels.",
+ "frame_path": "res://assets/characters/enemies/<enemy>/production/<anim>/<enemy>_<anim>_###.png",
+ "frame_rate": 24,
+ "facing": "right; use flip_h for left (anchor x is the canvas centre, so flipping never moves the origin)",
+ "texel_density": {
+  "tex_per_px": 2.0,
+  "px_per_model_metre": 52.1,
+  "tex_per_model_metre": 104.2,
+  "note": "calibrated to the production penguin (52.1 px per model metre); penguin frames are 4 tex/px, enemy frames 2 tex/px"
+ },
+ "camera": {
+  "type": "orthographic",
+  "rotation_deg": [
+   82.0,
+   0.0,
+   -25.0
+  ],
+  "note": "same view direction as the production penguin export camera PW_Cam_3Q (perspective 85mm x0.8, 8 deg below horizontal, yaw -25). Verified: PW_Cam_3Q reproduces the shipped penguin move frames exactly (identical bbox). Orthographic keeps large bodies free of lens distortion."
+ },
+ "contact_contract": "origin = centre of the ground footprint = ground_anchor texel. No ground shadow, contact shadow, rim or snow baked into frames. Runtime owns shadows, ambient tint, snow FX.",
+ "import_recommendation": {
+  "filter": "linear",
+  "mipmaps": false,
+  "compress_mode": "Lossless (match penguin frames) or VRAM Compressed if memory is tight; see handoff section 7"
+ },
+ "ambient_tint": [
+  0.88,
+  0.91,
+  0.96
+ ],
+ "enemies": {
+  "rolly": {
+   "scene": "res://scenes/actors/rolly.tscn",
+   "character_visual_scale": 0.76,
+   "canvas_tex": [
+    96,
+    96
+   ],
+   "ground_anchor_tex": [
+    48,
+    82
+   ],
+   "sprite2d": {
+    "centered": true,
+    "offset_tex": [
+     0.0,
+     -34.0
+    ],
+    "position_local": [
+     0,
+     0
+    ]
+   },
+   "world_scale": 0.5,
+   "sprite_scale_inside_character_visual": 0.6579,
+   "height_model_m": 0.556,
+   "height_px": 28.7,
+   "idle_visual_size_px": [
+    27.0,
+    31.5
+   ],
+   "idle_visual_bounds_px": [
+    -13.5,
+    -29.5,
+    13.5,
+    2.0
+   ],
+   "footprint_width_px": 16.8,
+   "footprint_span_px": [
+    -5.2,
+    11.6
+   ],
+   "footprint_note": "screen-x span of the geometry within 3 cm of the ground at idle (feet/belly/flippers), measured in Blender",
+   "union_visual_bounds_px": [
+    -19.5,
+    -35.0,
+    20.0,
+    4.0
+   ],
+   "placeholder_seal_world_size_px": [
+    43.5,
+    40.1
+   ],
+   "gameplay_reference_unchanged": {
+    "speed": 96.0,
+    "hit_radius": 14.0,
+    "contact_radius": 25.0,
+    "collision_circle_radius": 9.88,
+    "health": 16.0
+   },
+   "behaviour_reference_unchanged": null,
+   "recommended_runtime_scale": {
+    "world_scale": 0.5,
+    "change_from_placeholder": "yes - replaces the seal body (0.55 x CharacterVisual scale). Gameplay scale, collision and radii unchanged."
+   },
+   "clips": {
+    "idle": {
+     "frames": 16,
+     "fps": 24,
+     "loop": true,
+     "duration_s": 0.667,
+     "visual_bounds_px": [
+      -14.0,
+      -30.5,
+      13.5,
+      2.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "move": {
+     "frames": 12,
+     "fps": 24,
+     "loop": true,
+     "duration_s": 0.5,
+     "visual_bounds_px": [
+      -17.0,
+      -32.5,
+      13.5,
+      2.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "hit": {
+     "frames": 5,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.208,
+     "visual_bounds_px": [
+      -14.0,
+      -29.5,
+      16.0,
+      2.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "defeat": {
+     "frames": 8,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.333,
+     "visual_bounds_px": [
+      -19.5,
+      -35.0,
+      20.0,
+      4.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "shadows_world_px": {
+    "contact_size": [
+     28.0,
+     10.0
+    ],
+    "contact_position": [
+     0.0,
+     0.0
+    ],
+    "cast_width": 22.0,
+    "cast_length": {
+     "frozen_coast": 61.2,
+     "township": 45.7
+    },
+    "contact_alpha": 0.6,
+    "cast_alpha": 0.24
+   },
+   "shadows_local": {
+    "contact_size": [
+     36.8,
+     13.2
+    ],
+    "contact_position": [
+     0.0,
+     0.0
+    ],
+    "cast_width": 28.9,
+    "cast_length": {
+     "frozen_coast": 80.5,
+     "township": 60.1
+    },
+    "contact_alpha": 0.6,
+    "cast_alpha": 0.24,
+    "replaces": "shared seal values contact 42 x 14.5, cast width 34, cast length 72 / 54 (local)"
+   },
+   "per_frame_visual_bounds_px": {
+    "idle": [
+     [
+      -13.5,
+      -29.5,
+      13.5,
+      2.0
+     ],
+     [
+      -13.5,
+      -30.0,
+      13.0,
+      2.0
+     ],
+     [
+      -13.5,
+      -30.5,
+      13.0,
+      2.0
+     ],
+     [
+      -13.5,
+      -30.5,
+      13.0,
+      2.0
+     ],
+     [
+      -13.5,
+      -30.5,
+      13.0,
+      2.0
+     ],
+     [
+      -13.5,
+      -30.5,
+      13.0,
+      2.0
+     ],
+     [
+      -13.5,
+      -30.5,
+      13.0,
+      2.0
+     ],
+     [
+      -13.5,
+      -30.0,
+      13.0,
+      2.0
+     ],
+     [
+      -13.5,
+      -29.5,
+      13.5,
+      2.0
+     ],
+     [
+      -14.0,
+      -29.5,
+      13.5,
+      2.0
+     ],
+     [
+      -14.0,
+      -29.0,
+      13.5,
+      2.0
+     ],
+     [
+      -14.0,
+      -29.0,
+      13.5,
+      2.0
+     ],
+     [
+      -14.0,
+      -29.0,
+      13.5,
+      2.0
+     ],
+     [
+      -14.0,
+      -29.0,
+      13.5,
+      2.0
+     ],
+     [
+      -14.0,
+      -29.0,
+      13.5,
+      2.0
+     ],
+     [
+      -14.0,
+      -29.5,
+      13.5,
+      2.0
+     ]
+    ],
+    "move": [
+     [
+      -16.0,
+      -24.5,
+      13.0,
+      2.0
+     ],
+     [
+      -15.0,
+      -30.0,
+      12.5,
+      1.0
+     ],
+     [
+      -14.0,
+      -32.0,
+      12.5,
+      1.0
+     ],
+     [
+      -14.0,
+      -32.5,
+      12.5,
+      0.5
+     ],
+     [
+      -14.0,
+      -32.0,
+      12.5,
+      1.0
+     ],
+     [
+      -15.0,
+      -30.0,
+      12.5,
+      1.0
+     ],
+     [
+      -16.0,
+      -24.5,
+      13.0,
+      2.0
+     ],
+     [
+      -16.0,
+      -29.5,
+      12.5,
+      1.5
+     ],
+     [
+      -16.5,
+      -31.5,
+      13.0,
+      1.5
+     ],
+     [
+      -17.0,
+      -32.0,
+      13.5,
+      1.5
+     ],
+     [
+      -16.5,
+      -31.5,
+      13.0,
+      1.5
+     ],
+     [
+      -16.0,
+      -29.5,
+      12.5,
+      1.5
+     ]
+    ],
+    "hit": [
+     [
+      -13.5,
+      -29.5,
+      13.5,
+      2.0
+     ],
+     [
+      -14.0,
+      -26.0,
+      16.0,
+      2.0
+     ],
+     [
+      -13.5,
+      -27.0,
+      15.5,
+      2.0
+     ],
+     [
+      -13.5,
+      -28.5,
+      14.5,
+      2.0
+     ],
+     [
+      -13.5,
+      -29.5,
+      13.5,
+      2.0
+     ]
+    ],
+    "defeat": [
+     [
+      -13.5,
+      -29.5,
+      13.5,
+      2.0
+     ],
+     [
+      -12.0,
+      -35.0,
+      14.0,
+      2.0
+     ],
+     [
+      -11.5,
+      -34.0,
+      14.5,
+      2.0
+     ],
+     [
+      -14.5,
+      -24.0,
+      16.5,
+      2.0
+     ],
+     [
+      -17.0,
+      -18.0,
+      18.0,
+      2.5
+     ],
+     [
+      -19.5,
+      -11.5,
+      20.0,
+      4.0
+     ],
+     [
+      -14.0,
+      -8.0,
+      14.0,
+      3.0
+     ],
+     [
+      -8.0,
+      -4.5,
+      9.0,
+      2.0
+     ]
+    ]
+   }
+  },
+  "skua_slinger": {
+   "scene": "res://scenes/actors/skua_slinger.tscn",
+   "character_visual_scale": 0.92,
+   "canvas_tex": [
+    176,
+    144
+   ],
+   "ground_anchor_tex": [
+    88,
+    128
+   ],
+   "sprite2d": {
+    "centered": true,
+    "offset_tex": [
+     0.0,
+     -56.0
+    ],
+    "position_local": [
+     0,
+     0
+    ]
+   },
+   "world_scale": 0.5,
+   "sprite_scale_inside_character_visual": 0.5435,
+   "height_model_m": 0.886,
+   "height_px": 45.7,
+   "idle_visual_size_px": [
+    35.5,
+    46.5
+   ],
+   "idle_visual_bounds_px": [
+    -19.0,
+    -45.0,
+    16.5,
+    1.5
+   ],
+   "footprint_width_px": 11.7,
+   "footprint_span_px": [
+    -4.2,
+    7.5
+   ],
+   "footprint_note": "screen-x span of the geometry within 3 cm of the ground at idle (feet/belly/flippers), measured in Blender",
+   "union_visual_bounds_px": [
+    -37.5,
+    -54.5,
+    20.5,
+    3.5
+   ],
+   "placeholder_seal_world_size_px": [
+    52.6,
+    48.6
+   ],
+   "gameplay_reference_unchanged": {
+    "speed": 68.0,
+    "hit_radius": 18.0,
+    "contact_radius": 29.0,
+    "collision_circle_radius": 13.0,
+    "health": 22.0
+   },
+   "behaviour_reference_unchanged": {
+    "script": "SkuaSlingerBehavior",
+    "windup_time": 0.8,
+    "shot_cooldown": 1.8,
+    "egg_travel_time": 0.62,
+    "landing_radius": 42.0
+   },
+   "recommended_runtime_scale": {
+    "world_scale": 0.5,
+    "change_from_placeholder": "yes - replaces the seal body (0.55 x CharacterVisual scale). Gameplay scale, collision and radii unchanged."
+   },
+   "clips": {
+    "idle": {
+     "frames": 16,
+     "fps": 24,
+     "loop": true,
+     "duration_s": 0.667,
+     "visual_bounds_px": [
+      -19.5,
+      -45.5,
+      17.5,
+      1.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "move": {
+     "frames": 12,
+     "fps": 24,
+     "loop": true,
+     "duration_s": 0.5,
+     "visual_bounds_px": [
+      -26.5,
+      -45.5,
+      20.0,
+      1.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.1,
+      0.4,
+      0.6,
+      0.4,
+      0.1,
+      0.0,
+      0.1,
+      0.4,
+      0.6,
+      0.4,
+      0.1
+     ]
+    },
+    "windup": {
+     "frames": 19,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.792,
+     "visual_bounds_px": [
+      -36.0,
+      -54.5,
+      15.5,
+      1.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "throw": {
+     "frames": 8,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.333,
+     "visual_bounds_px": [
+      -18.0,
+      -45.0,
+      20.5,
+      1.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "hit": {
+     "frames": 5,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.208,
+     "visual_bounds_px": [
+      -33.5,
+      -45.0,
+      15.5,
+      1.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "defeat": {
+     "frames": 8,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.333,
+     "visual_bounds_px": [
+      -37.5,
+      -49.0,
+      15.5,
+      3.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      1.3,
+      2.5,
+      3.7,
+      2.3,
+      0.6,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "shadows_world_px": {
+    "contact_size": [
+     26.0,
+     9.0
+    ],
+    "contact_position": [
+     -1.0,
+     0.0
+    ],
+    "cast_width": 20.0,
+    "cast_length": {
+     "frozen_coast": 96.9,
+     "township": 72.0
+    },
+    "contact_alpha": 0.6,
+    "cast_alpha": 0.24
+   },
+   "shadows_local": {
+    "contact_size": [
+     28.3,
+     9.8
+    ],
+    "contact_position": [
+     -1.1,
+     0.0
+    ],
+    "cast_width": 21.7,
+    "cast_length": {
+     "frozen_coast": 105.3,
+     "township": 78.3
+    },
+    "contact_alpha": 0.6,
+    "cast_alpha": 0.24,
+    "replaces": "shared seal values contact 42 x 14.5, cast width 34, cast length 72 / 54 (local)"
+   },
+   "per_frame_visual_bounds_px": {
+    "idle": [
+     [
+      -19.0,
+      -45.0,
+      16.5,
+      1.5
+     ],
+     [
+      -19.0,
+      -45.0,
+      17.0,
+      1.5
+     ],
+     [
+      -19.0,
+      -45.0,
+      17.5,
+      1.5
+     ],
+     [
+      -19.5,
+      -45.0,
+      17.5,
+      1.5
+     ],
+     [
+      -19.5,
+      -45.0,
+      17.5,
+      1.5
+     ],
+     [
+      -19.5,
+      -45.0,
+      17.0,
+      1.5
+     ],
+     [
+      -19.0,
+      -45.0,
+      16.0,
+      1.5
+     ],
+     [
+      -19.0,
+      -45.0,
+      15.5,
+      1.5
+     ],
+     [
+      -18.5,
+      -45.0,
+      14.5,
+      1.5
+     ],
+     [
+      -18.0,
+      -45.5,
+      14.0,
+      1.5
+     ],
+     [
+      -18.0,
+      -45.5,
+      13.5,
+      1.5
+     ],
+     [
+      -17.5,
+      -45.5,
+      13.5,
+      1.5
+     ],
+     [
+      -17.5,
+      -45.5,
+      13.5,
+      1.5
+     ],
+     [
+      -18.0,
+      -45.5,
+      14.5,
+      1.5
+     ],
+     [
+      -18.5,
+      -45.0,
+      15.0,
+      1.5
+     ],
+     [
+      -18.5,
+      -45.0,
+      16.0,
+      1.5
+     ]
+    ],
+    "move": [
+     [
+      -24.0,
+      -41.0,
+      19.0,
+      1.5
+     ],
+     [
+      -26.0,
+      -42.5,
+      19.5,
+      1.5
+     ],
+     [
+      -25.5,
+      -44.5,
+      20.0,
+      1.0
+     ],
+     [
+      -23.5,
+      -45.5,
+      19.5,
+      1.0
+     ],
+     [
+      -21.5,
+      -45.5,
+      19.0,
+      1.0
+     ],
+     [
+      -21.5,
+      -44.0,
+      19.0,
+      1.5
+     ],
+     [
+      -24.0,
+      -41.0,
+      19.0,
+      1.5
+     ],
+     [
+      -26.5,
+      -42.5,
+      19.0,
+      1.0
+     ],
+     [
+      -26.0,
+      -44.5,
+      19.0,
+      1.0
+     ],
+     [
+      -24.0,
+      -45.5,
+      18.5,
+      0.5
+     ],
+     [
+      -21.5,
+      -45.5,
+      18.5,
+      1.0
+     ],
+     [
+      -21.5,
+      -44.0,
+      18.5,
+      1.0
+     ]
+    ],
+    "windup": [
+     [
+      -18.0,
+      -45.0,
+      15.5,
+      1.5
+     ],
+     [
+      -22.0,
+      -44.0,
+      15.5,
+      1.5
+     ],
+     [
+      -26.5,
+      -43.0,
+      15.5,
+      1.5
+     ],
+     [
+      -30.0,
+      -42.0,
+      15.5,
+      1.5
+     ],
+     [
+      -33.5,
+      -41.0,
+      15.5,
+      1.5
+     ],
+     [
+      -35.0,
+      -42.0,
+      15.0,
+      1.5
+     ],
+     [
+      -36.0,
+      -44.0,
+      15.0,
+      1.5
+     ],
+     [
+      -33.5,
+      -46.5,
+      14.0,
+      1.5
+     ],
+     [
+      -28.5,
+      -51.5,
+      13.5,
+      1.5
+     ],
+     [
+      -25.5,
+      -54.5,
+      13.5,
+      1.5
+     ],
+     [
+      -26.0,
+      -54.5,
+      13.5,
+      1.5
+     ],
+     [
+      -26.0,
+      -54.5,
+      13.5,
+      1.5
+     ],
+     [
+      -26.0,
+      -54.5,
+      13.0,
+      1.5
+     ],
+     [
+      -25.5,
+      -54.5,
+      13.5,
+      1.5
+     ],
+     [
+      -25.5,
+      -54.5,
+      13.5,
+      1.5
+     ],
+     [
+      -26.0,
+      -54.5,
+      13.5,
+      1.5
+     ],
+     [
+      -26.0,
+      -54.5,
+      13.5,
+      1.5
+     ],
+     [
+      -26.0,
+      -54.5,
+      13.0,
+      1.5
+     ],
+     [
+      -25.5,
+      -54.5,
+      13.5,
+      1.5
+     ]
+    ],
+    "throw": [
+     [
+      -17.0,
+      -45.0,
+      18.5,
+      1.5
+     ],
+     [
+      -16.5,
+      -43.5,
+      20.5,
+      1.5
+     ],
+     [
+      -16.5,
+      -43.5,
+      20.5,
+      1.5
+     ],
+     [
+      -18.0,
+      -43.0,
+      18.5,
+      1.5
+     ],
+     [
+      -18.0,
+      -44.0,
+      17.0,
+      1.5
+     ],
+     [
+      -18.0,
+      -44.5,
+      16.5,
+      1.5
+     ],
+     [
+      -18.0,
+      -45.0,
+      16.0,
+      1.5
+     ],
+     [
+      -18.0,
+      -45.0,
+      15.5,
+      1.5
+     ]
+    ],
+    "hit": [
+     [
+      -33.5,
+      -43.0,
+      12.5,
+      1.5
+     ],
+     [
+      -31.5,
+      -43.5,
+      12.5,
+      1.5
+     ],
+     [
+      -26.0,
+      -44.5,
+      12.5,
+      1.5
+     ],
+     [
+      -21.0,
+      -45.0,
+      14.5,
+      1.5
+     ],
+     [
+      -18.0,
+      -45.0,
+      15.5,
+      1.5
+     ]
+    ],
+    "defeat": [
+     [
+      -18.0,
+      -45.0,
+      15.5,
+      1.5
+     ],
+     [
+      -23.0,
+      -49.0,
+      9.0,
+      0.0
+     ],
+     [
+      -27.0,
+      -48.5,
+      8.5,
+      -1.5
+     ],
+     [
+      -30.0,
+      -48.0,
+      8.5,
+      -2.5
+     ],
+     [
+      -33.5,
+      -44.5,
+      8.5,
+      0.5
+     ],
+     [
+      -36.0,
+      -41.5,
+      8.5,
+      2.0
+     ],
+     [
+      -37.5,
+      -40.0,
+      8.0,
+      3.0
+     ],
+     [
+      -37.5,
+      -39.5,
+      8.0,
+      3.5
+     ]
+    ]
+   },
+   "egg": {
+    "held_egg_colour": "#cbf1ff body, cyan glow; matches the runtime SkuaIceEgg (#d9f5ff, r 8 px)",
+    "held_egg_position_px_idle": [
+     -6.1,
+     -10.5
+    ],
+    "windup_whirl_top_px": [
+     -16.1,
+     -46.6
+    ],
+    "release_point_px": [
+     10.0,
+     -24.0
+    ],
+    "egg_hidden_frames": {
+     "throw": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ]
+    },
+    "note": "positions for facing right; mirror x when flipped. release_point_px is where the art lets go on throw frame 0."
+   }
+  },
+  "tuskbull": {
+   "scene": "res://scenes/actors/tuskbull.tscn",
+   "character_visual_scale": 1.55,
+   "canvas_tex": [
+    320,
+    200
+   ],
+   "ground_anchor_tex": [
+    160,
+    180
+   ],
+   "sprite2d": {
+    "centered": true,
+    "offset_tex": [
+     0.0,
+     -80.0
+    ],
+    "position_local": [
+     0,
+     0
+    ]
+   },
+   "world_scale": 0.5,
+   "sprite_scale_inside_character_visual": 0.3226,
+   "height_model_m": 1.171,
+   "height_px": 60.4,
+   "idle_visual_size_px": [
+    125.0,
+    65.5
+   ],
+   "idle_visual_bounds_px": [
+    -48.0,
+    -59.5,
+    77.0,
+    6.0
+   ],
+   "footprint_width_px": 89.6,
+   "footprint_span_px": [
+    -47.1,
+    42.5
+   ],
+   "footprint_note": "screen-x span of the geometry within 3 cm of the ground at idle (feet/belly/flippers), measured in Blender",
+   "union_visual_bounds_px": [
+    -52.0,
+    -82.5,
+    77.0,
+    7.5
+   ],
+   "placeholder_seal_world_size_px": [
+    88.7,
+    81.8
+   ],
+   "gameplay_reference_unchanged": {
+    "speed": 54.0,
+    "hit_radius": 34.0,
+    "contact_radius": 52.0,
+    "collision_circle_radius": 19.5,
+    "health": 92.0
+   },
+   "behaviour_reference_unchanged": {
+    "script": "ChargeBehavior",
+    "windup_time": 0.85,
+    "charge_speed": 430.0,
+    "charge_time": 0.85,
+    "recovery_time": 1.25,
+    "crash_on_world_collision": true,
+    "crash_recovery_time": 1.75,
+    "soft_charge_speed_multiplier": 0.65
+   },
+   "recommended_runtime_scale": {
+    "world_scale": 0.5,
+    "change_from_placeholder": "yes - replaces the seal body (0.55 x CharacterVisual scale). Gameplay scale, collision and radii unchanged."
+   },
+   "clips": {
+    "idle": {
+     "frames": 16,
+     "fps": 24,
+     "loop": true,
+     "duration_s": 0.667,
+     "visual_bounds_px": [
+      -48.0,
+      -61.0,
+      77.0,
+      6.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "move": {
+     "frames": 16,
+     "fps": 24,
+     "loop": true,
+     "duration_s": 0.667,
+     "visual_bounds_px": [
+      -48.5,
+      -62.0,
+      76.5,
+      7.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.1,
+      0.6,
+      0.8,
+      0.9,
+      0.9,
+      0.6,
+      0.3,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "windup": {
+     "frames": 20,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.833,
+     "visual_bounds_px": [
+      -48.5,
+      -82.5,
+      76.0,
+      7.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "charge": {
+     "frames": 8,
+     "fps": 24,
+     "loop": true,
+     "duration_s": 0.333,
+     "visual_bounds_px": [
+      -52.0,
+      -80.5,
+      72.0,
+      7.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      1.2,
+      2.0,
+      1.2,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "crash": {
+     "frames": 6,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.25,
+     "visual_bounds_px": [
+      -47.5,
+      -70.0,
+      74.0,
+      6.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "stunned": {
+     "frames": 12,
+     "fps": 24,
+     "loop": true,
+     "duration_s": 0.5,
+     "visual_bounds_px": [
+      -47.5,
+      -66.5,
+      75.0,
+      7.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "recover": {
+     "frames": 10,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.417,
+     "visual_bounds_px": [
+      -47.5,
+      -65.5,
+      77.0,
+      6.5
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.1,
+      0.1,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "hit": {
+     "frames": 5,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.208,
+     "visual_bounds_px": [
+      -47.5,
+      -59.5,
+      75.5,
+      6.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "defeat": {
+     "frames": 10,
+     "fps": 24,
+     "loop": false,
+     "duration_s": 0.417,
+     "visual_bounds_px": [
+      -47.5,
+      -66.5,
+      76.0,
+      6.0
+     ],
+     "lift_px_per_frame": [
+      0.0,
+      0.2,
+      0.2,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "shadows_world_px": {
+    "contact_size": [
+     100.0,
+     26.0
+    ],
+    "contact_position": [
+     4.0,
+     -1.0
+    ],
+    "cast_width": 70.0,
+    "cast_length": {
+     "frozen_coast": 129.2,
+     "township": 96.0
+    },
+    "contact_alpha": 0.65,
+    "cast_alpha": 0.26
+   },
+   "shadows_local": {
+    "contact_size": [
+     64.5,
+     16.8
+    ],
+    "contact_position": [
+     2.6,
+     -0.6
+    ],
+    "cast_width": 45.2,
+    "cast_length": {
+     "frozen_coast": 83.4,
+     "township": 61.9
+    },
+    "contact_alpha": 0.65,
+    "cast_alpha": 0.26,
+    "replaces": "shared seal values contact 42 x 14.5, cast width 34, cast length 72 / 54 (local)"
+   },
+   "per_frame_visual_bounds_px": {
+    "idle": [
+     [
+      -48.0,
+      -59.5,
+      77.0,
+      6.0
+     ],
+     [
+      -48.0,
+      -60.0,
+      77.0,
+      6.0
+     ],
+     [
+      -48.0,
+      -60.5,
+      77.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -61.0,
+      76.5,
+      6.0
+     ],
+     [
+      -47.5,
+      -61.0,
+      76.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -61.0,
+      75.5,
+      6.0
+     ],
+     [
+      -47.0,
+      -60.5,
+      75.0,
+      6.0
+     ],
+     [
+      -47.0,
+      -60.0,
+      74.5,
+      6.0
+     ],
+     [
+      -47.0,
+      -59.5,
+      74.0,
+      6.0
+     ],
+     [
+      -47.0,
+      -59.0,
+      73.5,
+      6.0
+     ],
+     [
+      -47.0,
+      -58.5,
+      73.5,
+      6.0
+     ],
+     [
+      -47.0,
+      -58.5,
+      74.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -58.5,
+      74.5,
+      6.0
+     ],
+     [
+      -47.5,
+      -58.5,
+      75.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -58.5,
+      75.5,
+      6.0
+     ],
+     [
+      -48.0,
+      -59.0,
+      76.5,
+      6.0
+     ]
+    ],
+    "move": [
+     [
+      -48.0,
+      -61.5,
+      72.5,
+      6.0
+     ],
+     [
+      -47.5,
+      -61.5,
+      73.5,
+      6.0
+     ],
+     [
+      -47.0,
+      -62.0,
+      74.5,
+      6.0
+     ],
+     [
+      -46.5,
+      -62.0,
+      75.5,
+      6.0
+     ],
+     [
+      -46.0,
+      -61.5,
+      76.0,
+      6.0
+     ],
+     [
+      -46.0,
+      -60.5,
+      76.5,
+      6.0
+     ],
+     [
+      -46.0,
+      -59.5,
+      76.5,
+      6.5
+     ],
+     [
+      -46.0,
+      -58.5,
+      76.0,
+      7.0
+     ],
+     [
+      -46.5,
+      -59.0,
+      75.0,
+      6.0
+     ],
+     [
+      -47.0,
+      -60.0,
+      74.0,
+      4.5
+     ],
+     [
+      -48.0,
+      -60.5,
+      73.0,
+      4.0
+     ],
+     [
+      -48.5,
+      -61.5,
+      72.0,
+      3.5
+     ],
+     [
+      -48.5,
+      -61.5,
+      71.5,
+      4.0
+     ],
+     [
+      -48.5,
+      -61.5,
+      71.0,
+      4.5
+     ],
+     [
+      -48.5,
+      -61.5,
+      71.5,
+      5.0
+     ],
+     [
+      -48.0,
+      -61.5,
+      72.0,
+      5.5
+     ]
+    ],
+    "windup": [
+     [
+      -47.5,
+      -59.5,
+      75.5,
+      6.0
+     ],
+     [
+      -47.5,
+      -60.0,
+      75.5,
+      5.5
+     ],
+     [
+      -47.5,
+      -62.5,
+      76.0,
+      1.5
+     ],
+     [
+      -47.5,
+      -66.0,
+      76.0,
+      -1.0
+     ],
+     [
+      -47.5,
+      -70.5,
+      74.5,
+      -1.0
+     ],
+     [
+      -48.0,
+      -76.0,
+      72.5,
+      -1.0
+     ],
+     [
+      -48.0,
+      -80.0,
+      70.0,
+      -1.0
+     ],
+     [
+      -48.0,
+      -81.0,
+      69.0,
+      -1.0
+     ],
+     [
+      -48.0,
+      -81.0,
+      69.0,
+      -1.0
+     ],
+     [
+      -48.0,
+      -82.5,
+      70.5,
+      -1.0
+     ],
+     [
+      -48.0,
+      -80.0,
+      65.5,
+      -1.0
+     ],
+     [
+      -48.0,
+      -81.5,
+      71.5,
+      -1.0
+     ],
+     [
+      -48.5,
+      -69.5,
+      75.5,
+      -1.0
+     ],
+     [
+      -46.5,
+      -58.5,
+      70.0,
+      7.0
+     ],
+     [
+      -45.5,
+      -71.5,
+      62.5,
+      6.5
+     ],
+     [
+      -45.5,
+      -77.5,
+      63.5,
+      6.5
+     ],
+     [
+      -44.5,
+      -71.5,
+      62.0,
+      6.5
+     ],
+     [
+      -44.5,
+      -71.5,
+      62.0,
+      6.5
+     ],
+     [
+      -44.5,
+      -71.5,
+      62.0,
+      6.5
+     ],
+     [
+      -44.5,
+      -71.5,
+      62.5,
+      6.5
+     ]
+    ],
+    "charge": [
+     [
+      -51.5,
+      -78.0,
+      65.5,
+      6.5
+     ],
+     [
+      -51.0,
+      -80.5,
+      67.5,
+      5.0
+     ],
+     [
+      -50.5,
+      -80.0,
+      70.5,
+      4.5
+     ],
+     [
+      -49.0,
+      -76.5,
+      72.0,
+      5.0
+     ],
+     [
+      -48.0,
+      -72.0,
+      72.0,
+      7.0
+     ],
+     [
+      -49.0,
+      -70.5,
+      69.5,
+      7.0
+     ],
+     [
+      -51.0,
+      -72.5,
+      67.0,
+      6.5
+     ],
+     [
+      -52.0,
+      -75.5,
+      65.5,
+      6.5
+     ]
+    ],
+    "crash": [
+     [
+      -47.0,
+      -70.0,
+      60.5,
+      0.5
+     ],
+     [
+      -47.0,
+      -66.5,
+      66.0,
+      0.5
+     ],
+     [
+      -47.5,
+      -63.0,
+      72.5,
+      1.5
+     ],
+     [
+      -47.5,
+      -63.0,
+      74.0,
+      4.5
+     ],
+     [
+      -47.5,
+      -63.5,
+      74.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -66.5,
+      73.5,
+      6.5
+     ]
+    ],
+    "stunned": [
+     [
+      -47.5,
+      -66.5,
+      70.0,
+      7.0
+     ],
+     [
+      -47.5,
+      -66.0,
+      71.0,
+      6.5
+     ],
+     [
+      -47.5,
+      -65.5,
+      72.5,
+      6.0
+     ],
+     [
+      -47.5,
+      -63.5,
+      74.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -62.0,
+      75.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -61.5,
+      75.0,
+      5.5
+     ],
+     [
+      -47.5,
+      -61.5,
+      74.5,
+      6.0
+     ],
+     [
+      -47.5,
+      -61.0,
+      73.5,
+      6.5
+     ],
+     [
+      -47.5,
+      -61.0,
+      72.0,
+      7.5
+     ],
+     [
+      -47.5,
+      -62.5,
+      71.0,
+      7.5
+     ],
+     [
+      -47.5,
+      -63.5,
+      70.0,
+      7.0
+     ],
+     [
+      -47.5,
+      -64.0,
+      70.0,
+      7.0
+     ]
+    ],
+    "recover": [
+     [
+      -45.5,
+      -65.5,
+      73.5,
+      -0.5
+     ],
+     [
+      -46.5,
+      -63.5,
+      74.5,
+      -0.5
+     ],
+     [
+      -47.0,
+      -62.0,
+      75.0,
+      3.5
+     ],
+     [
+      -47.5,
+      -61.0,
+      75.5,
+      6.0
+     ],
+     [
+      -47.5,
+      -59.5,
+      75.5,
+      6.0
+     ],
+     [
+      -47.5,
+      -60.0,
+      77.0,
+      5.0
+     ],
+     [
+      -47.5,
+      -60.0,
+      73.0,
+      6.5
+     ],
+     [
+      -47.5,
+      -59.5,
+      76.5,
+      5.5
+     ],
+     [
+      -47.5,
+      -59.5,
+      75.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -59.5,
+      75.5,
+      6.0
+     ]
+    ],
+    "hit": [
+     [
+      -47.0,
+      -59.0,
+      70.0,
+      2.0
+     ],
+     [
+      -47.0,
+      -59.0,
+      71.5,
+      3.0
+     ],
+     [
+      -47.5,
+      -59.0,
+      73.5,
+      4.5
+     ],
+     [
+      -47.5,
+      -59.5,
+      75.0,
+      6.0
+     ],
+     [
+      -47.5,
+      -59.5,
+      75.5,
+      6.0
+     ]
+    ],
+    "defeat": [
+     [
+      -47.5,
+      -59.5,
+      75.5,
+      6.0
+     ],
+     [
+      -47.0,
+      -60.5,
+      76.0,
+      3.5
+     ],
+     [
+      -46.5,
+      -61.5,
+      75.5,
+      4.0
+     ],
+     [
+      -46.0,
+      -63.0,
+      74.5,
+      5.0
+     ],
+     [
+      -45.5,
+      -65.0,
+      73.5,
+      5.0
+     ],
+     [
+      -45.0,
+      -66.0,
+      72.5,
+      4.5
+     ],
+     [
+      -44.5,
+      -66.5,
+      72.0,
+      4.5
+     ],
+     [
+      -44.5,
+      -66.5,
+      72.0,
+      4.5
+     ],
+     [
+      -44.5,
+      -66.5,
+      72.0,
+      4.5
+     ],
+     [
+      -44.5,
+      -66.5,
+      72.0,
+      4.5
+     ]
+    ]
+   },
+   "reach_px": {
+    "tusk_tip_idle": 73.7,
+    "head_front_idle": 51.4,
+    "tusk_tip_charge": [
+     62.4,
+     67.1
+    ],
+    "head_front_crash_frame0": 35.0,
+    "rear_idle": -47.6,
+    "collision_circle_radius": 19.5,
+    "contact_radius": 52.0,
+    "hit_radius": 34.0
+   }
+  }
+ },
+ "state_map": {
+  "rolly": {
+   "no_behavior": {
+    "moving (velocity.length_squared() > 20)": "move, speed_scale = clamp(|v| / 96, 0.6, 1.4)",
+    "else": "idle"
+   },
+   "Health.damaged (non-lethal)": "hit once, then back to idle/move",
+   "Health.died": "optional defeat (presentation-only corpse)"
+  },
+  "skua_slinger": {
+   "POSITION / RECOVER": "move if moving (speed_scale = |v| / 68, clamp 0.6-1.4) else idle; except the throw one-shot below",
+   "WINDUP": "windup, frame = clamp(floor((1 - remaining / windup_time) * 19), 0, 18); hold last frame",
+   "WINDUP -> RECOVER, last windup progress >= 0.9": "throw once (egg spawned)",
+   "WINDUP -> RECOVER, progress < 0.9": "hit once (heavy-hit cancel in on_damage)",
+   "Health.damaged": "hit once only from idle/move",
+   "Health.died": "optional defeat"
+  },
+  "tuskbull": {
+   "APPROACH": "move if moving (speed_scale = |v| / 54) else idle",
+   "WINDUP": "windup, frame = clamp(floor((1 - remaining / windup_time) * 20), 0, 19): rear 0-7, snort/shake 8-11, slam 12-15, crouch 16-19",
+   "CHARGE (charge_started)": "charge loop; optional speed_scale = _current_charge_speed() / 430 so soft drift (x0.65) visibly slows the bounding",
+   "crashed signal (hard impact)": "crash once (0.25 s) -> stunned loop while remaining > 10/24 -> recover once, hold last frame -> idle",
+   "RECOVER without crashed": "recover once (0.42 s), hold, then idle",
+   "Health.damaged": "hit once only from idle/move",
+   "Health.died": "optional defeat"
+  }
+ },
+ "timing_checks": {
+  "skua_windup": "19 frames mapped onto windup_time 0.8 s (driven, not played at 24 fps)",
+  "tuskbull_windup": "20 frames mapped onto windup_time 0.85 s (driven)",
+  "tuskbull_crash_recover": "crash 0.25 + stunned 1.083 + recover 0.417 = 1.75 s = crash_recovery_time",
+  "tuskbull_charge": "charge loop 0.333 s; CHARGE lasts charge_time 0.85 s (about 2.5 bounds)",
+  "no_attack_timing_changes": true
+ }
+}

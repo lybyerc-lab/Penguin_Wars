@@ -15,3 +15,4 @@ maximum = 16.0
 
 [node name="CharacterVisual" parent="." index="3"]
 scale = Vector2(0.76, 0.76)
+enemy_art_id = &"rolly"

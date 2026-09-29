@@ -1,5 +1,29 @@
 # Verification record
 
+## Production Enemy Set V1 runtime integration
+
+September 29, 2026. `integration/frozen-coast-phase-a-production-v0-1`
+integrates the locked Rolly, Skua Slinger, and Tuskbull production frame set.
+`assets/characters/enemies/production_enemy_set_v1_manifest.json` is the
+numerical source of truth: 41 Rolly frames, 68 Skua frames, and 103 Tuskbull
+frames at 24 FPS. Imports remain lossless with linear filtering and mipmaps
+disabled.
+
+`CharacterVisual.enemy_art_id` selects production `AnimatedSprite2D` resources
+while the seal placeholder remains available to unrelated enemies. Existing
+velocity, behavior state, remaining-time, charge, crash, and damage signals
+drive animation; no gameplay timing, collision, health, damage, speed, spawn,
+role-cap, or wave value changes. The Skua projectile receives only a visual
+release offset, and the Tuskbull crash recoil moves only its sprite and Actor
+Grounding shadow. Defeat corpses remain deferred.
+
+The focused production regression validates source hash and frame counts,
+resource clips, import settings, art anchors, ambient tint, grounding values,
+state mapping, heavy-hit cancel, soft-drift behavior, hard-impact recovery,
+Skua release offset, Tuskbull recoil, unchanged gameplay values, and the
+legacy fallback. Phone review remains the authority for final readability and
+four-player performance.
+
 ## Actor Grounding V1 runtime integration
 
 September 29, 2026. `integration/frozen-coast-phase-a-production-v0-1`

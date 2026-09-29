@@ -55,5 +55,8 @@ jobs:
       - name: Actor Grounding V1 regression
         run: godot --headless --path . --script res://tests/actor_grounding_v1_test.gd
 
+      - name: Production Enemy Set V1 regression
+        run: godot --headless --path . --script res://tests/production_enemy_set_v1_test.gd
+
       - name: Phase A route smoke
         run: godot --headless --path . --script res://tests/phase_a_route_test.gd
