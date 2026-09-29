@@ -102,6 +102,7 @@ jobs:
           godot --headless --path . --script res://tests/mobile_expedition_test.gd
           godot --headless --path . --script res://tests/reciprocal_gate_arrival_test.gd
           godot --headless --path . --script res://tests/phase_a_combat_test.gd
+          godot --headless --path . --script res://tests/phase_a_pressure_test.gd
           godot --headless --path . --script res://tests/phase_a_route_test.gd
           godot --headless --path . --script res://tests/frozen_coast_phase_a_visual_test.gd
 
