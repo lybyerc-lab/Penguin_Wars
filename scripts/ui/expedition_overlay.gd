@@ -21,9 +21,12 @@ var _row: HBoxContainer
 var _banner_label: Label
 var _cards: Dictionary = {}
 var _mobile_open: Dictionary = {}
+var _shown_banner: String = ""
+var _banner_age: float = 0.0
 
 func setup() -> void:
 	var service_column := VBoxContainer.new()
+	service_column.theme = preload("res://resources/ui/hud_v2_theme.tres")
 	if mobile_layout:
 		var viewport_width: float = get_viewport().get_visible_rect().size.x
 		var panel_width: float = clampf(viewport_width * 0.52, 620.0, 820.0)
@@ -55,7 +58,7 @@ func setup() -> void:
 	_banner_label.offset_top = -72
 	_banner_label.offset_bottom = -48
 	_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_banner_label.add_theme_font_size_override("font_size", 14 if not mobile_layout else 16)
+	_banner_label.add_theme_font_size_override("font_size", 13)
 	_banner_label.add_theme_color_override("font_color", Color("cfe9ef"))
 	_banner_label.add_theme_color_override("font_outline_color", Color("102c41"))
 	_banner_label.add_theme_constant_override("outline_size", 3)
@@ -145,10 +148,19 @@ func toggle_mobile_service(player_id: int) -> void:
 func mobile_service_open(player_id: int) -> bool:
 	return bool(_mobile_open.get(player_id, false))
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _banner_label == null:
 		return
+	if banner != _shown_banner:
+		_shown_banner = banner
+		_banner_age = 0.0
+	else:
+		_banner_age += delta
 	_banner_label.text = banner
+	if banner == "ROUTED":
+		_banner_label.modulate.a = 1.0
+	else:
+		_banner_label.modulate.a = clampf(_banner_age / 0.3, 0.0, 1.0) * clampf((4.9 - _banner_age) / 0.6, 0.0, 1.0)
 	for player: PenguinPlayer in party.members():
 		var id: int = player.identity.player_id
 		var card: Dictionary = _cards.get(id, {})

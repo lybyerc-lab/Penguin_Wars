@@ -27,6 +27,7 @@ enum DamageKind { MELEE, RANGED }
 @export var knockback: float = 90.0
 @export var tint: Color = Color("baf9ff")
 @export var held_texture: Texture2D
+@export var icon_texture: Texture2D
 @export var visual_scale: float = 0.56
 
 func tier_label() -> String:

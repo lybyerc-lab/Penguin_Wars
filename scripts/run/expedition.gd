@@ -251,11 +251,8 @@ func _load_room(next: RoomDefinition, entry_side: int = -1, arrival_override_ena
 	if not arrival_override_enabled and entry_side >= 0:
 		entry = _entry_from_side(entry_side, room.bounds)
 	session.place_party(entry)
-	$HUD.location = room.display_name
-	var banner := LocationBanner.new()
-	banner.location_name = room.display_name
-	banner.wide_party = party.members().size() > 2
-	overlay.add_child(banner)
+	$HUD.show_arrival(room.display_name)
+	$HUD.set_clear_hint(room.exits[0].hint if not room.exits.is_empty() else "")
 
 ## Compute a spawn position just inside the room from the given wall side.
 ## The party appears ~80px inward from the wall edge so they are clearly
@@ -381,7 +378,7 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 func _on_room_cleared() -> void:
 	journal.record_room(room)
 	_unlock_gates()
-	overlay.banner = "%s is clear.  The way is open." % room.display_name
+	overlay.banner = ""
 
 func _on_encounter_state() -> void:
 	if encounter.state != EncounterDirector.State.FAILED or _routed:
