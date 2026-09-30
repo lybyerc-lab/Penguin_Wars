@@ -36,10 +36,10 @@ func _run() -> void:
 
 	check(cards.size() == 4, "one PlayerCornerHUD per active player (4 players)")
 	for index: int in range(cards.size()):
-		var right: bool = index % 2 == 1
-		var bottom: bool = index >= 2
+		var right: bool = index >= 2
 		check(cards[index].anchor_left == (1.0 if right else 0.0), "P%d card correct horizontal anchor" % (index + 1))
-		check(cards[index].anchor_top == (1.0 if bottom else 0.0), "P%d card correct vertical anchor" % (index + 1))
+		check(cards[index].anchor_top == 0.0, "P%d card stays in the top HUD row" % (index + 1))
+		check(cards[index].size == PlayerCornerHUD.CARD_SIZE, "P%d card uses the 252 x 64 V2 footprint" % (index + 1))
 		check(cards[index].player == arena.party.members()[index], "P%d card bound to correct player" % (index + 1))
 		check(cards[index]._weapon_row != null, "P%d card has weapon-row slot for future expansion" % (index + 1))
 
@@ -52,9 +52,9 @@ func _run() -> void:
 	arena.get_node("Wallet").credit(2, 55)
 	await process_frame
 
-	check(cards[0]._title.text.contains("LEVEL 4"), "P1 card reflects level change")
+	check((cards[0].get_node("Medallion/Level") as Label).text == "4", "P1 card reflects level change")
 	check(is_equal_approx(cards[1]._health.value, 70.0), "P2 card reflects health damage")
-	check(cards[1]._counts.text == "❄  55 Snow", "P2 card displays personal Snow balance (not 'flakes')")
+	check(cards[1]._counts.text == "55", "P2 card displays personal Snow balance")
 
 	# Selecting card opens BuildSheet
 	cards[1].selected.emit()

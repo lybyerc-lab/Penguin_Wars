@@ -19,4 +19,5 @@ arc_degrees = 140.0
 knockback = 320.0
 tint = Color(1, 0.8, 0.47, 1)
 held_texture = ExtResource("2")
+presentation_family = &"spine"
 visual_scale = 0.53

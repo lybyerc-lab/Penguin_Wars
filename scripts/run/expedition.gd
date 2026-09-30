@@ -170,6 +170,8 @@ func enter_town() -> void:
 		spec.side = RoomExit.Side.BOTTOM
 		spec.offset_along = TownshipV01.DEPARTURE_BOUNDARY.x
 		spec.presentation = RoomExit.Presentation.EXPEDITION_MOUTH
+		spec.arrival_override_enabled = true
+		spec.arrival_position = first_room.entry_point
 		var gate: PartyGate = _add_gate(spec)
 		gate.locked = false
 		gate.place_at_wall(room.bounds)
@@ -206,10 +208,19 @@ func enter_cave(target: CaveDefinition) -> void:
 	journal.begin_expedition(cave)
 	_enter_room(cave.entrance())
 
-func _enter_room(next: RoomDefinition, entry_side: int = -1) -> void:
+func _enter_room(next: RoomDefinition, entry_side: int = -1, arrival_override_enabled: bool = false, arrival_position := Vector2.ZERO) -> void:
 	if next == null:
 		return
-	_load_room(next, entry_side)
+	_load_room(next, entry_side, arrival_override_enabled, arrival_position)
+	for definition: DiscoveryDefinition in next.discoveries:
+		var site := preload("res://scenes/props/discovery_site.tscn").instantiate() as DiscoverySite
+		site.definition = definition
+		site.party = party
+		site.encounter = encounter
+		site.loot = $Loot
+		site.session = session
+		site.claimed = session.is_discovery_claimed(definition.id)
+		$Actors.add_child(site)
 	for spec: RoomExit in next.exits:
 		var gate: PartyGate = _add_gate(spec)
 		gate.locked = next.has_encounter()
@@ -223,7 +234,7 @@ func _enter_room(next: RoomDefinition, entry_side: int = -1) -> void:
 
 ## Everything a room change resets. Players are deliberately not touched: their
 ## health, stats, levels and wallets are the run, not the room.
-func _load_room(next: RoomDefinition, entry_side: int = -1) -> void:
+func _load_room(next: RoomDefinition, entry_side: int = -1, arrival_override_enabled: bool = false, arrival_position := Vector2.ZERO) -> void:
 	room = next
 	_routed = false
 	encounter.reset()
@@ -239,16 +250,18 @@ func _load_room(next: RoomDefinition, entry_side: int = -1) -> void:
 	progression.in_town = room.kind == RoomDefinition.Kind.TOWN
 	$Loot.begin_room()
 	RoomSpace.apply(room, party, encounter, $Builder, $Loot, $Camera, $Backdrop, $Actors)
-	$Backdrop.visible = room.kind != RoomDefinition.Kind.TOWN
-	var entry: Vector2 = room.entry_point
-	if entry_side >= 0:
+	var uses_production_environment := false
+	match room.environment_id:
+		&"frozen_coast_phase_a_v0_1":
+			FrozenCoastPhaseAVisual.build($Places, $Actors)
+			uses_production_environment = true
+	$Backdrop.visible = room.kind != RoomDefinition.Kind.TOWN and not uses_production_environment
+	var entry: Vector2 = arrival_position if arrival_override_enabled else room.entry_point
+	if not arrival_override_enabled and entry_side >= 0:
 		entry = _entry_from_side(entry_side, room.bounds)
 	session.place_party(entry)
-	$HUD.location = room.display_name
-	var banner := LocationBanner.new()
-	banner.location_name = room.display_name
-	banner.wide_party = party.members().size() > 2
-	overlay.add_child(banner)
+	$HUD.show_arrival(room.display_name)
+	$HUD.set_clear_hint(room.exits[0].hint if not room.exits.is_empty() else "")
 
 ## Compute a spawn position just inside the room from the given wall side.
 ## The party appears ~80px inward from the wall edge so they are clearly
@@ -292,6 +305,14 @@ func _add_gate(spec: RoomExit) -> PartyGate:
 	_gates.append(gate)
 	return gate
 
+## Arm only the doorway that leads back to the place the party just left. The
+## destination's own RoomExit data remains the authority for that relationship.
+func _protect_reciprocal_gate(target_id: StringName) -> void:
+	for gate: PartyGate in _gates:
+		if gate.exit != null and gate.exit.target_id == target_id:
+			gate.protect_arrival()
+			return
+
 ## Hand campaign state to the profile store. The in-memory default returns
 ## false, so a caller can tell a real save from a held one.
 func save_profile() -> bool:
@@ -323,7 +344,8 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 		var field_entry: RoomDefinition = region.expedition_room(spec.target_id)
 		if field_entry != null:
 			cave = null
-			_enter_room(field_entry, opposite)
+			_enter_room(field_entry, opposite, spec.arrival_override_enabled, spec.arrival_position)
+			_protect_reciprocal_gate(&"")
 			return
 		var chosen: CaveDefinition = region.cave(spec.target_id)
 		if chosen == null:
@@ -333,16 +355,20 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 		return
 
 	if spec.leads_outside():
+		var reciprocal_target: StringName = cave.id if cave != null else room.id
 		if cave != null:
 			journal.record_cave(cave)
 		save_profile()
 		enter_town()
+		_protect_reciprocal_gate(reciprocal_target)
 		return
 
 	var field_room: RoomDefinition = region.expedition_room(spec.target_id)
 	if field_room != null:
+		var previous_field_id: StringName = room.id
 		cave = null
-		_enter_room(field_room, opposite)
+		_enter_room(field_room, opposite, spec.arrival_override_enabled, spec.arrival_position)
+		_protect_reciprocal_gate(previous_field_id)
 		return
 
 	var target_cave: CaveDefinition = region.cave(spec.target_id)
@@ -354,12 +380,18 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 	if next == null:
 		push_error("Region %s has no route destination named %s" % [region.id, spec.target_id])
 		return
+	var previous_room_id: StringName = room.id
 	_enter_room(next, opposite)
+	_protect_reciprocal_gate(previous_room_id)
 
 func _on_room_cleared() -> void:
 	journal.record_room(room)
 	_unlock_gates()
 	overlay.banner = "%s is clear.  The way is open." % room.display_name
+	for definition: DiscoveryDefinition in room.discoveries:
+		if not session.is_discovery_claimed(definition.id):
+			$HUD.set_clear_hint(definition.hint)
+			break
 
 func _on_encounter_state() -> void:
 	if encounter.state != EncounterDirector.State.FAILED or _routed:

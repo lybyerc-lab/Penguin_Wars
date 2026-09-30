@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="DiscoveryDefinition" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/discovery_definition.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/discoveries/fcd_glint_hoard_closed.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/discoveries/fcd_glint_hoard_open.png" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/actors/rolly.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/actors/tuskbull.tscn" id="5"]
+
+[resource]
+script = ExtResource("1")
+id = &"driftfield_glint_hoard"
+kind = 1
+position = Vector2(560, -2440)
+closed_texture = ExtResource("2")
+open_texture = ExtResource("3")
+dig_time = 1.0
+glint_offset = Vector2(6, -34)
+extra_glint_offsets = PackedVector2Array(-14, -30, 22, -38)
+hint = "Something glints on the north shore…"
+mound_positions = PackedVector2Array(449, -2465, 600, -2509, 671, -2415, 520, -2371)
+ambush = Array[PackedScene]([ExtResource("4"), ExtResource("4"), ExtResource("4"), ExtResource("4"), ExtResource("5")])
+ambush_positions = PackedVector2Array(449, -2451, 600, -2495, 671, -2401, 520, -2357, 900, -2180)
+reward_snow = 15
+reward_health = 25

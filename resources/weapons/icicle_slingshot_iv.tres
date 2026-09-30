@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=4 format=3]
 [ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/weapons/phase_a/icicle_slingshot.svg" id="2"]
+[ext_resource type="Texture2D" path="res://assets/weapons/presentation_v2/icicle_slingshot_held_v2.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/weapons/presentation_v2/icon_icicle_slingshot_v2.png" id="4"]
+
 [resource]
 script = ExtResource("1")
 id = &"icicle_slingshot_iv"
@@ -16,4 +18,8 @@ damage_kind = 1
 knockback = 70.0
 tint = Color(0.7411765, 0.9372549, 1, 1)
 held_texture = ExtResource("2")
-visual_scale = 0.52
+icon_texture = ExtResource("4")
+held_grip_texel = Vector2(40, 93)
+presentation_family = &"hip"
+held_base_rotation = 1.57079632679
+visual_scale = 0.25

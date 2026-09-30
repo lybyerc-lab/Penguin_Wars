@@ -82,8 +82,7 @@ func _on_revived(_current: float) -> void:
 func _draw() -> void:
 	if dash != null and dash.is_active():
 		for index: int in range(1, 4):
-			draw_circle(-dash.direction * index * 15.0, 20 - index * 3, Color(0.6, 0.95, 1.0, 0.4 / index))
-		draw_arc(Vector2.ZERO, 24, 0, TAU, 24, Color("d4fbff"), 2)
+			draw_circle(-dash.direction * index * 15.0, 20 - index * 3, Color(0.6, 0.95, 1.0, 0.2 / index))
 	var color: Color = identity.tint if identity != null else Color.WHITE
 	if health != null and not health.is_alive():
 		return

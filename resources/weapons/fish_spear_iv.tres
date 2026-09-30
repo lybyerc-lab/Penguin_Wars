@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=4 format=3]
 [ext_resource type="Script" path="res://scripts/data/weapon_definition.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/weapons/phase_a/fish_spear.svg" id="2"]
+[ext_resource type="Texture2D" path="res://assets/weapons/presentation_v2/fish_spear_held_v2.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/weapons/presentation_v2/icon_fish_spear_v2.png" id="4"]
+
 [resource]
 script = ExtResource("1")
 id = &"fish_spear_iv"
@@ -17,4 +19,8 @@ line_width = 28.0
 knockback = 195.0
 tint = Color(0.56078434, 0.8627451, 0.9411765, 1)
 held_texture = ExtResource("2")
-visual_scale = 0.62
+icon_texture = ExtResource("4")
+held_grip_texel = Vector2(81, 30)
+presentation_family = &"spine"
+held_base_rotation = 0.0
+visual_scale = 0.25

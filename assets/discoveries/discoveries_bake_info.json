@@ -1,0 +1,138 @@
+{
+ "a_whalerscache_closed": {
+  "file": "fcd_whalers_cache_closed.png",
+  "size": [
+   504,
+   232
+  ],
+  "anchor": [
+   128,
+   177
+  ],
+  "umbra_colour": [
+   113,
+   130,
+   150
+  ],
+  "umbra_ratio": 0.769
+ },
+ "a_whalerscache_open": {
+  "file": "fcd_whalers_cache_open.png",
+  "size": [
+   264,
+   168
+  ],
+  "anchor": [
+   130,
+   97
+  ],
+  "umbra_colour": [
+   113,
+   130,
+   150
+  ],
+  "umbra_ratio": 0.769
+ },
+ "b_herringcache_closed": {
+  "file": "fcd_herring_cache_closed.png",
+  "size": [
+   296,
+   200
+  ],
+  "anchor": [
+   123,
+   141
+  ],
+  "umbra_colour": [
+   112,
+   130,
+   149
+  ],
+  "umbra_ratio": 0.767
+ },
+ "b_herringcache_broken": {
+  "file": "fcd_herring_cache_broken.png",
+  "size": [
+   248,
+   224
+  ],
+  "anchor": [
+   122,
+   138
+  ],
+  "umbra_colour": [
+   113,
+   130,
+   149
+  ],
+  "umbra_ratio": 0.768
+ },
+ "c_glinthoard_closed": {
+  "file": "fcd_glint_hoard_closed.png",
+  "size": [
+   224,
+   168
+  ],
+  "anchor": [
+   97,
+   110
+  ],
+  "umbra_colour": [
+   112,
+   130,
+   149
+  ],
+  "umbra_ratio": 0.767
+ },
+ "c_glinthoard_open": {
+  "file": "fcd_glint_hoard_open.png",
+  "size": [
+   232,
+   168
+  ],
+  "anchor": [
+   96,
+   134
+  ],
+  "umbra_colour": [
+   112,
+   130,
+   149
+  ],
+  "umbra_ratio": 0.767
+ },
+ "c_mound_closed": {
+  "file": "fcd_suspicious_mound_closed.png",
+  "size": [
+   104,
+   72
+  ],
+  "anchor": [
+   50,
+   38
+  ],
+  "umbra_colour": [
+   113,
+   130,
+   149
+  ],
+  "umbra_ratio": 0.769
+ },
+ "c_mound_burst": {
+  "file": "fcd_suspicious_mound_burst.png",
+  "size": [
+   112,
+   88
+  ],
+  "anchor": [
+   52,
+   45
+  ],
+  "umbra_colour": [
+   117,
+   133,
+   152
+  ],
+  "umbra_ratio": 0.79
+ }
+}

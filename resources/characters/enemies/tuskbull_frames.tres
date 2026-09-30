@@ -1,0 +1,462 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/charge/tuskbull_charge_000.png" id="1_wq6ga"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/charge/tuskbull_charge_001.png" id="2_qfyaw"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/charge/tuskbull_charge_002.png" id="3_t1pol"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/charge/tuskbull_charge_003.png" id="4_6ad5l"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/charge/tuskbull_charge_004.png" id="5_ew8pv"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/charge/tuskbull_charge_005.png" id="6_4nlkn"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/charge/tuskbull_charge_006.png" id="7_2i6fk"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/charge/tuskbull_charge_007.png" id="8_wkxyt"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/crash/tuskbull_crash_000.png" id="9_aqd5u"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/crash/tuskbull_crash_001.png" id="10_vupv8"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/crash/tuskbull_crash_002.png" id="11_0iw1q"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/crash/tuskbull_crash_003.png" id="12_2drr5"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/crash/tuskbull_crash_004.png" id="13_fr8sy"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/crash/tuskbull_crash_005.png" id="14_ykyrp"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_000.png" id="15_5kk1b"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_001.png" id="16_p7igi"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_002.png" id="17_ce210"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_003.png" id="18_m5va5"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_004.png" id="19_ww65r"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_005.png" id="20_plhxx"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_006.png" id="21_5ncet"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_007.png" id="22_w4otb"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_008.png" id="23_44dw6"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/defeat/tuskbull_defeat_009.png" id="24_h42rw"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/hit/tuskbull_hit_000.png" id="25_fk0py"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/hit/tuskbull_hit_001.png" id="26_2hmwf"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/hit/tuskbull_hit_002.png" id="27_nkqhe"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/hit/tuskbull_hit_003.png" id="28_mdagq"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/hit/tuskbull_hit_004.png" id="29_vg67a"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_000.png" id="30_opd4e"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_001.png" id="31_ebmf2"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_002.png" id="32_crmoi"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_003.png" id="33_qjl68"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_004.png" id="34_els2j"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_005.png" id="35_0axtt"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_006.png" id="36_m5jmg"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_007.png" id="37_qgk1q"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_008.png" id="38_cyuf4"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_009.png" id="39_akehg"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_010.png" id="40_dxw0x"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_011.png" id="41_ibiq5"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_012.png" id="42_vedxs"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_013.png" id="43_lpdgm"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_014.png" id="44_m1u41"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/idle/tuskbull_idle_015.png" id="45_ixv0p"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_000.png" id="46_ntxi0"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_001.png" id="47_avv4f"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_002.png" id="48_m53ot"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_003.png" id="49_n4v0f"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_004.png" id="50_oa2ih"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_005.png" id="51_mkprg"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_006.png" id="52_6q6au"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_007.png" id="53_pr2se"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_008.png" id="54_tohgo"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_009.png" id="55_d45eq"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_010.png" id="56_wuhxr"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_011.png" id="57_ni8i4"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_012.png" id="58_rx00y"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_013.png" id="59_8bfd3"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_014.png" id="60_tn8gs"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/move/tuskbull_move_015.png" id="61_tawhf"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_000.png" id="62_vwyao"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_001.png" id="63_ej4wn"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_002.png" id="64_xjdc0"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_003.png" id="65_oo6n7"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_004.png" id="66_cvkpo"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_005.png" id="67_x8kig"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_006.png" id="68_gp5qa"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_007.png" id="69_gldom"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_008.png" id="70_5duma"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/recover/tuskbull_recover_009.png" id="71_1mier"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_000.png" id="72_w5ych"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_001.png" id="73_r4gqu"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_002.png" id="74_d3g4d"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_003.png" id="75_2g28e"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_004.png" id="76_a1ers"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_005.png" id="77_wltmg"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_006.png" id="78_kgbae"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_007.png" id="79_murul"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_008.png" id="80_ecvyt"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_009.png" id="81_01d0s"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_010.png" id="82_1hcw5"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/stunned/tuskbull_stunned_011.png" id="83_ebxnd"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_000.png" id="84_q3djs"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_001.png" id="85_konrk"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_002.png" id="86_aa1qq"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_003.png" id="87_pkil7"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_004.png" id="88_emx8p"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_005.png" id="89_22h6c"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_006.png" id="90_4oor1"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_007.png" id="91_1438t"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_008.png" id="92_th8e7"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_009.png" id="93_7h6mj"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_010.png" id="94_s0t2c"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_011.png" id="95_374pe"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_012.png" id="96_wnsh1"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_013.png" id="97_poced"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_014.png" id="98_5f20h"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_015.png" id="99_elxxw"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_016.png" id="100_qwyy4"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_017.png" id="101_1u4kl"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_018.png" id="102_3t03r"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/tuskbull/production/windup/tuskbull_windup_019.png" id="103_o5flp"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_wq6ga")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_qfyaw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_t1pol")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_6ad5l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_ew8pv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_4nlkn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_2i6fk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_wkxyt")
+}],
+"loop": 1,
+"name": &"charge",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_aqd5u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_vupv8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_0iw1q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_2drr5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_fr8sy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_ykyrp")
+}],
+"loop": 0,
+"name": &"crash",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("15_5kk1b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_p7igi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_ce210")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_m5va5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_ww65r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_plhxx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_5ncet")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_w4otb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_44dw6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_h42rw")
+}],
+"loop": 0,
+"name": &"defeat",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("25_fk0py")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_2hmwf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_nkqhe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_mdagq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_vg67a")
+}],
+"loop": 0,
+"name": &"hit",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("30_opd4e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_ebmf2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_crmoi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_qjl68")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_els2j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_0axtt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_m5jmg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_qgk1q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_cyuf4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_akehg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_dxw0x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_ibiq5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("42_vedxs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_lpdgm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_m1u41")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_ixv0p")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("46_ntxi0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_avv4f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_m53ot")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_n4v0f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("50_oa2ih")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_mkprg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_6q6au")
+}, {
+"duration": 1.0,
+"texture": ExtResource("53_pr2se")
+}, {
+"duration": 1.0,
+"texture": ExtResource("54_tohgo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("55_d45eq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("56_wuhxr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("57_ni8i4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("58_rx00y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("59_8bfd3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("60_tn8gs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("61_tawhf")
+}],
+"loop": 1,
+"name": &"move",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("62_vwyao")
+}, {
+"duration": 1.0,
+"texture": ExtResource("63_ej4wn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("64_xjdc0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("65_oo6n7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("66_cvkpo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("67_x8kig")
+}, {
+"duration": 1.0,
+"texture": ExtResource("68_gp5qa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("69_gldom")
+}, {
+"duration": 1.0,
+"texture": ExtResource("70_5duma")
+}, {
+"duration": 1.0,
+"texture": ExtResource("71_1mier")
+}],
+"loop": 0,
+"name": &"recover",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("72_w5ych")
+}, {
+"duration": 1.0,
+"texture": ExtResource("73_r4gqu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("74_d3g4d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("75_2g28e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("76_a1ers")
+}, {
+"duration": 1.0,
+"texture": ExtResource("77_wltmg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("78_kgbae")
+}, {
+"duration": 1.0,
+"texture": ExtResource("79_murul")
+}, {
+"duration": 1.0,
+"texture": ExtResource("80_ecvyt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("81_01d0s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("82_1hcw5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("83_ebxnd")
+}],
+"loop": 1,
+"name": &"stunned",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("84_q3djs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("85_konrk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("86_aa1qq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("87_pkil7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("88_emx8p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("89_22h6c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("90_4oor1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("91_1438t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("92_th8e7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("93_7h6mj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("94_s0t2c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("95_374pe")
+}, {
+"duration": 1.0,
+"texture": ExtResource("96_wnsh1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("97_poced")
+}, {
+"duration": 1.0,
+"texture": ExtResource("98_5f20h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("99_elxxw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("100_qwyy4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("101_1u4kl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("102_3t03r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("103_o5flp")
+}],
+"loop": 0,
+"name": &"windup",
+"speed": 24.0
+}]

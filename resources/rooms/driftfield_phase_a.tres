@@ -1,7 +1,11 @@
-[gd_resource type="Resource" script_class="RoomDefinition" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="RoomDefinition" load_steps=8 format=3]
 [ext_resource type="Script" path="res://scripts/data/room_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/data/room_exit.gd" id="2"]
 [ext_resource type="Resource" path="res://resources/encounters/driftfield_phase_a.tres" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/props/herring_cache.tscn" id="4"]
+[ext_resource type="Resource" path="res://resources/discoveries/driftfield_whalers_cache.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/discoveries/driftfield_glint_hoard.tres" id="6"]
+[ext_resource type="Script" path="res://scripts/data/discovery_definition.gd" id="7"]
 
 [sub_resource type="Resource" id="exit_driftfield_pass"]
 script = ExtResource("2")
@@ -9,7 +13,10 @@ target_id = &"frozen_coast_pass_phase_a"
 label = "Back through the Pass"
 hint = "Kelphollow lies behind you."
 side = 3
+offset_along = -1077.0
 presentation = 0
+arrival_override_enabled = true
+arrival_position = Vector2(-1737.0, -1000.0)
 
 [resource]
 script = ExtResource("1")
@@ -17,10 +24,14 @@ id = &"driftfield_phase_a"
 display_name = "Frozen Coast · Driftfield"
 kind = 0
 palette = 0
-bounds = Rect2(-720, -430, 1440, 860)
-spawn_ring = Vector2(675, 385)
-supply_points = Array[Vector2]([])
-entry_point = Vector2(0, 320)
+bounds = Rect2(-2320, -2860, 3320, 1780)
+spawn_ring = Vector2(1450, 720)
+supply_points = Array[Vector2]([Vector2(-1830, -2640)])
+supply_scene = ExtResource("4")
+discoveries = Array[ExtResource("7")]([ExtResource("5"), ExtResource("6")])
+entry_point = Vector2(-1737, -1160)
+environment_id = &"frozen_coast_phase_a_v0_1"
+camera_follow_party = true
 encounter = ExtResource("3")
 exits = Array[ExtResource("2")]([SubResource("exit_driftfield_pass")])
 arrival_line = "The coast opens wide. Something is already moving in the snow."

@@ -11,6 +11,10 @@ signal boss_defeated(boss: BossActor)
 signal boss_reward(amount: int)
 
 enum State { READY, SPAWNING, CLEARING, INTERMISSION, COMPLETE, FAILED, BOSS }
+const SPAWN_SECTOR_COUNT: int = 8
+const SECTOR_ATTEMPTS: int = 12
+const SPAWN_EDGE_MARGIN: float = 48.0
+const WORLD_COLLISION_MASK: int = 1
 @export var definition: EncounterDefinition
 @export var auto_advance: bool = false
 var party: PartyRoster
@@ -32,6 +36,8 @@ var _wave_duration: float = 0.0
 var _wave_time_remaining: float = 0.0
 var _spawn_index: int = 0
 var _rng := RandomNumberGenerator.new()
+var _pressure_sectors := PackedInt32Array()
+var _smoothed_heading := Vector2.RIGHT
 
 ## Return to a pre-start state so one director can run a second room.
 func reset() -> void:
@@ -48,6 +54,8 @@ func reset() -> void:
 	_wave_duration = 0.0
 	_wave_time_remaining = 0.0
 	_spawn_index = 0
+	_pressure_sectors = PackedInt32Array()
+	_smoothed_heading = Vector2.RIGHT
 
 func start() -> void:
 	assert(party != null and actor_root != null and definition != null)
@@ -60,7 +68,8 @@ func start() -> void:
 func _begin_wave() -> void:
 	wave += 1
 	_spawn_index = 0
-	_left = definition.base_count + (wave - 1) * 2 + maxi(0, party.members().size() - 1) * 2
+	_left = definition.population_for_wave(wave, party.members().size())
+	_configure_pressure_sectors()
 	_wave_duration = definition.duration_for_wave(wave)
 	_wave_time_remaining = _wave_duration
 	_timer = 0.0 if uses_timed_waves() else 1.0
@@ -88,8 +97,15 @@ func timed_alive_cap() -> int:
 	return definition.timed_max_alive + maxi(0, party.members().size() - 1) * 2
 
 func _physics_process(delta: float) -> void:
+	if state == State.COMPLETE and alive_count > 0 and party.members(true).is_empty():
+		state = State.FAILED
+		_clear_projectiles()
+		state_changed.emit()
+		return
 	if state in [State.READY, State.COMPLETE, State.FAILED]:
 		return
+	if state in [State.SPAWNING, State.CLEARING]:
+		_update_heading(delta)
 	if party.members(true).is_empty():
 		state = State.FAILED
 		_clear_projectiles()
@@ -158,6 +174,7 @@ func _despawn_ordinary_enemies() -> void:
 	alive_count = 0
 
 func _spawn_enemy() -> void:
+	var spawn_event_index: int = _spawn_index
 	var selected: PackedScene = definition.enemy_scene
 	# Fixed introduction cadence stays predictable; room data decides when each
 	# role enters and how many may pressure the screen at once.
@@ -165,14 +182,14 @@ func _spawn_enemy() -> void:
 		wave >= definition.ranged_intro_wave
 		and _spawn_index % 4 == 3
 		and definition.ranged_scene != null
-		and _alive_ranged_count() < definition.ranged_cap
+		and _alive_ranged_count() < definition.ranged_cap_for_wave(wave)
 	):
 		selected = definition.ranged_scene
 	elif (
 		wave >= definition.charger_intro_wave
 		and _spawn_index % 3 == 2
 		and definition.charger_scene != null
-		and _alive_charger_count() < definition.charger_cap
+		and _alive_charger_count() < definition.charger_cap_for_wave(wave)
 	):
 		selected = definition.charger_scene
 	_spawn_index += 1
@@ -181,7 +198,116 @@ func _spawn_enemy() -> void:
 	enemy.arena_bounds = actor_bounds
 	enemy.room_bounds = actor_bounds
 	_apply_scaling(enemy)
-	# Pick the safest of several perimeter points to avoid spawning on a player.
+	enemy.position = _spawn_position(spawn_event_index, _role_of_scene(selected))
+	enemy.defeated.connect(_on_enemy_defeated)
+	actor_root.add_child(enemy)
+	alive_count += 1
+
+func _configure_pressure_sectors() -> void:
+	_pressure_sectors = PackedInt32Array()
+	if definition == null or not definition.split_spawn_pressure:
+		return
+	if definition.sector_mode == EncounterDefinition.SectorMode.HEADING:
+		var heading_sector: int = _heading_sector()
+		_pressure_sectors.append(heading_sector)
+		_pressure_sectors.append((heading_sector + 4) % SPAWN_SECTOR_COUNT)
+		return
+	var first: int = _rng.randi_range(0, SPAWN_SECTOR_COUNT - 1)
+	# Three to five eighth-turns keeps the lanes at least 135 degrees apart.
+	var separation: int = _rng.randi_range(3, 5)
+	_pressure_sectors.append(first)
+	_pressure_sectors.append((first + separation) % SPAWN_SECTOR_COUNT)
+
+func _spawn_position(spawn_event_index: int, role: StringName = &"base") -> Vector2:
+	if definition == null or not definition.split_spawn_pressure:
+		return _legacy_spawn_position()
+	if _pressure_sectors.size() != 2:
+		_configure_pressure_sectors()
+	var primary_sector: int = _primary_sector_for(spawn_event_index, role)
+	# Stay in the selected pressure lane when possible. Adjacent sectors are
+	# deterministic safety fallbacks for authored blockers or shoreline.
+	for offset: int in [0, 1, -1, 2, -2, 3, -3, 4]:
+		var result: Dictionary = _best_sector_candidate(posmod(primary_sector + offset, SPAWN_SECTOR_COUNT))
+		if bool(result.get("found", false)):
+			return result["position"]
+	return _safe_interior_fallback()
+
+func _primary_sector_for(spawn_event_index: int, role: StringName = &"base") -> int:
+	var primary_sector: int = _pressure_sectors[spawn_event_index % 2]
+	if definition.sector_mode == EncounterDefinition.SectorMode.HEADING:
+		var h: int = _heading_sector()
+		match role:
+			&"ranged": primary_sector = h
+			&"charger": primary_sector = posmod(h + (2 if _rng.randi() % 2 == 0 else 6), SPAWN_SECTOR_COUNT)
+			_: primary_sector = posmod(h + (0 if spawn_event_index % 2 == 0 else 4), SPAWN_SECTOR_COUNT)
+	return primary_sector
+
+func _best_sector_candidate(sector: int) -> Dictionary:
+	var sector_width: float = TAU / float(SPAWN_SECTOR_COUNT)
+	var safest := Vector2.ZERO
+	var best: float = -1.0
+	for attempt: int in range(SECTOR_ATTEMPTS):
+		var angle: float = (float(sector) + 0.5) * sector_width
+		angle += _rng.randf_range(-sector_width * 0.36, sector_width * 0.36)
+		var centre: Vector2 = _party_center() if definition.spawn_mode == EncounterDefinition.SpawnMode.PARTY_OFFSCREEN else spawn_center
+		var extents: Vector2 = definition.offscreen_half_extents if definition.spawn_mode == EncounterDefinition.SpawnMode.PARTY_OFFSCREEN else spawn_ring
+		var candidate: Vector2
+		if definition.spawn_mode == EncounterDefinition.SpawnMode.PARTY_OFFSCREEN:
+			var direction := Vector2(cos(angle), sin(angle))
+			var factor: float = 1.0 / maxf(absf(direction.x) / extents.x, absf(direction.y) / extents.y)
+			candidate = centre + direction * factor
+		else:
+			candidate = centre + Vector2(cos(angle) * extents.x, sin(angle) * extents.y)
+		if not _spawn_candidate_is_safe(candidate):
+			continue
+		var nearest: PenguinPlayer = party.nearest_alive(candidate)
+		var distance: float = candidate.distance_squared_to(nearest.global_position) if nearest != null else INF
+		if distance > best:
+			best = distance
+			safest = candidate
+	return {"found": best >= 0.0, "position": safest}
+
+func _update_heading(_delta: float) -> void:
+	if definition == null or definition.sector_mode != EncounterDefinition.SectorMode.HEADING: return
+	var velocity_sum := Vector2.ZERO
+	var count: int = 0
+	for member: PenguinPlayer in party.members(true):
+		velocity_sum += member.velocity
+		count += 1
+	var desired: Vector2 = velocity_sum / float(maxi(1, count))
+	if desired.length() < definition.heading_min_speed: return
+	desired = desired.normalized()
+	_smoothed_heading = _smoothed_heading.lerp(desired, 1.0 - definition.heading_smoothing).normalized()
+
+func _heading_sector() -> int:
+	return posmod(floori(fposmod(_smoothed_heading.angle(), TAU) / (TAU / float(SPAWN_SECTOR_COUNT))), SPAWN_SECTOR_COUNT)
+
+func _role_of_scene(scene: PackedScene) -> StringName:
+	if scene == definition.ranged_scene: return &"ranged"
+	if scene == definition.charger_scene: return &"charger"
+	return &"base"
+
+func spawn_ambush(entries: Array[Dictionary]) -> Array[ArenaEnemy]:
+	var members: Array[ArenaEnemy] = []
+	for entry: Dictionary in entries:
+		var scene: PackedScene = entry.get("scene") as PackedScene
+		if scene == null: continue
+		var enemy := scene.instantiate() as ArenaEnemy
+		if enemy == null: continue
+		enemy.party = party
+		enemy.arena_bounds = actor_bounds
+		enemy.room_bounds = actor_bounds
+		_apply_scaling(enemy)
+		enemy.position = entry.get("position", spawn_center)
+		enemy.add_to_group("ambush")
+		enemy.defeated.connect(_on_enemy_defeated)
+		actor_root.add_child(enemy)
+		alive_count += 1
+		members.append(enemy)
+	return members
+
+func _legacy_spawn_position() -> Vector2:
+	# Existing rooms retain the safest of several global perimeter points.
 	var safest := Vector2.ZERO
 	var best: float = -1.0
 	for attempt: int in range(12):
@@ -192,10 +318,60 @@ func _spawn_enemy() -> void:
 		if distance > best:
 			best = distance
 			safest = candidate
-	enemy.position = safest
-	enemy.defeated.connect(_on_enemy_defeated)
-	actor_root.add_child(enemy)
-	alive_count += 1
+	return safest
+
+func _spawn_candidate_is_safe(candidate: Vector2) -> bool:
+	if not actor_bounds.grow(-SPAWN_EDGE_MARGIN).has_point(candidate):
+		return false
+	if actor_root == null or not actor_root.is_inside_tree():
+		return true
+	var space: PhysicsDirectSpaceState2D = actor_root.get_world_2d().direct_space_state
+	var point := PhysicsPointQueryParameters2D.new()
+	point.position = candidate
+	point.collision_mask = WORLD_COLLISION_MASK
+	point.collide_with_areas = false
+	point.collide_with_bodies = true
+	if not space.intersect_point(point, 1).is_empty():
+		return false
+	var destination: Vector2 = _party_center()
+	if candidate.distance_squared_to(destination) < 1.0:
+		return false
+	var ray := PhysicsRayQueryParameters2D.create(candidate, destination, WORLD_COLLISION_MASK)
+	ray.collide_with_areas = false
+	ray.collide_with_bodies = true
+	return space.intersect_ray(ray).is_empty()
+
+func _party_center() -> Vector2:
+	if party == null:
+		return spawn_center
+	var living: Array[PenguinPlayer] = party.members(true)
+	if living.is_empty():
+		return spawn_center
+	var total := Vector2.ZERO
+	for player: PenguinPlayer in living:
+		total += player.global_position
+	return total / float(living.size())
+
+func _safe_interior_fallback() -> Vector2:
+	var safe_bounds: Rect2 = actor_bounds.grow(-SPAWN_EDGE_MARGIN)
+	var safest := spawn_center
+	var best: float = -1.0
+	for y_step: int in range(1, 8):
+		for x_step: int in range(1, 10):
+			var candidate := Vector2(
+				lerpf(safe_bounds.position.x, safe_bounds.end.x, float(x_step) / 10.0),
+				lerpf(safe_bounds.position.y, safe_bounds.end.y, float(y_step) / 8.0)
+			)
+			if not _spawn_candidate_is_safe(candidate):
+				continue
+			var nearest: PenguinPlayer = party.nearest_alive(candidate)
+			var distance: float = candidate.distance_squared_to(nearest.global_position) if nearest != null else INF
+			if distance > best:
+				best = distance
+				safest = candidate
+	if best < 0.0:
+		push_warning("Encounter could not find a collision-clear spawn point")
+	return safest
 
 func _alive_charger_count() -> int:
 	var count: int = 0

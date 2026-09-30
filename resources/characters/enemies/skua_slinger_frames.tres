@@ -1,0 +1,307 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/defeat/skua_slinger_defeat_000.png" id="1_6k03j"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/defeat/skua_slinger_defeat_001.png" id="2_rgjvj"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/defeat/skua_slinger_defeat_002.png" id="3_jcva7"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/defeat/skua_slinger_defeat_003.png" id="4_a5pmt"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/defeat/skua_slinger_defeat_004.png" id="5_bfqdn"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/defeat/skua_slinger_defeat_005.png" id="6_44ryr"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/defeat/skua_slinger_defeat_006.png" id="7_x12rq"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/defeat/skua_slinger_defeat_007.png" id="8_0ect7"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/hit/skua_slinger_hit_000.png" id="9_wqm8y"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/hit/skua_slinger_hit_001.png" id="10_fb7yj"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/hit/skua_slinger_hit_002.png" id="11_kvbw4"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/hit/skua_slinger_hit_003.png" id="12_juy0l"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/hit/skua_slinger_hit_004.png" id="13_0je8u"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_000.png" id="14_qcguk"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_001.png" id="15_eugfr"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_002.png" id="16_1t8f0"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_003.png" id="17_gmamo"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_004.png" id="18_revq7"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_005.png" id="19_igb2i"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_006.png" id="20_kr4vi"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_007.png" id="21_qjg2t"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_008.png" id="22_5y2y3"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_009.png" id="23_rxcqb"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_010.png" id="24_mcocf"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_011.png" id="25_qotov"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_012.png" id="26_8si34"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_013.png" id="27_6iy4d"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_014.png" id="28_3is3r"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/idle/skua_slinger_idle_015.png" id="29_3cit6"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_000.png" id="30_3biux"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_001.png" id="31_jkhen"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_002.png" id="32_qcnrc"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_003.png" id="33_ucpmb"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_004.png" id="34_jayq8"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_005.png" id="35_w0t3e"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_006.png" id="36_t8pnk"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_007.png" id="37_a57wq"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_008.png" id="38_vai7p"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_009.png" id="39_ylm5v"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_010.png" id="40_0ktb6"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/move/skua_slinger_move_011.png" id="41_68kcd"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/throw/skua_slinger_throw_000.png" id="42_t5frr"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/throw/skua_slinger_throw_001.png" id="43_s03jh"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/throw/skua_slinger_throw_002.png" id="44_4x5ys"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/throw/skua_slinger_throw_003.png" id="45_3fmax"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/throw/skua_slinger_throw_004.png" id="46_prme3"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/throw/skua_slinger_throw_005.png" id="47_jkiws"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/throw/skua_slinger_throw_006.png" id="48_ascks"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/throw/skua_slinger_throw_007.png" id="49_vsqxm"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_000.png" id="50_pm0hv"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_001.png" id="51_37rok"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_002.png" id="52_mqx0b"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_003.png" id="53_pr08a"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_004.png" id="54_4m13h"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_005.png" id="55_w11ac"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_006.png" id="56_tj475"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_007.png" id="57_ec3o1"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_008.png" id="58_nmrga"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_009.png" id="59_j662e"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_010.png" id="60_1c3en"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_011.png" id="61_xdwrm"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_012.png" id="62_4x4fq"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_013.png" id="63_6ijd0"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_014.png" id="64_2nxff"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_015.png" id="65_u6eq1"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_016.png" id="66_1ho5p"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_017.png" id="67_i7mne"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/skua_slinger/production/windup/skua_slinger_windup_018.png" id="68_y8yvr"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_6k03j")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_rgjvj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_jcva7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_a5pmt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_bfqdn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_44ryr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_x12rq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_0ect7")
+}],
+"loop": 0,
+"name": &"defeat",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_wqm8y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_fb7yj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_kvbw4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_juy0l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_0je8u")
+}],
+"loop": 0,
+"name": &"hit",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("14_qcguk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_eugfr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_1t8f0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_gmamo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_revq7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_igb2i")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_kr4vi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_qjg2t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_5y2y3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_rxcqb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_mcocf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_qotov")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_8si34")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_6iy4d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_3is3r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_3cit6")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("30_3biux")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_jkhen")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_qcnrc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_ucpmb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_jayq8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_w0t3e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_t8pnk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_a57wq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_vai7p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_ylm5v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_0ktb6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_68kcd")
+}],
+"loop": 1,
+"name": &"move",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("42_t5frr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("43_s03jh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("44_4x5ys")
+}, {
+"duration": 1.0,
+"texture": ExtResource("45_3fmax")
+}, {
+"duration": 1.0,
+"texture": ExtResource("46_prme3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("47_jkiws")
+}, {
+"duration": 1.0,
+"texture": ExtResource("48_ascks")
+}, {
+"duration": 1.0,
+"texture": ExtResource("49_vsqxm")
+}],
+"loop": 0,
+"name": &"throw",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("50_pm0hv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("51_37rok")
+}, {
+"duration": 1.0,
+"texture": ExtResource("52_mqx0b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("53_pr08a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("54_4m13h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("55_w11ac")
+}, {
+"duration": 1.0,
+"texture": ExtResource("56_tj475")
+}, {
+"duration": 1.0,
+"texture": ExtResource("57_ec3o1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("58_nmrga")
+}, {
+"duration": 1.0,
+"texture": ExtResource("59_j662e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("60_1c3en")
+}, {
+"duration": 1.0,
+"texture": ExtResource("61_xdwrm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("62_4x4fq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("63_6ijd0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("64_2nxff")
+}, {
+"duration": 1.0,
+"texture": ExtResource("65_u6eq1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("66_1ho5p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("67_i7mne")
+}, {
+"duration": 1.0,
+"texture": ExtResource("68_y8yvr")
+}],
+"loop": 0,
+"name": &"windup",
+"speed": 24.0
+}]

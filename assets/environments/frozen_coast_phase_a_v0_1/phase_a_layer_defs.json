@@ -1,0 +1,183 @@
+{
+  "note": "CANDIDATE Frozen Coast Phase A (Township Gate -> Pass -> Driftfield) runtime layers. Same convention as township_visual_manifest.json: crops are in background pixel space; sort_baseline is the Godot y for the layer's sort root (Godot px = 81*x, -80*y in Blender metres). A body whose feet are north of (smaller y than) sort_baseline is drawn behind the whole sprite.",
+  "source_resolution": [
+    3584,
+    2816
+  ],
+  "camera_width_metres": 56.0,
+  "camera_pitch_deg": 52.0,
+  "camera_ground_centre": [
+    -4.0,
+    15.92
+  ],
+  "godot_pixels_per_metre": [
+    81.0,
+    80.0
+  ],
+  "sprite_scale": [
+    1.265625,
+    1.586272619350546
+  ],
+  "background_centre": [
+    -324.0,
+    -1273.6
+  ],
+  "background": "frozen_coast_phase_a_background.png",
+  "plate_ground_extent_world": {
+    "x": [
+      -32.0,
+      24.0
+    ],
+    "y_at_z0": [
+      -12.0,
+      43.84
+    ]
+  },
+  "layers": {
+    "pillar_a": {
+      "sort_baseline": -1663.0,
+      "sort_baseline_world_y": 20.788,
+      "kind": "hard_impact"
+    },
+    "pillar_b": {
+      "sort_baseline": -2209.0,
+      "sort_baseline_world_y": 27.609,
+      "kind": "hard_impact"
+    },
+    "pillar_d": {
+      "sort_baseline": -2193.0,
+      "sort_baseline_world_y": 27.408,
+      "kind": "hard_impact"
+    },
+    "pillar_e": {
+      "sort_baseline": -1900.0,
+      "sort_baseline_world_y": 23.745,
+      "kind": "hard_impact"
+    },
+    "boulder_a": {
+      "sort_baseline": -1491.0,
+      "sort_baseline_world_y": 18.641,
+      "kind": "hard_impact"
+    },
+    "boulder_b": {
+      "sort_baseline": -1477.0,
+      "sort_baseline_world_y": 18.463,
+      "kind": "hard_impact"
+    },
+    "boulder_c": {
+      "sort_baseline": -2421.0,
+      "sort_baseline_world_y": 30.265,
+      "kind": "hard_impact"
+    },
+    "rib_l0": {
+      "sort_baseline": -1176.0,
+      "sort_baseline_world_y": 14.7,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l1": {
+      "sort_baseline": -1191.0,
+      "sort_baseline_world_y": 14.891,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l2": {
+      "sort_baseline": -1207.0,
+      "sort_baseline_world_y": 15.083,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l3": {
+      "sort_baseline": -1233.0,
+      "sort_baseline_world_y": 15.407,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l4": {
+      "sort_baseline": -1269.0,
+      "sort_baseline_world_y": 15.865,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l5": {
+      "sort_baseline": -1306.0,
+      "sort_baseline_world_y": 16.322,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r0": {
+      "sort_baseline": -1412.0,
+      "sort_baseline_world_y": 17.648,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r1": {
+      "sort_baseline": -1448.0,
+      "sort_baseline_world_y": 18.106,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r2": {
+      "sort_baseline": -1485.0,
+      "sort_baseline_world_y": 18.563,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r3": {
+      "sort_baseline": -1511.0,
+      "sort_baseline_world_y": 18.888,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r4": {
+      "sort_baseline": -1526.0,
+      "sort_baseline_world_y": 19.079,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r5": {
+      "sort_baseline": -1542.0,
+      "sort_baseline_world_y": 19.27,
+      "kind": "hard_impact_rib"
+    },
+    "whale_skull": {
+      "sort_baseline": -1436.0,
+      "sort_baseline_world_y": 17.947,
+      "kind": "hard_impact"
+    },
+    "signpost": {
+      "sort_baseline": -1174.0,
+      "sort_baseline_world_y": 14.679,
+      "kind": "route_marker"
+    },
+    "stake_0": {
+      "sort_baseline": 239.0,
+      "sort_baseline_world_y": -2.982,
+      "kind": "route_marker"
+    },
+    "stake_1": {
+      "sort_baseline": -241.0,
+      "sort_baseline_world_y": 3.012,
+      "kind": "route_marker"
+    },
+    "stake_2": {
+      "sort_baseline": -707.0,
+      "sort_baseline_world_y": 8.836,
+      "kind": "route_marker"
+    },
+    "stake_gate": {
+      "sort_baseline": 719.0,
+      "sort_baseline_world_y": -8.982,
+      "kind": "route_marker"
+    },
+    "rim_passw": {
+      "sort_baseline": -1048.0,
+      "sort_baseline_world_y": 13.1,
+      "kind": "plateau_rim_occluder"
+    },
+    "rim_passe_w": {
+      "sort_baseline": -1015.0,
+      "sort_baseline_world_y": 12.69,
+      "kind": "plateau_rim_occluder"
+    },
+    "rim_passe_m": {
+      "sort_baseline": -1029.0,
+      "sort_baseline_world_y": 12.86,
+      "kind": "plateau_rim_occluder"
+    },
+    "rim_passe_e": {
+      "sort_baseline": -1136.0,
+      "sort_baseline_world_y": 14.2,
+      "kind": "plateau_rim_occluder"
+    }
+  }
+}

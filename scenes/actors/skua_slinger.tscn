@@ -15,6 +15,7 @@ maximum = 22.0
 
 [node name="CharacterVisual" parent="." index="3"]
 scale = Vector2(0.92, 0.92)
+enemy_art_id = &"skua_slinger"
 
 [node name="Behavior" type="Node" parent="."]
 script = ExtResource("2")
@@ -22,6 +23,11 @@ windup_time = 0.8
 shot_cooldown = 1.8
 egg_travel_time = 0.62
 landing_radius = 42.0
+preferred_range = 360.0
+retreat_range = 230.0
+attack_range = 390.0
+lead_fraction = 0.55
+lead_max = 150.0
 
 [node name="AttackVisual" type="Node2D" parent="."]
 script = ExtResource("3")

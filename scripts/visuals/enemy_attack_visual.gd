@@ -13,11 +13,15 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if _enemy == null or not _enemy.health.is_alive():
 		return
+	var character_visual := _enemy.get_node_or_null("CharacterVisual") as CharacterVisual
+	var production_art_id: StringName = character_visual.enemy_art_id if character_visual != null else &""
 	var charge := _enemy.behavior as ChargeBehavior
 	if charge != null:
-		# Wide armored brow distinguishes chargers without relying on tint alone.
-		draw_colored_polygon(PackedVector2Array([Vector2(-24, -24), Vector2(-16, -36), Vector2(16, -36), Vector2(24, -24)]), Color("f2a66c"))
-		draw_line(Vector2(-18, -25), Vector2(18, -25), Color("623f50"), 4)
+		# Unrelated legacy chargers still need the placeholder brow. Tuskbull art
+		# carries its own silhouette and must remain unobscured.
+		if production_art_id != &"tuskbull":
+			draw_colored_polygon(PackedVector2Array([Vector2(-24, -24), Vector2(-16, -36), Vector2(16, -36), Vector2(24, -24)]), Color("f2a66c"))
+			draw_line(Vector2(-18, -25), Vector2(18, -25), Color("623f50"), 4)
 		if charge.state == ChargeBehavior.State.WINDUP:
 			var length: float = charge.charge_speed * charge.charge_time
 			var perpendicular := charge.direction.orthogonal() * 20.0
@@ -44,17 +48,19 @@ func _draw() -> void:
 			for offset: float in [-15.0, -5.0, 5.0, 15.0]:
 				var trail: Vector2 = -charge.direction * 20.0 + charge.direction.orthogonal() * offset
 				draw_line(trail, trail - charge.direction * 34.0, Color("dff8ff", 0.58), 2.5)
-		elif charge.state == ChargeBehavior.State.RECOVER:
+		elif charge.state == ChargeBehavior.State.RECOVER and production_art_id != &"tuskbull":
 			draw_arc(Vector2(0, -44), 10, _time * 4, _time * 4 + 4, 16, Color("ffd49c"), 2)
 		return
 	var skua := _enemy.behavior as SkuaSlingerBehavior
 	if skua != null:
-		# Perched-artillery language: small bird silhouette, amber arc dots, and
-		# a red-orange landing ring. The ring is skua.locked_target itself.
-		draw_arc(Vector2(0, -23), 18, PI, TAU, 20, Color("89c5ed"), 9)
-		draw_circle(Vector2(0, -45), 6, Color("effbff"))
+		# The production Skua carries its own cap and egg. Preserve placeholder
+		# markers only for a future unrelated SkuaBehavior user.
+		if production_art_id != &"skua_slinger":
+			draw_arc(Vector2(0, -23), 18, PI, TAU, 20, Color("89c5ed"), 9)
+			draw_circle(Vector2(0, -45), 6, Color("effbff"))
 		if skua.state == RangedBehavior.State.WINDUP:
-			var start := Vector2(18, -18)
+			var facing: float = -1.0 if skua.direction.x < 0.0 else 1.0
+			var start := Vector2(SkuaIceEgg.RELEASE_OFFSET_RIGHT.x * facing, SkuaIceEgg.RELEASE_OFFSET_RIGHT.y)
 			var target := to_local(skua.locked_target)
 			var control := (start + target) * 0.5 + Vector2(0, -clampf(start.distance_to(target) * 0.22, 30.0, 76.0))
 			for index: int in range(1, 9):

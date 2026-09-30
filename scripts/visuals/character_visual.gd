@@ -17,6 +17,7 @@ enum State {
 }
 
 @export var enemy: bool = false
+@export var enemy_art_id: StringName = &""
 @export var profile: ProfileResource:
 	set = set_profile
 
@@ -30,14 +31,40 @@ var _dash_timer: float = 0.0
 var _was_dashing: bool = false
 var _halo_angle: float = 0.0
 var _facing_direction: float = 1.0
+var _frame_sway_x: float = 0.0
+var _frame_lift: float = 0.0
+var _visual_velocity := Vector2.ZERO
+var _previous_speed: float = 0.0
+var _motion_scale := Vector2.ONE
+var _motion_response: int = 0
+var _motion_response_elapsed: float = 0.0
+var _motion_response_duration: float = 0.0
+var _grounding_lean: float = 0.0
+var _enemy_kick_timer: float = 0.0
+var _enemy_crash_timer: float = 0.0
 
 # Actor / Controller references
 var _actor: CharacterBody2D
 var _health: Health
 var _dash: DashController
 
-# Legacy enemy sprite
+# Enemy presentation. Production Phase A enemies use the AnimatedSprite2D;
+# unrelated enemies retain the legacy seal Sprite2D path.
 var _enemy_body: Sprite2D
+var _enemy_anim: AnimatedSprite2D
+var _enemy_one_shot: StringName = &""
+var _enemy_previous_behavior_state: int = -1
+var _enemy_last_windup_progress: float = 0.0
+var _enemy_crash_path: bool = false
+var _enemy_crash_phase: int = -1
+var _enemy_recoil_local := Vector2.ZERO
+
+# Shared actor grounding nodes. They move only presentation; the actor root,
+# collision shape and y-sort/contact origin remain authoritative.
+var _ground_shadow: Node2D
+var _cast_shadow: Sprite2D
+var _contact_shadow: Sprite2D
+var _team_ring: Line2D
 
 # Presentation Seam Nodes
 var _pivot: Node2D
@@ -92,14 +119,86 @@ const TEX_SCARF_TAIL = preload("res://assets/characters/playable_v1/scarf_tail.s
 const TEX_KO_FISH = preload("res://assets/characters/playable_v1/ko_fish.svg")
 const TEX_KO_STAR = preload("res://assets/characters/playable_v1/ko_star.svg")
 const TEX_SEAL = preload("res://assets/characters/seal_raider.svg")
+const TEX_SHADOW_CONTACT = preload("res://assets/effects/grounding_v1/ag_shadow_contact.png")
+const TEX_SHADOW_CAST = preload("res://assets/effects/grounding_v1/ag_shadow_cast.png")
+const ROLLY_FRAMES: SpriteFrames = preload("res://resources/characters/enemies/rolly_frames.tres")
+const SKUA_SLINGER_FRAMES: SpriteFrames = preload("res://resources/characters/enemies/skua_slinger_frames.tres")
+const TUSKBULL_FRAMES: SpriteFrames = preload("res://resources/characters/enemies/tuskbull_frames.tres")
+
+const AMBIENT_TINT := Color(0.88, 0.91, 0.96)
+const SCARF_TINT_MULTIPLIER := Color(0.95, 0.96, 0.99)
+const SHADOW_COLOR := Color("223f6b")
+const ACTOR_SUN_META := &"actor_sun"
+const DEFAULT_ACTOR_SUN := {
+	"region": &"frozen_coast",
+	"angle_deg": -51.6,
+	"len_per_m": 139.2,
+}
+const TUSKBULL_CRASH_RECOIL_WORLD: float = 26.0
+const TUSKBULL_RECOVER_DURATION: float = 10.0 / 24.0
+
+const ENEMY_ART := {
+	&"rolly": {
+		"frames": ROLLY_FRAMES,
+		"offset": Vector2(0.0, -34.0),
+		"move_speed": 96.0,
+		"contact_size": Vector2(36.8, 13.2),
+		"contact_position": Vector2.ZERO,
+		"cast_width": 28.9,
+		"cast_frozen": 80.5,
+		"cast_township": 60.1,
+		"contact_alpha": 0.60,
+		"cast_alpha": 0.24,
+	},
+	&"skua_slinger": {
+		"frames": SKUA_SLINGER_FRAMES,
+		"offset": Vector2(0.0, -56.0),
+		"move_speed": 68.0,
+		"contact_size": Vector2(28.3, 9.8),
+		"contact_position": Vector2(-1.1, 0.0),
+		"cast_width": 21.7,
+		"cast_frozen": 105.3,
+		"cast_township": 78.3,
+		"contact_alpha": 0.60,
+		"cast_alpha": 0.24,
+	},
+	&"tuskbull": {
+		"frames": TUSKBULL_FRAMES,
+		"offset": Vector2(0.0, -80.0),
+		"move_speed": 54.0,
+		"contact_size": Vector2(64.5, 16.8),
+		"contact_position": Vector2(2.6, -0.6),
+		"cast_width": 45.2,
+		"cast_frozen": 83.4,
+		"cast_township": 61.9,
+		"contact_alpha": 0.65,
+		"cast_alpha": 0.26,
+	},
+}
+
+const MOVE_FRAME_RESPONSE := [
+	Vector2(-0.43, 0.18), Vector2(1.40, 0.55), Vector2(2.98, 0.82), Vector2(4.17, 1.00),
+	Vector2(5.02, 0.82), Vector2(5.27, 0.55), Vector2(4.70, 0.00), Vector2(3.62, 0.00),
+	Vector2(2.15, 0.00), Vector2(0.67, 0.00), Vector2(-0.57, 0.00), Vector2(-1.43, 0.00),
+	Vector2(-1.68, 0.00), Vector2(-1.27, 0.00), Vector2(-0.18, 0.00), Vector2(1.62, 0.00),
+]
+const DASH_FRAME_RESPONSE := [
+	Vector2(-0.02, 0.00), Vector2(-1.73, 0.00), Vector2(3.73, 0.00), Vector2(4.80, 0.09),
+	Vector2(4.30, 0.82), Vector2(1.00, 0.00), Vector2(0.38, 0.00), Vector2(-0.15, 0.00),
+	Vector2(-0.02, 0.00), Vector2(-0.02, 0.00),
+]
+const HIT_FRAME_RESPONSE := [
+	Vector2(-0.02, 0.00), Vector2(-0.20, 0.00), Vector2(0.10, 0.00), Vector2(0.00, 0.00),
+	Vector2(0.25, 0.00), Vector2(0.07, 0.00), Vector2(-0.02, 0.00),
+]
 
 const HIT_DURATION: float = 0.18
 const REVIVE_DURATION: float = 0.35
 const PUPPET_BASE_SCALE: float = 0.70
-## One 16-frame Waddle loop covers about 128 gameplay pixels.  At the locked
-## 24 fps source rate this produces a 192 px/s reference speed; gameplay stays
+## One 16-frame Waddle loop covers about 108 gameplay pixels. At the locked
+## 24 fps source rate this produces a 162 px/s reference speed; gameplay stays
 ## authoritative and the animation follows the velocity it actually achieved.
-const WADDLE_CYCLE_DISTANCE: float = 128.0
+const WADDLE_CYCLE_DISTANCE: float = 108.0
 const WADDLE_REFERENCE_SPEED: float = WADDLE_CYCLE_DISTANCE * (24.0 / 16.0)
 const WADDLE_MIN_PLAYBACK_MULTIPLIER: float = 0.40
 const WADDLE_MAX_PLAYBACK_MULTIPLIER: float = 1.60
@@ -124,11 +223,70 @@ func _ready() -> void:
 		_setup_player()
 
 func _setup_enemy() -> void:
-	_enemy_body = Sprite2D.new()
-	_enemy_body.texture = TEX_SEAL
-	_enemy_body.scale = Vector2.ONE * 0.55
-	_enemy_body.position.y = -9
-	add_child(_enemy_body)
+	_health = _actor.get_node_or_null("Health") as Health if _actor != null else null
+	_setup_ground_shadow(false)
+	if ENEMY_ART.has(enemy_art_id):
+		var art: Dictionary = ENEMY_ART[enemy_art_id]
+		_enemy_anim = AnimatedSprite2D.new()
+		_enemy_anim.name = "ProductionEnemy"
+		_enemy_anim.sprite_frames = art["frames"] as SpriteFrames
+		_enemy_anim.centered = true
+		_enemy_anim.offset = art["offset"] as Vector2
+		_enemy_anim.scale = Vector2.ONE * (0.5 / maxf(0.001, scale.x))
+		_enemy_anim.modulate = AMBIENT_TINT
+		_enemy_anim.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		_enemy_anim.animation_finished.connect(_on_enemy_animation_finished)
+		add_child(_enemy_anim)
+		_play_enemy_animation(&"idle")
+		if _health != null and not _health.damaged.is_connected(_on_enemy_damaged):
+			_health.damaged.connect(_on_enemy_damaged)
+	else:
+		_enemy_body = Sprite2D.new()
+		_enemy_body.name = "LegacySeal"
+		_enemy_body.texture = TEX_SEAL
+		_enemy_body.scale = Vector2.ONE * 0.55
+		_enemy_body.position.y = -21
+		_enemy_body.modulate = AMBIENT_TINT
+		add_child(_enemy_body)
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior if _actor != null else null
+	if charge != null:
+		charge.charge_started.connect(_on_enemy_charge_started)
+		charge.crashed.connect(_on_enemy_crashed)
+	var behavior := _actor.get_node_or_null("Behavior") as EnemyBehavior if _actor != null else null
+	if behavior != null:
+		_enemy_previous_behavior_state = int(behavior.get("state"))
+
+func _setup_ground_shadow(player_shadow: bool) -> void:
+	_ground_shadow = Node2D.new()
+	_ground_shadow.name = "GroundShadow"
+	_ground_shadow.z_index = -2
+	add_child(_ground_shadow)
+
+	if player_shadow:
+		_team_ring = Line2D.new()
+		_team_ring.name = "TeamRing"
+		_team_ring.width = 1.5
+		_team_ring.closed = true
+		_team_ring.antialiased = true
+		var ring_points := PackedVector2Array()
+		for index: int in range(32):
+			var angle: float = TAU * float(index) / 32.0
+			ring_points.append(Vector2(cos(angle) * 21.0, sin(angle) * 7.5))
+		_team_ring.points = ring_points
+		_ground_shadow.add_child(_team_ring)
+
+	_cast_shadow = Sprite2D.new()
+	_cast_shadow.name = "CastShadow"
+	_cast_shadow.texture = TEX_SHADOW_CAST
+	_cast_shadow.offset = Vector2(128.0, 0.0)
+	_cast_shadow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_ground_shadow.add_child(_cast_shadow)
+
+	_contact_shadow = Sprite2D.new()
+	_contact_shadow.name = "ContactShadow"
+	_contact_shadow.texture = TEX_SHADOW_CONTACT
+	_contact_shadow.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_ground_shadow.add_child(_contact_shadow)
 
 func _setup_player() -> void:
 	_health = _actor.get_node_or_null("Health") as Health if _actor != null else null
@@ -141,6 +299,8 @@ func _setup_player() -> void:
 			_health.died.connect(_on_died)
 		if not _health.revived.is_connected(_on_revived):
 			_health.revived.connect(_on_revived)
+
+	_setup_ground_shadow(true)
 
 	_pivot = Node2D.new()
 	_pivot.scale = Vector2.ONE * PUPPET_BASE_SCALE
@@ -222,6 +382,7 @@ func _setup_player() -> void:
 
 	_animated_sprite = AnimatedSprite2D.new()
 	_animated_sprite.animation_finished.connect(_on_animation_finished)
+	_animated_sprite.frame_changed.connect(_on_player_frame_changed)
 	_pivot.add_child(_animated_sprite)
 
 	_scarf_sprite = AnimatedSprite2D.new()
@@ -249,7 +410,7 @@ func _update_presentation_mode() -> void:
 			_animated_sprite.sprite_frames = profile.sprite_frames
 			_animated_sprite.scale = profile.base_scale
 			_animated_sprite.offset = profile.offset
-			_animated_sprite.modulate = Color.WHITE
+			_animated_sprite.modulate = AMBIENT_TINT
 	if _scarf_sprite != null:
 		var has_scarf: bool = use_prof and profile.scarf_sprite_frames != null
 		_scarf_sprite.visible = has_scarf
@@ -307,12 +468,27 @@ func _update_team_tint() -> void:
 	set_team_tint(tint)
 
 func set_team_tint(tint: Color) -> void:
-	_scarf_wrap.modulate = tint
-	_scarf_tail.modulate = tint
+	var scarf_tint := tint * SCARF_TINT_MULTIPLIER
+	_scarf_wrap.modulate = scarf_tint
+	_scarf_tail.modulate = scarf_tint
 	if _scarf_sprite != null:
-		_scarf_sprite.modulate = tint
+		_scarf_sprite.modulate = scarf_tint
 	if _animated_sprite != null:
-		_animated_sprite.modulate = Color.WHITE
+		_animated_sprite.modulate = AMBIENT_TINT
+	for sprite: CanvasItem in _puppet_sprites:
+		if sprite != _scarf_wrap and sprite != _scarf_tail:
+			sprite.modulate = AMBIENT_TINT
+	if _team_ring != null:
+		_team_ring.default_color = Color(tint, 0.40)
+
+func facing_direction() -> float:
+	return _facing_direction
+
+func presentation_sway_x() -> float:
+	return _frame_sway_x
+
+func presentation_lift() -> float:
+	return _frame_lift
 
 func get_state_animation_duration(state: State) -> float:
 	if _using_profile() and profile != null:
@@ -417,20 +593,170 @@ func _process(delta: float) -> void:
 		_process_player(delta)
 	queue_redraw()
 
-func _process_enemy(_delta: float) -> void:
-	if _actor == null or _enemy_body == null:
+func _process_enemy(delta: float) -> void:
+	if _actor == null:
 		return
 	var moving: bool = _actor.velocity.length_squared() > 20.0
-	var alive: bool = true
-	var health_node := _actor.get_node_or_null("Health") as Health
-	if health_node != null:
-		alive = health_node.is_alive()
+	var alive: bool = _health.is_alive() if _health != null else true
+	if _enemy_anim != null:
+		_process_production_enemy(moving)
+		_update_enemy_grounding(0.0, alive, delta)
+		return
+	if _enemy_body == null:
+		return
 	var bob: float = sin(_time * 13.0) * 2.2 if moving and alive else sin(_time * 2.5) * 0.7
-	_enemy_body.position.y = -9 + bob
+	_enemy_body.position.y = -21 + bob
 	_enemy_body.rotation = sin(_time * 13.0) * 0.06 if moving and alive else 0.0
-	_enemy_body.modulate = Color.WHITE if alive else Color("758794")
+	_enemy_body.modulate = AMBIENT_TINT if alive else Color("758794")
 	if not alive:
 		_enemy_body.rotation = PI * 0.5
+	_update_enemy_grounding(bob, alive, delta)
+
+func _process_production_enemy(moving: bool) -> void:
+	_update_production_enemy_facing()
+	_enemy_anim.flip_h = _facing_direction < 0.0
+	match enemy_art_id:
+		&"skua_slinger":
+			_process_skua_animation(moving)
+		&"tuskbull":
+			_process_tuskbull_animation(moving)
+		_:
+			_process_rolly_animation(moving)
+	_update_tuskbull_recoil()
+
+func _update_production_enemy_facing() -> void:
+	var skua := _actor.get_node_or_null("Behavior") as SkuaSlingerBehavior
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior
+	if skua != null and skua.state in [RangedBehavior.State.WINDUP, RangedBehavior.State.RECOVER]:
+		if absf(skua.direction.x) > 0.001:
+			_facing_direction = signf(skua.direction.x)
+	elif charge != null and charge.state in [ChargeBehavior.State.WINDUP, ChargeBehavior.State.CHARGE, ChargeBehavior.State.RECOVER]:
+		if absf(charge.direction.x) > 0.001:
+			_facing_direction = signf(charge.direction.x)
+	elif absf(_actor.velocity.x) > 1.0:
+		_facing_direction = signf(_actor.velocity.x)
+
+func _process_rolly_animation(moving: bool) -> void:
+	if not _enemy_one_shot.is_empty():
+		return
+	_play_enemy_animation(&"move" if moving else &"idle", _enemy_move_speed_scale() if moving else 1.0)
+
+func _process_skua_animation(moving: bool) -> void:
+	var skua := _actor.get_node_or_null("Behavior") as SkuaSlingerBehavior
+	if skua == null:
+		_process_rolly_animation(moving)
+		return
+	var state: int = int(skua.state)
+	if state == RangedBehavior.State.WINDUP:
+		_enemy_one_shot = &""
+		var progress: float = clampf(1.0 - skua.remaining / maxf(0.001, skua.windup_time), 0.0, 1.0)
+		_enemy_last_windup_progress = progress
+		_drive_enemy_animation(&"windup", floori(progress * 19.0), 19)
+	elif _enemy_previous_behavior_state == RangedBehavior.State.WINDUP and state == RangedBehavior.State.RECOVER:
+		if _enemy_one_shot.is_empty():
+			_start_enemy_one_shot(&"throw" if _enemy_last_windup_progress >= 0.9 else &"hit")
+	elif _enemy_one_shot.is_empty():
+		_play_enemy_animation(&"move" if moving else &"idle", _enemy_move_speed_scale() if moving else 1.0)
+	_enemy_previous_behavior_state = state
+
+func _process_tuskbull_animation(moving: bool) -> void:
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior
+	if charge == null:
+		_process_rolly_animation(moving)
+		return
+	var state: int = int(charge.state)
+	match charge.state:
+		ChargeBehavior.State.WINDUP:
+			_enemy_one_shot = &""
+			var progress: float = clampf(1.0 - charge.remaining / maxf(0.001, charge.windup_time), 0.0, 1.0)
+			_enemy_last_windup_progress = progress
+			_drive_enemy_animation(&"windup", floori(progress * 20.0), 20)
+		ChargeBehavior.State.CHARGE:
+			_enemy_one_shot = &""
+			var charge_scale: float = charge._current_charge_speed() / maxf(0.001, charge.charge_speed)
+			_play_enemy_animation(&"charge", charge_scale)
+		ChargeBehavior.State.RECOVER:
+			if _enemy_crash_path:
+				var phase: int = 0 if charge.remaining > charge.crash_recovery_time - 0.25 else (1 if charge.remaining > TUSKBULL_RECOVER_DURATION else 2)
+				if phase != _enemy_crash_phase:
+					_enemy_crash_phase = phase
+					match phase:
+						0:
+							_start_enemy_one_shot(&"crash")
+						1:
+							_enemy_one_shot = &""
+							_play_enemy_animation(&"stunned")
+						2:
+							_start_enemy_one_shot(&"recover")
+			elif _enemy_previous_behavior_state != ChargeBehavior.State.RECOVER:
+				_start_enemy_one_shot(&"recover")
+		ChargeBehavior.State.APPROACH:
+			if _enemy_previous_behavior_state == ChargeBehavior.State.RECOVER:
+				_enemy_crash_path = false
+				_enemy_crash_phase = -1
+				_enemy_one_shot = &""
+			if _enemy_one_shot.is_empty():
+				_play_enemy_animation(&"move" if moving else &"idle", _enemy_move_speed_scale() if moving else 1.0)
+	_enemy_previous_behavior_state = state
+
+func _play_enemy_animation(animation: StringName, speed_scale: float = 1.0) -> void:
+	if _enemy_anim == null or not _enemy_anim.sprite_frames.has_animation(animation):
+		return
+	_enemy_anim.speed_scale = speed_scale
+	if _enemy_anim.animation != animation:
+		_enemy_anim.play(animation)
+	elif _enemy_anim.sprite_frames.get_animation_loop(animation) and not _enemy_anim.is_playing():
+		_enemy_anim.play(animation)
+
+func _drive_enemy_animation(animation: StringName, requested_frame: int, frame_count: int) -> void:
+	if _enemy_anim == null or not _enemy_anim.sprite_frames.has_animation(animation):
+		return
+	if _enemy_anim.animation != animation:
+		_enemy_anim.play(animation)
+	_enemy_anim.pause()
+	_enemy_anim.frame = clampi(requested_frame, 0, frame_count - 1)
+	_enemy_anim.frame_progress = 0.0
+
+func _start_enemy_one_shot(animation: StringName) -> void:
+	if _enemy_anim == null or not _enemy_anim.sprite_frames.has_animation(animation):
+		return
+	_enemy_one_shot = animation
+	_enemy_anim.speed_scale = 1.0
+	_enemy_anim.stop()
+	_enemy_anim.play(animation)
+
+func _on_enemy_animation_finished() -> void:
+	if _enemy_anim != null and _enemy_anim.animation == _enemy_one_shot:
+		_enemy_one_shot = &""
+
+func _enemy_move_speed_scale() -> float:
+	var art: Dictionary = ENEMY_ART.get(enemy_art_id, {})
+	return clampf(_actor.velocity.length() / maxf(0.001, float(art.get("move_speed", 72.0))), 0.6, 1.4)
+
+func _on_enemy_damaged(event: DamageEvent) -> void:
+	if _enemy_anim == null or _health == null or not _health.is_alive():
+		return
+	var skua := _actor.get_node_or_null("Behavior") as SkuaSlingerBehavior
+	if skua != null and skua.state == RangedBehavior.State.WINDUP and event.impulse.length() >= 250.0:
+		_start_enemy_one_shot(&"hit")
+		return
+	if _enemy_anim.animation in [&"idle", &"move"]:
+		_start_enemy_one_shot(&"hit")
+
+func _update_tuskbull_recoil() -> void:
+	if _enemy_anim == null or enemy_art_id != &"tuskbull":
+		_enemy_recoil_local = Vector2.ZERO
+		return
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior
+	var strength: float = 0.0
+	if _enemy_crash_path and charge != null and charge.state == ChargeBehavior.State.RECOVER:
+		strength = 1.0 if charge.remaining > TUSKBULL_RECOVER_DURATION else clampf(charge.remaining / TUSKBULL_RECOVER_DURATION, 0.0, 1.0)
+		var direction: Vector2 = charge.direction.normalized() if charge.direction.length_squared() > 0.0 else Vector2.RIGHT
+		var world_delta: Vector2 = -direction * TUSKBULL_CRASH_RECOIL_WORLD * strength
+		_enemy_recoil_local = to_local(_actor.global_position + world_delta) - to_local(_actor.global_position)
+	else:
+		_enemy_recoil_local = Vector2.ZERO
+	_enemy_anim.position = _enemy_recoil_local
 
 func _process_player(delta: float) -> void:
 	if _pivot == null:
@@ -445,13 +771,15 @@ func _process_player(delta: float) -> void:
 
 	var alive: bool = _health.is_alive() if _health != null else true
 	var dashing: bool = _dash.is_active() if _dash != null else false
+	var dash_started: bool = dashing and not _was_dashing
+	var dash_ended: bool = not dashing and _was_dashing
 	var vel: Vector2 = _actor.velocity if _actor != null else Vector2.ZERO
 	var moving: bool = vel.length_squared() > 10.0
 	var sliding: bool = alive and _actor != null and bool(_actor.get_meta(TOWNSHIP_SLIDE_META, false))
 	_update_township_elevation(delta, sliding)
 
 	# Track dash start
-	if dashing and not _was_dashing:
+	if dash_started:
 		if _using_profile() and not profile.is_state_looping(State.DASH):
 			_dash_timer = maxf(get_state_animation_duration(State.DASH), _dash.remaining)
 		else:
@@ -459,7 +787,9 @@ func _process_player(delta: float) -> void:
 		if _using_profile():
 			var dash_anim := profile.get_animation_for_state(State.DASH)
 			_play_animation(dash_anim, true)
-	_was_dashing = dashing
+		_emit_dash_puff(_dash.direction if _dash != null else Vector2.RIGHT, 0.5)
+	if dash_ended:
+		_emit_snow_kick(Vector2.ZERO, 0.6)
 
 	# Determine State Priority: DOWNED > REVIVE > HIT > DASH > SLIDE > MOVE > IDLE.
 	# Slide deliberately borrows a held Idle frame; it is presentation-only.
@@ -482,16 +812,19 @@ func _process_player(delta: float) -> void:
 		current_state = State.IDLE
 
 	# Update Facing Direction
+	var previous_facing: float = _facing_direction
 	if current_state == State.DASH and _dash != null:
 		if absf(_dash.direction.x) > 0.05:
 			_facing_direction = 1.0 if _dash.direction.x > 0 else -1.0
 	elif moving and current_state != State.DOWNED:
 		if absf(vel.x) > 5.0:
 			_facing_direction = 1.0 if vel.x > 0 else -1.0
+	_update_frame_response()
+	_update_motion_weight(delta, vel, moving, previous_facing, sliding)
 
 	if _using_profile():
-		_pivot.scale = Vector2.ONE
-		_pivot.rotation = TOWNSHIP_SLIDE_LEAN if sliding else _township_elevation_lean()
+		_pivot.scale = _motion_scale
+		_pivot.rotation = (TOWNSHIP_SLIDE_LEAN if sliding else _township_elevation_lean()) + _grounding_lean
 		if _animated_sprite != null:
 			var flipped: bool = (_facing_direction < 0.0)
 			if profile.flip_h_with_facing:
@@ -531,8 +864,8 @@ func _process_player(delta: float) -> void:
 		else:
 			_halo.visible = false
 	else:
-		_pivot.scale = Vector2(_facing_direction * PUPPET_BASE_SCALE, PUPPET_BASE_SCALE)
-		_pivot.rotation = TOWNSHIP_SLIDE_LEAN if sliding else _township_elevation_lean()
+		_pivot.scale = Vector2(_facing_direction * PUPPET_BASE_SCALE * _motion_scale.x, PUPPET_BASE_SCALE * _motion_scale.y)
+		_pivot.rotation = (TOWNSHIP_SLIDE_LEAN if sliding else _township_elevation_lean()) + _grounding_lean
 
 		# Execute State Animation
 		match current_state:
@@ -548,6 +881,279 @@ func _process_player(delta: float) -> void:
 				_apply_pose_downed(delta)
 			State.REVIVE:
 				_apply_pose_revive(delta)
+	_update_player_grounding(alive)
+	_was_dashing = dashing
+
+func _update_frame_response() -> void:
+	_frame_sway_x = 0.0
+	_frame_lift = 0.0
+	if not _using_profile() or _animated_sprite == null:
+		return
+	var table: Array = []
+	match current_state:
+		State.MOVE:
+			table = MOVE_FRAME_RESPONSE
+		State.DASH:
+			table = DASH_FRAME_RESPONSE
+		State.HIT:
+			table = HIT_FRAME_RESPONSE
+	if table.is_empty():
+		return
+	var response: Vector2 = table[clampi(_animated_sprite.frame, 0, table.size() - 1)]
+	_frame_sway_x = response.x
+	_frame_lift = response.y
+
+func _update_motion_weight(delta: float, velocity: Vector2, moving: bool, previous_facing: float, sliding: bool) -> void:
+	var smoothing: float = 1.0 - exp(-10.0 * maxf(0.0, delta))
+	_visual_velocity = _visual_velocity.lerp(velocity, smoothing)
+	var acceleration: Vector2 = velocity - _visual_velocity
+	var acceleration_lean: float = clampf(acceleration.x * 0.00045, -0.10, 0.10)
+	var travel_lean: float = 0.035 * clampf(velocity.x / 220.0, -1.0, 1.0)
+	_grounding_lean = acceleration_lean + travel_lean
+
+	var speed: float = velocity.length()
+	if _previous_speed <= 10.0 and speed > 10.0:
+		_start_motion_response(1, 0.12)
+	elif _previous_speed >= 180.0 and speed <= 10.0:
+		_start_motion_response(2, 0.16)
+		_emit_snow_kick(Vector2.ZERO, 0.5)
+	if moving and previous_facing != _facing_direction:
+		_start_motion_response(3, 0.07)
+		_emit_snow_kick(Vector2.ZERO, 0.5)
+	_advance_motion_response(delta)
+	_previous_speed = speed
+	if sliding:
+		# The slide still owns the held pose and elevation offset. Grounding lean
+		# composes with that pose; transient squash remains presentation-only.
+		_frame_sway_x = 0.0
+		_frame_lift = 0.0
+
+func _start_motion_response(kind: int, duration: float) -> void:
+	_motion_response = kind
+	_motion_response_elapsed = 0.0
+	_motion_response_duration = duration
+
+func _advance_motion_response(delta: float) -> void:
+	if _motion_response == 0 or _motion_response_duration <= 0.0:
+		_motion_scale = Vector2.ONE
+		return
+	_motion_response_elapsed = minf(_motion_response_duration, _motion_response_elapsed + maxf(0.0, delta))
+	var progress: float = _motion_response_elapsed / _motion_response_duration
+	match _motion_response:
+		1:
+			_motion_scale = Vector2(1.05, 0.95).lerp(Vector2.ONE, progress)
+		2:
+			if progress < 0.5:
+				_motion_scale = Vector2(1.06, 0.94).lerp(Vector2(0.98, 1.02), progress * 2.0)
+			else:
+				_motion_scale = Vector2(0.98, 1.02).lerp(Vector2.ONE, (progress - 0.5) * 2.0)
+		3:
+			_motion_scale = Vector2(lerpf(0.82, 1.0, progress), 1.0)
+	if progress >= 1.0:
+		_motion_response = 0
+		_motion_scale = Vector2.ONE
+
+func _actor_sun() -> Dictionary:
+	if get_tree() != null and get_tree().has_meta(ACTOR_SUN_META):
+		var value: Variant = get_tree().get_meta(ACTOR_SUN_META)
+		if value is Dictionary:
+			return value as Dictionary
+	return DEFAULT_ACTOR_SUN
+
+func _update_player_grounding(alive: bool) -> void:
+	if _ground_shadow == null or _contact_shadow == null or _cast_shadow == null:
+		return
+	var sun: Dictionary = _actor_sun()
+	var root_position := Vector2(2.0 * _facing_direction + _frame_sway_x * 0.6 * _facing_direction, -2.0)
+	var contact_scale := Vector2(0.281, 0.203) * (1.0 - 0.08 * _frame_lift)
+	var contact_alpha: float = 0.60 * (1.0 - 0.22 * _frame_lift)
+	var cast_scale := Vector2(float(sun.get("len_per_m", 139.2)) * 0.63 * 0.80 / 256.0, 26.0 / 64.0)
+	var cast_alpha: float = 0.26 * (1.0 - 0.15 * _frame_lift)
+	var contact_offset := Vector2.ZERO
+	var contact_rotation: float = 0.0
+
+	match current_state:
+		State.DASH:
+			contact_scale *= Vector2(1.30, 0.90)
+			contact_alpha *= 1.15
+			cast_alpha *= 0.80
+			if _dash != null and _dash.direction.length_squared() > 0.0:
+				contact_rotation = _dash.direction.angle()
+		State.HIT:
+			contact_scale *= 0.92
+			contact_alpha *= 0.85
+			cast_alpha *= 0.85
+		State.DOWNED:
+			contact_scale *= Vector2(1.55, 1.25)
+			contact_offset = Vector2(6.0 * _facing_direction, 0.0)
+			contact_alpha *= 1.05
+			cast_scale.x *= 0.18
+		State.REVIVE:
+			var duration: float = maxf(0.001, get_state_animation_duration(State.REVIVE))
+			var progress: float = clampf(1.0 - _revive_timer / duration, 0.0, 1.0)
+			contact_scale *= Vector2(1.55, 1.25).lerp(Vector2.ONE, progress)
+			contact_offset = Vector2(6.0 * _facing_direction, 0.0).lerp(Vector2.ZERO, progress)
+			contact_alpha *= lerpf(1.05, 1.0, progress)
+			cast_scale.x *= lerpf(0.18, 1.0, progress)
+
+	_ground_shadow.position = root_position
+	_contact_shadow.position = contact_offset
+	_contact_shadow.rotation = contact_rotation
+	_contact_shadow.scale = contact_scale
+	_contact_shadow.modulate = Color(SHADOW_COLOR, contact_alpha)
+	_cast_shadow.position = Vector2.ZERO
+	_cast_shadow.rotation = deg_to_rad(float(sun.get("angle_deg", -51.6)))
+	_cast_shadow.scale = cast_scale
+	_cast_shadow.modulate = Color(SHADOW_COLOR, cast_alpha)
+	if _team_ring != null:
+		_team_ring.visible = alive
+
+func _update_enemy_grounding(bob: float, alive: bool, delta: float) -> void:
+	if _ground_shadow == null or _contact_shadow == null or _cast_shadow == null:
+		return
+	_ground_shadow.visible = alive
+	if not alive:
+		return
+	var sun: Dictionary = _actor_sun()
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior
+	var skua := _actor.get_node_or_null("Behavior") as SkuaSlingerBehavior
+	var heavy: bool = charge != null and charge.crash_on_world_collision
+	var production: bool = _enemy_anim != null and ENEMY_ART.has(enemy_art_id)
+	var peak: float = 0.0 if production else clampf(-bob / 2.2, 0.0, 1.0)
+	var scale_at_peak: float = 0.95 if heavy else 0.92
+	var alpha_at_peak: float = 0.88 if heavy else 0.80
+	var bob_scale: float = lerpf(1.0, scale_at_peak, peak)
+	var bob_alpha: float = lerpf(1.0, alpha_at_peak, peak)
+	var contact_size := Vector2(42.0, 14.5)
+	var contact_position := Vector2.ZERO
+	var cast_width: float = 34.0
+	var cast_length: float = 72.0 if sun.get("region", &"frozen_coast") == &"frozen_coast" else 54.0
+	var contact_alpha: float = 0.65 if heavy else 0.60
+	var cast_alpha: float = 0.26 if heavy else 0.24
+	if production:
+		var art: Dictionary = ENEMY_ART[enemy_art_id]
+		contact_size = art["contact_size"] as Vector2
+		var configured_position: Vector2 = art["contact_position"] as Vector2
+		contact_position = Vector2(configured_position.x * _facing_direction, configured_position.y)
+		cast_width = float(art["cast_width"])
+		cast_length = float(art["cast_frozen"] if sun.get("region", &"frozen_coast") == &"frozen_coast" else art["cast_township"])
+		contact_alpha = float(art["contact_alpha"])
+		cast_alpha = float(art["cast_alpha"])
+	var contact_scale := Vector2(contact_size.x / 128.0, contact_size.y / 64.0) * bob_scale
+	var cast_scale := Vector2(cast_length / 256.0, cast_width / 64.0) * bob_scale
+	contact_alpha *= bob_alpha
+	cast_alpha *= bob_alpha
+	var contact_rotation: float = 0.0
+	if skua != null and skua.state == RangedBehavior.State.WINDUP:
+		contact_scale.x *= 1.08
+	if charge != null and charge.state == ChargeBehavior.State.CHARGE:
+		contact_scale.x *= 1.25
+		contact_rotation = charge.direction.angle()
+	_enemy_crash_timer = maxf(0.0, _enemy_crash_timer - delta)
+	if _enemy_crash_timer > 0.0:
+		var crash_strength: float = _enemy_crash_timer / 0.25
+		contact_scale *= Vector2.ONE.lerp(Vector2(1.20, 0.90), crash_strength)
+	_ground_shadow.position = _enemy_recoil_local
+	_contact_shadow.position = contact_position
+	_contact_shadow.rotation = contact_rotation
+	_contact_shadow.scale = contact_scale
+	_contact_shadow.modulate = Color(SHADOW_COLOR, contact_alpha)
+	_cast_shadow.position = Vector2.ZERO
+	_cast_shadow.rotation = deg_to_rad(float(sun.get("angle_deg", -51.6)))
+	_cast_shadow.scale = cast_scale
+	_cast_shadow.modulate = Color(SHADOW_COLOR, cast_alpha)
+	_process_tuskbull_snow(delta, charge, heavy)
+
+func _grounding_effect_pool() -> GroundingEffectPool:
+	if _actor == null or _actor.get_parent() == null:
+		return null
+	var root_node: Node = _actor.get_parent()
+	var pool := root_node.get_node_or_null("GroundingEffectPool") as GroundingEffectPool
+	if pool == null:
+		pool = GroundingEffectPool.new()
+		pool.name = "GroundingEffectPool"
+		root_node.add_child(pool)
+	return pool
+
+func _emit_snow_kick(local_position: Vector2, effect_scale: float) -> void:
+	var pool: GroundingEffectPool = _grounding_effect_pool()
+	if pool == null or _actor == null:
+		return
+	var mirrored_position := Vector2(local_position.x * _facing_direction, local_position.y)
+	pool.request(
+		GroundingEffectPool.Effect.KICK,
+		_actor.to_global(mirrored_position),
+		0.0,
+		Vector2(effect_scale * _facing_direction, effect_scale)
+	)
+
+func _emit_dash_puff(direction: Vector2, effect_scale: float) -> void:
+	var pool: GroundingEffectPool = _grounding_effect_pool()
+	if pool == null or _actor == null:
+		return
+	var normalized_direction: Vector2 = direction.normalized() if direction.length_squared() > 0.0 else Vector2.RIGHT
+	pool.request(
+		GroundingEffectPool.Effect.DASH_PUFF,
+		_actor.global_position,
+		normalized_direction.angle(),
+		Vector2.ONE * effect_scale
+	)
+
+func _on_player_frame_changed() -> void:
+	if current_state != State.MOVE or _animated_sprite == null or _actor == null:
+		return
+	if _animated_sprite.frame == 7 and _actor.velocity.length() >= 150.0:
+		_emit_snow_kick(Vector2(-4.0, 1.0), 0.5)
+
+func _on_enemy_charge_started(direction: Vector2) -> void:
+	if _enemy_anim != null and enemy_art_id == &"tuskbull":
+		_enemy_crash_path = false
+		_enemy_crash_phase = -1
+		_enemy_one_shot = &""
+		_play_enemy_animation(&"charge")
+	_emit_dash_puff(direction, 1.5)
+
+func _on_enemy_crashed() -> void:
+	_enemy_crash_timer = 0.25
+	var charge := _actor.get_node_or_null("Behavior") as ChargeBehavior if _actor != null else null
+	if _enemy_anim != null and enemy_art_id == &"tuskbull":
+		_enemy_crash_path = true
+		_enemy_crash_phase = 0
+		_start_enemy_one_shot(&"crash")
+	_emit_dash_puff(charge.direction if charge != null else Vector2.RIGHT, 1.8)
+
+func _process_tuskbull_snow(delta: float, charge: ChargeBehavior, heavy: bool) -> void:
+	if not heavy or charge == null or _actor == null:
+		return
+	var interval: float = 0.0
+	var kick_scale: float = 1.0
+	match charge.state:
+		ChargeBehavior.State.APPROACH:
+			if _actor.velocity.length_squared() > 20.0:
+				interval = 0.34
+				kick_scale = 1.3
+		ChargeBehavior.State.WINDUP:
+			interval = 0.20
+			kick_scale = 1.1
+		ChargeBehavior.State.CHARGE:
+			interval = 0.14
+			kick_scale = 1.2
+	if interval <= 0.0:
+		_enemy_kick_timer = 0.0
+		return
+	_enemy_kick_timer -= delta
+	if _enemy_kick_timer > 0.0:
+		return
+	_enemy_kick_timer = interval
+	var pool: GroundingEffectPool = _grounding_effect_pool()
+	if pool != null:
+		var direction: Vector2 = charge.direction if charge.direction.length_squared() > 0.0 else Vector2.RIGHT
+		pool.request(
+			GroundingEffectPool.Effect.KICK,
+			_actor.global_position,
+			direction.angle(),
+			Vector2.ONE * kick_scale
+		)
 
 func _update_township_elevation(delta: float, sliding: bool) -> void:
 	var requested_level: int = 0
@@ -839,52 +1445,7 @@ func _apply_pose_revive(_delta: float) -> void:
 	_rear_foot.rotation = lerpf(-0.40, 0.0, tuck_t)
 
 func _draw() -> void:
-	if enemy:
-		draw_set_transform(Vector2(0, 13), 0, Vector2(1, 0.35))
-		draw_circle(Vector2.ZERO, 24, Color(0.02, 0.12, 0.2, 0.24))
-		draw_set_transform(Vector2.ZERO)
-		return
-
-	# Soft ground shadow dynamically shaped by character state
-	var sy: float = 14.0
-	var sx: float = 28.0
-	var s_scale_y: float = 9.5
-	var alpha: float = 0.34
-
-	match current_state:
-		State.DASH:
-			sy = 13.0
-			sx = 34.0
-			s_scale_y = 7.0
-			alpha = 0.38
-		State.DOWNED:
-			sy = 9.0
-			sx = 38.0
-			s_scale_y = 12.0
-			alpha = 0.40
-		State.HIT:
-			sy = 14.0
-			sx = 23.0
-			s_scale_y = 8.0
-			alpha = 0.28
-		State.REVIVE:
-			var t: float = 1.0 - (_revive_timer / REVIVE_DURATION)
-			sy = lerpf(9.0, 14.0, t)
-			sx = lerpf(38.0, 28.0, t)
-			s_scale_y = lerpf(12.0, 9.5, t)
-			alpha = lerpf(0.40, 0.34, t)
-
-	# Production frames use the contract ground anchor at the actor origin.
-	# The procedural fallback feet sit lower, so only its shadow needs +14.
-	if _using_profile():
-		sy = 0.0
-	# Ground indicator is anchored to the actor, drawn behind its shadow and sprites.
-	if _actor is PenguinPlayer and (_health == null or _health.is_alive()):
-		var player := _actor as PenguinPlayer
-		var tint := player.identity.tint if player.identity != null else Color.WHITE
-		draw_set_transform(Vector2(0, sy), 0, Vector2((sx + 4.0) / 20.0, (s_scale_y + 3.0) / 20.0))
-		draw_arc(Vector2.ZERO, 20.0, 0, TAU, 32, Color(tint, 0.6), 2.0)
-		draw_set_transform(Vector2.ZERO)
-	draw_set_transform(Vector2(0, sy), 0, Vector2(sx / 20.0, s_scale_y / 20.0))
-	draw_circle(Vector2.ZERO, 20.0, Color(0.02, 0.08, 0.16, alpha))
-	draw_set_transform(Vector2.ZERO)
+	# Grounding V1 uses soft sprite shadows under GroundShadow. Keeping this
+	# callback empty makes it explicit that the former hard player/enemy discs
+	# and the oversized team ring are gone.
+	pass

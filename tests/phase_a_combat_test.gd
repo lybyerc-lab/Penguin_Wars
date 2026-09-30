@@ -164,7 +164,7 @@ func _run() -> void:
 	for index: int in range(8):
 		director._spawn_enemy()
 	counts = _role_counts(arena)
-	check(counts["skua"] == 2 and counts["tuskbull"] == 0, "wave 2 adds at most two Skua Slingers")
+	check(counts["skua"] == 1 and counts["tuskbull"] == 0, "wave 2 introduces exactly one Skua Slinger")
 	_clear_enemies(arena)
 
 	director.wave = 3

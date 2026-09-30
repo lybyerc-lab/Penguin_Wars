@@ -278,11 +278,11 @@ func _run() -> void:
 	check(v1.scarf_sprite.flip_h == true, "Scarf flip_h true when moving left")
 	check(v1.animated_sprite.frame == v1.scarf_sprite.frame, "Base and scarf frame index match after flip")
 
-	# Per-player scarf tint: scarf is tinted, base body is NOT tinted
-	check(v1.scarf_sprite.modulate == p1.identity.tint, "P1 scarf tinted with P1 identity tint")
-	check(v1.animated_sprite.modulate == Color.WHITE, "P1 base body sprite is WHITE (untinted)")
-	check(v2.scarf_sprite.modulate == p2.identity.tint, "P2 scarf tinted with P2 identity tint")
-	check(v2.animated_sprite.modulate == Color.WHITE, "P2 base body sprite is WHITE (untinted)")
+	# Per-player scarf tint stays independent while bodies share the environment tint.
+	check(v1.scarf_sprite.modulate.is_equal_approx(p1.identity.tint * CharacterVisual.SCARF_TINT_MULTIPLIER), "P1 scarf uses P1 identity tint with the locked restrained multiplier")
+	check(v1.animated_sprite.modulate.is_equal_approx(CharacterVisual.AMBIENT_TINT), "P1 base body uses the locked Actor Grounding ambient tint")
+	check(v2.scarf_sprite.modulate.is_equal_approx(p2.identity.tint * CharacterVisual.SCARF_TINT_MULTIPLIER), "P2 scarf uses P2 identity tint with the locked restrained multiplier")
+	check(v2.animated_sprite.modulate.is_equal_approx(CharacterVisual.AMBIENT_TINT), "P2 base body uses the locked Actor Grounding ambient tint")
 	check(v1.scarf_sprite.modulate != v2.scarf_sprite.modulate, "P1 and P2 scarfs have distinct tints")
 
 	# =========================================================================
@@ -464,8 +464,8 @@ func _run() -> void:
 		check(visual.profile == production_profile, "P%d uses real production profile" % (i + 1))
 		check(visual.animated_sprite.sprite_frames == production_profile.sprite_frames, "P%d shares base frames resource" % (i + 1))
 		check(visual.scarf_sprite.sprite_frames == production_profile.scarf_sprite_frames, "P%d shares scarf frames resource" % (i + 1))
-		check(visual.animated_sprite.modulate == Color.WHITE, "P%d body remains untinted" % (i + 1))
-		check(visual.scarf_sprite.modulate == player.identity.tint, "P%d scarf has its identity tint" % (i + 1))
+		check(visual.animated_sprite.modulate.is_equal_approx(CharacterVisual.AMBIENT_TINT), "P%d body uses the locked Actor Grounding ambient tint" % (i + 1))
+		check(visual.scarf_sprite.modulate.is_equal_approx(player.identity.tint * CharacterVisual.SCARF_TINT_MULTIPLIER), "P%d scarf preserves identity through the restrained multiplier" % (i + 1))
 		check(visual.animated_sprite.frame == visual.scarf_sprite.frame, "P%d base/scarf frame sync" % (i + 1))
 		var collision := player.get_node("CollisionShape2D") as CollisionShape2D
 		check(collision != null and collision.shape is CircleShape2D and is_equal_approx(collision.shape.radius, 16.0), "P%d gameplay collision remains unchanged" % (i + 1))

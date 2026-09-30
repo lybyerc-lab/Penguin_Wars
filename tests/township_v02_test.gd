@@ -84,7 +84,7 @@ func _run() -> void:
 	check(visual.current_state == CharacterVisual.State.IDLE, "slide suppresses MOVE/Waddle presentation")
 	check(not visual.animated_sprite.is_playing(), "slide holds a stable production frame")
 	check(is_equal_approx(rider.rotation, 0.0), "slide never rotates the gameplay root")
-	check(is_equal_approx(visual._pivot.rotation, CharacterVisual.TOWNSHIP_SLIDE_LEAN), "slide applies only the small presentation lean")
+	check(is_equal_approx(visual._pivot.rotation, CharacterVisual.TOWNSHIP_SLIDE_LEAN + visual._grounding_lean), "slide lean composes with Actor Grounding without rotating the gameplay root")
 
 	rider.position = Vector2(0, 80)
 	rider.input_source.touch_movement = Vector2.RIGHT

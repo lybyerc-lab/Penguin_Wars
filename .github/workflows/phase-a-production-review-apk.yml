@@ -1,0 +1,176 @@
+name: Penguin Wars Frozen Coast Production Review APK
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - feature/frozen-coast-phase-a-runtime-v1
+  push:
+    branches:
+      - integration/frozen-coast-phase-a-production-v0-1
+    paths:
+      - .github/workflows/phase-a-production-review-apk.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase-a-production-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phase-a-production-review-apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    env:
+      GODOT_VERSION: "4.7.2"
+      ANDROID_PLATFORM: "36"
+      ANDROID_BUILD_TOOLS: "36.0.0"
+      APK_PATH: "builds/penguin-wars-phase-a-frozen-coast-production-v0-1.apk"
+      GODOT_ANDROID_KEYSTORE_DEBUG_USER: "androiddebugkey"
+      GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: "android"
+      EXPECTED_DEBUG_CERT_SHA256: "0D:26:1E:DD:FE:5B:A7:A4:D0:0C:6D:21:EA:28:D1:C2:B4:C5:B1:E0:08:83:36:68:33:12:65:8E:84:BC:A1:BE"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools build-tools;36.0.0 platforms;android-36"
+
+      - name: Normalize Android environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ANDROID_SDK_ROOT:-}"
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+
+      - name: Set up Godot 4.7.2 with export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: true
+
+      - name: Verify pinned toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --version
+          java -version
+          test -x "$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS/apksigner"
+          test -x "$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS/zipalign"
+
+      - name: Restore stable CI debug signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          SIGNING_DIR="$RUNNER_TEMP/penguin-wars-signing"
+          mkdir -p "$SIGNING_DIR"
+          base64 --decode .github/ci/android-debug.keystore.b64 > "$SIGNING_DIR/debug.keystore"
+          chmod 600 "$SIGNING_DIR/debug.keystore"
+
+          ACTUAL_CERT_SHA256="$(
+            keytool -list -v \
+              -keystore "$SIGNING_DIR/debug.keystore" \
+              -storepass android \
+              -alias androiddebugkey \
+              | sed -n 's/^[[:space:]]*SHA256: //p' \
+              | head -n 1
+          )"
+
+          test "$ACTUAL_CERT_SHA256" = "$EXPECTED_DEBUG_CERT_SHA256"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$SIGNING_DIR/debug.keystore" >> "$GITHUB_ENV"
+
+      - name: Import Godot project
+        run: godot --headless --path . --editor --import --quit
+
+      - name: Focused Phase A checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --path . --script res://tests/foundation_test.gd
+          godot --headless --path . --script res://tests/mobile_expedition_test.gd
+          godot --headless --path . --script res://tests/actor_grounding_v1_test.gd
+          godot --headless --path . --script res://tests/production_enemy_set_v1_test.gd
+          godot --headless --path . --script res://tests/reciprocal_gate_arrival_test.gd
+          godot --headless --path . --script res://tests/phase_a_combat_test.gd
+          godot --headless --path . --script res://tests/phase_a_pressure_test.gd
+          godot --headless --path . --script res://tests/weapon_presentation_v2_test.gd
+          godot --headless --path . --script res://tests/discovery_test.gd
+          godot --headless --path . --script res://tests/phase_a_route_test.gd
+          godot --headless --path . --script res://tests/frozen_coast_phase_a_visual_test.gd
+
+      - name: Select Phase A review scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("project.godot")
+          s = p.read_text()
+          old = 'run/main_scene="res://scenes/run/expedition.tscn"'
+          new = 'run/main_scene="res://scenes/prototypes/phase_a_expedition_review.tscn"'
+          if old not in s:
+              raise SystemExit("shipping main scene marker not found")
+          p.write_text(s.replace(old, new, 1))
+          PY
+
+      - name: Export Phase A review APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p builds
+          godot --headless --path . --export-debug Android "$APK_PATH"
+          test -s "$APK_PATH"
+
+      - name: Validate APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(apkanalyzer manifest application-id "$APK_PATH")" = "org.lybyerlab.penguinwars"
+          ABIS="$(
+            unzip -Z1 "$APK_PATH" \
+              | sed -n 's#^lib/\([^/]*\)/.*#\1#p' \
+              | sort -u
+          )"
+          test "$ABIS" = "arm64-v8a"
+          "$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK_PATH"
+          "$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS/zipalign" -c -P 16 -v 4 "$APK_PATH"
+          sha256sum "$APK_PATH" > "$APK_PATH.sha256"
+
+      - name: Write build provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "Penguin Wars Frozen Coast Production Phase A Review APK"
+            echo "commit=$GITHUB_SHA"
+            echo "main_scene=res://scenes/prototypes/phase_a_expedition_review.tscn"
+            echo "purpose=Township -> production Pass -> production Driftfield playtest"
+            echo "godot=$(godot --version)"
+            echo "android_platform=$ANDROID_PLATFORM"
+            echo "android_build_tools=$ANDROID_BUILD_TOOLS"
+            echo "debug_cert_sha256=$EXPECTED_DEBUG_CERT_SHA256"
+            cat "$APK_PATH.sha256"
+          } > builds/phase-a-build-info.txt
+
+      - name: Upload Phase A review artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: penguin-wars-phase-a-frozen-coast-production-v0-1
+          path: |
+            builds/penguin-wars-phase-a-frozen-coast-production-v0-1.apk
+            builds/penguin-wars-phase-a-frozen-coast-production-v0-1.apk.sha256
+            builds/phase-a-build-info.txt
+          if-no-files-found: error
+          retention-days: 14

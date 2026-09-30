@@ -7,6 +7,7 @@ extends Node2D
 const ASSET_ROOT := "res://assets/environments/township_visual_v1/"
 const MANIFEST_PATH := ASSET_ROOT + "township_visual_manifest.json"
 const BACKGROUND_CENTRE := Vector2(0.0, 200.0)
+const ACTOR_SUN_META := &"actor_sun"
 
 ## Mobile cleanup V1 split the old gate_bell and slide_foreground mega-layers
 ## so each raised object sorts at its own physical depth.
@@ -44,6 +45,11 @@ static func build(into: Node2D, actors: Node2D) -> TownshipVisualV1:
 func _ready() -> void:
 	z_index = -8
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	get_tree().set_meta(ACTOR_SUN_META, {
+		"region": &"township",
+		"angle_deg": -38.5,
+		"len_per_m": 103.5,
+	})
 	var manifest := _load_manifest()
 	if manifest.is_empty():
 		return

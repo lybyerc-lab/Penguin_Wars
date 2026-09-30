@@ -28,13 +28,36 @@ func configure_rack_slot(slot: int) -> void:
 func firing_phase_delay() -> float:
 	return definition.cooldown * 0.12 * float(rack_slot) if definition != null else 0.0
 
-## A cosmetic origin for held art and attack effects. Inventory slots remain
-## stable, including holes left by maturation, so weapon count stays legible.
+## A cosmetic flipper origin for held art and attack effects. Slot identity and
+## firing phase remain stable; only occupied weapons are centred in the fan.
 func presentation_origin(angle: float, thrust: float = 0.0) -> Vector2:
-	var lateral: float = (float(rack_slot) - 2.5) * 11.0
-	var forward := Vector2.from_angle(angle) * (33.0 + thrust)
-	var side := Vector2.from_angle(angle + PI * 0.5) * lateral
-	return forward + side + Vector2(0, 2)
+	var lift: float = 0.0
+	var visual := wielder.get_node_or_null("CharacterVisual") as CharacterVisual if wielder != null else null
+	if visual != null:
+		lift = visual.presentation_lift()
+	return Vector2(0.0, -17.0) + Vector2(cos(angle) * 15.0, sin(angle) * 11.0 - lift * 1.5) + Vector2.from_angle(angle) * thrust
+
+func _occupied_lane() -> Vector2i:
+	if wielder == null or wielder.weapon_rack == null:
+		return Vector2i(0, 1)
+	var occupied_index: int = 0
+	var occupied_count: int = 0
+	for slot: int in range(wielder.weapon_rack.capacity()):
+		if wielder.weapon_rack.weapon_at(slot) == null:
+			continue
+		if slot == rack_slot:
+			occupied_index = occupied_count
+		occupied_count += 1
+	return Vector2i(occupied_index, maxi(1, occupied_count))
+
+func _hold_distance() -> float:
+	if definition == null:
+		return 8.0
+	match definition.id:
+		&"icicle_slingshot":
+			return 9.0
+		_:
+			return 8.0
 
 func _physics_process(delta: float) -> void:
 	_remaining = maxf(0.0, _remaining - delta)
@@ -160,6 +183,9 @@ func _hit_from(enemy: Node2D, impulse_origin: Vector2) -> void:
 func is_attacking() -> bool:
 	return _flash > 0.0 or _pending_area
 
+func has_target() -> bool:
+	return _had_target
+
 func is_projectile_in_flight() -> bool:
 	return _pending_area
 
@@ -182,8 +208,8 @@ func _draw() -> void:
 			var t: float = float(index) / 9.0
 			var inv: float = 1.0 - t
 			var point: Vector2 = origin * inv * inv + midpoint * 2.0 * inv * t + target * t * t
-			draw_circle(point, 3.5, Color("f4cf88", 0.82))
-		draw_arc(target, definition.area_radius, 0.0, TAU, 36, Color("f4cf88", 0.48), 2.5)
+			draw_circle(point, 3.5, Color("dff8ff", 0.60))
+		draw_arc(target, definition.area_radius, 0.0, TAU, 36, Color("8fe6f2", 0.40), 2.5)
 		return
 	if _flash <= 0.0:
 		return

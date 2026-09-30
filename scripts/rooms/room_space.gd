@@ -34,8 +34,9 @@ static func apply(room: RoomDefinition, party: PartyRoster = null, encounter: En
 		builder.room_bounds = room.bounds
 	if loot != null:
 		loot.supply_points = room.supply_points
+		loot.supply_scene = room.supply_scene
 	if camera != null:
-		camera.follow_party = room.kind == RoomDefinition.Kind.TOWN
+		camera.follow_party = room.kind == RoomDefinition.Kind.TOWN or room.camera_follow_party
 		camera.clear_focus()
 		# V0.2 backs the Township camera off by roughly nine percent at 1280x720.
 		camera.framed_size = Vector2(1380, 760) if camera.follow_party else room.bounds.size + VIEW_MARGIN

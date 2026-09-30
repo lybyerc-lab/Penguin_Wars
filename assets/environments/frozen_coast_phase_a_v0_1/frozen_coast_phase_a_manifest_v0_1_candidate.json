@@ -1,0 +1,502 @@
+{
+  "note": "CANDIDATE Frozen Coast Phase A (Township Gate -> Pass -> Driftfield) runtime layers. Same convention as township_visual_manifest.json: crops are in background pixel space; sort_baseline is the Godot y for the layer's sort root (Godot px = 81*x, -80*y in Blender metres). A body whose feet are north of (smaller y than) sort_baseline is drawn behind the whole sprite.",
+  "source_resolution": [
+    3584,
+    2816
+  ],
+  "camera_width_metres": 56.0,
+  "camera_pitch_deg": 52.0,
+  "camera_ground_centre": [
+    -4.0,
+    15.92
+  ],
+  "godot_pixels_per_metre": [
+    81.0,
+    80.0
+  ],
+  "sprite_scale": [
+    1.265625,
+    1.586272619350546
+  ],
+  "background_centre": [
+    -324.0,
+    -1273.6
+  ],
+  "background": "frozen_coast_phase_a_background.png",
+  "plate_ground_extent_world": {
+    "x": [
+      -32.0,
+      24.0
+    ],
+    "y_at_z0": [
+      -12.0,
+      43.84
+    ]
+  },
+  "layers": {
+    "boulder_a": {
+      "file": "frozen_coast_pa_boulder_a.png",
+      "crop": [
+        2546,
+        1159,
+        2662,
+        1277
+      ],
+      "size": [
+        116,
+        118
+      ],
+      "sort_baseline": -1491.0,
+      "sort_baseline_world_y": 18.641,
+      "kind": "hard_impact"
+    },
+    "boulder_b": {
+      "file": "frozen_coast_pa_boulder_b.png",
+      "crop": [
+        516,
+        1187,
+        608,
+        1282
+      ],
+      "size": [
+        92,
+        95
+      ],
+      "sort_baseline": -1477.0,
+      "sort_baseline_world_y": 18.463,
+      "kind": "hard_impact"
+    },
+    "boulder_c": {
+      "file": "frozen_coast_pa_boulder_c.png",
+      "crop": [
+        2600,
+        608,
+        2691,
+        689
+      ],
+      "size": [
+        91,
+        81
+      ],
+      "sort_baseline": -2421.0,
+      "sort_baseline_world_y": 30.265,
+      "kind": "hard_impact"
+    },
+    "pillar_a": {
+      "file": "frozen_coast_pa_pillar_a.png",
+      "crop": [
+        1131,
+        954,
+        1280,
+        1170
+      ],
+      "size": [
+        149,
+        216
+      ],
+      "sort_baseline": -1663.0,
+      "sort_baseline_world_y": 20.788,
+      "kind": "hard_impact"
+    },
+    "pillar_b": {
+      "file": "frozen_coast_pa_pillar_b.png",
+      "crop": [
+        1763,
+        644,
+        1865,
+        826
+      ],
+      "size": [
+        102,
+        182
+      ],
+      "sort_baseline": -2209.0,
+      "sort_baseline_world_y": 27.609,
+      "kind": "hard_impact"
+    },
+    "pillar_d": {
+      "file": "frozen_coast_pa_pillar_d.png",
+      "crop": [
+        853,
+        640,
+        988,
+        831
+      ],
+      "size": [
+        135,
+        191
+      ],
+      "sort_baseline": -2193.0,
+      "sort_baseline_world_y": 27.408,
+      "kind": "hard_impact"
+    },
+    "pillar_e": {
+      "file": "frozen_coast_pa_pillar_e.png",
+      "crop": [
+        2375,
+        878,
+        2489,
+        1018
+      ],
+      "size": [
+        114,
+        140
+      ],
+      "sort_baseline": -1900.0,
+      "sort_baseline_world_y": 23.745,
+      "kind": "hard_impact"
+    },
+    "rib_l0": {
+      "file": "frozen_coast_pa_rib_l0.png",
+      "crop": [
+        1913,
+        1320,
+        1938,
+        1412
+      ],
+      "size": [
+        25,
+        92
+      ],
+      "sort_baseline": -1176.0,
+      "sort_baseline_world_y": 14.7,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l1": {
+      "file": "frozen_coast_pa_rib_l1.png",
+      "crop": [
+        1978,
+        1297,
+        2004,
+        1409
+      ],
+      "size": [
+        26,
+        112
+      ],
+      "sort_baseline": -1191.0,
+      "sort_baseline_world_y": 14.891,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l2": {
+      "file": "frozen_coast_pa_rib_l2.png",
+      "crop": [
+        2042,
+        1274,
+        2071,
+        1402
+      ],
+      "size": [
+        29,
+        128
+      ],
+      "sort_baseline": -1207.0,
+      "sort_baseline_world_y": 15.083,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l3": {
+      "file": "frozen_coast_pa_rib_l3.png",
+      "crop": [
+        2106,
+        1257,
+        2135,
+        1391
+      ],
+      "size": [
+        29,
+        134
+      ],
+      "sort_baseline": -1233.0,
+      "sort_baseline_world_y": 15.407,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l4": {
+      "file": "frozen_coast_pa_rib_l4.png",
+      "crop": [
+        2170,
+        1248,
+        2198,
+        1390
+      ],
+      "size": [
+        28,
+        142
+      ],
+      "sort_baseline": -1269.0,
+      "sort_baseline_world_y": 15.865,
+      "kind": "hard_impact_rib"
+    },
+    "rib_l5": {
+      "file": "frozen_coast_pa_rib_l5.png",
+      "crop": [
+        2233,
+        1238,
+        2260,
+        1382
+      ],
+      "size": [
+        27,
+        144
+      ],
+      "sort_baseline": -1306.0,
+      "sort_baseline_world_y": 16.322,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r0": {
+      "file": "frozen_coast_pa_rib_r0.png",
+      "crop": [
+        1858,
+        1270,
+        1916,
+        1328
+      ],
+      "size": [
+        58,
+        58
+      ],
+      "sort_baseline": -1412.0,
+      "sort_baseline_world_y": 17.648,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r1": {
+      "file": "frozen_coast_pa_rib_r1.png",
+      "crop": [
+        1919,
+        1242,
+        1979,
+        1305
+      ],
+      "size": [
+        60,
+        63
+      ],
+      "sort_baseline": -1448.0,
+      "sort_baseline_world_y": 18.106,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r2": {
+      "file": "frozen_coast_pa_rib_r2.png",
+      "crop": [
+        1980,
+        1215,
+        2043,
+        1282
+      ],
+      "size": [
+        63,
+        67
+      ],
+      "sort_baseline": -1485.0,
+      "sort_baseline_world_y": 18.563,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r3": {
+      "file": "frozen_coast_pa_rib_r3.png",
+      "crop": [
+        2044,
+        1198,
+        2107,
+        1266
+      ],
+      "size": [
+        63,
+        68
+      ],
+      "sort_baseline": -1511.0,
+      "sort_baseline_world_y": 18.888,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r4": {
+      "file": "frozen_coast_pa_rib_r4.png",
+      "crop": [
+        2111,
+        1193,
+        2171,
+        1256
+      ],
+      "size": [
+        60,
+        63
+      ],
+      "sort_baseline": -1526.0,
+      "sort_baseline_world_y": 19.079,
+      "kind": "hard_impact_rib"
+    },
+    "rib_r5": {
+      "file": "frozen_coast_pa_rib_r5.png",
+      "crop": [
+        2178,
+        1188,
+        2236,
+        1246
+      ],
+      "size": [
+        58,
+        58
+      ],
+      "sort_baseline": -1542.0,
+      "sort_baseline_world_y": 19.27,
+      "kind": "hard_impact_rib"
+    },
+    "rim_passe_e": {
+      "file": "frozen_coast_pa_rim_passe_e.png",
+      "crop": [
+        2053,
+        1364,
+        2727,
+        1564
+      ],
+      "size": [
+        674,
+        200
+      ],
+      "sort_baseline": -1136.0,
+      "sort_baseline_world_y": 14.2,
+      "kind": "plateau_rim_occluder"
+    },
+    "rim_passe_m": {
+      "file": "frozen_coast_pa_rim_passe_m.png",
+      "crop": [
+        1396,
+        1388,
+        2087,
+        1569
+      ],
+      "size": [
+        691,
+        181
+      ],
+      "sort_baseline": -1029.0,
+      "sort_baseline_world_y": 12.86,
+      "kind": "plateau_rim_occluder"
+    },
+    "rim_passe_w": {
+      "file": "frozen_coast_pa_rim_passe_w.png",
+      "crop": [
+        797,
+        1422,
+        1481,
+        1684
+      ],
+      "size": [
+        684,
+        262
+      ],
+      "sort_baseline": -1015.0,
+      "sort_baseline_world_y": 12.69,
+      "kind": "plateau_rim_occluder"
+    },
+    "rim_passw": {
+      "file": "frozen_coast_pa_rim_passw.png",
+      "crop": [
+        269,
+        1425,
+        594,
+        1777
+      ],
+      "size": [
+        325,
+        352
+      ],
+      "sort_baseline": -1048.0,
+      "sort_baseline_world_y": 13.1,
+      "kind": "plateau_rim_occluder"
+    },
+    "signpost": {
+      "file": "frozen_coast_pa_signpost.png",
+      "crop": [
+        803,
+        1395,
+        875,
+        1476
+      ],
+      "size": [
+        72,
+        81
+      ],
+      "sort_baseline": -1174.0,
+      "sort_baseline_world_y": 14.679,
+      "kind": "route_marker"
+    },
+    "stake_0": {
+      "file": "frozen_coast_pa_stake_0.png",
+      "crop": [
+        785,
+        2312,
+        806,
+        2369
+      ],
+      "size": [
+        21,
+        57
+      ],
+      "sort_baseline": 239.0,
+      "sort_baseline_world_y": -2.982,
+      "kind": "route_marker"
+    },
+    "stake_1": {
+      "file": "frozen_coast_pa_stake_1.png",
+      "crop": [
+        731,
+        2009,
+        752,
+        2066
+      ],
+      "size": [
+        21,
+        57
+      ],
+      "sort_baseline": -241.0,
+      "sort_baseline_world_y": 3.012,
+      "kind": "route_marker"
+    },
+    "stake_2": {
+      "file": "frozen_coast_pa_stake_2.png",
+      "crop": [
+        763,
+        1715,
+        784,
+        1772
+      ],
+      "size": [
+        21,
+        57
+      ],
+      "sort_baseline": -707.0,
+      "sort_baseline_world_y": 8.836,
+      "kind": "route_marker"
+    },
+    "stake_gate": {
+      "file": "frozen_coast_pa_stake_gate.png",
+      "crop": [
+        741,
+        2614,
+        762,
+        2673
+      ],
+      "size": [
+        21,
+        59
+      ],
+      "sort_baseline": 719.0,
+      "sort_baseline_world_y": -8.982,
+      "kind": "route_marker"
+    },
+    "whale_skull": {
+      "file": "frozen_coast_pa_whale_skull.png",
+      "crop": [
+        2372,
+        1173,
+        2581,
+        1307
+      ],
+      "size": [
+        209,
+        134
+      ],
+      "sort_baseline": -1436.0,
+      "sort_baseline_world_y": 17.947,
+      "kind": "hard_impact"
+    }
+  }
+}

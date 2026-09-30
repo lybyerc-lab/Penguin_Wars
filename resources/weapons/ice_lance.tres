@@ -15,3 +15,4 @@ classes = Array[StringName]([&"ice", &"precision"])
 cooldown = 0.42
 reach = 240.0
 held_texture = ExtResource("2")
+presentation_family = &"spine"

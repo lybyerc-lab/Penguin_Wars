@@ -1,0 +1,189 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/defeat/rolly_defeat_000.png" id="1_tjxbx"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/defeat/rolly_defeat_001.png" id="2_rg1xa"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/defeat/rolly_defeat_002.png" id="3_mok1q"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/defeat/rolly_defeat_003.png" id="4_lvire"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/defeat/rolly_defeat_004.png" id="5_wi5q0"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/defeat/rolly_defeat_005.png" id="6_u6awn"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/defeat/rolly_defeat_006.png" id="7_4qltp"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/defeat/rolly_defeat_007.png" id="8_77tc7"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/hit/rolly_hit_000.png" id="9_646g1"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/hit/rolly_hit_001.png" id="10_2uhke"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/hit/rolly_hit_002.png" id="11_pgrij"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/hit/rolly_hit_003.png" id="12_n3c7g"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/hit/rolly_hit_004.png" id="13_4sscu"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_000.png" id="14_txaju"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_001.png" id="15_f8qch"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_002.png" id="16_4ec58"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_003.png" id="17_62fb7"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_004.png" id="18_ke2ox"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_005.png" id="19_j112t"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_006.png" id="20_1wljg"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_007.png" id="21_mvndu"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_008.png" id="22_j6n6v"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_009.png" id="23_dcs2b"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_010.png" id="24_tcx1m"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_011.png" id="25_bg0k1"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_012.png" id="26_nibrb"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_013.png" id="27_t8cm6"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_014.png" id="28_3sjkg"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/idle/rolly_idle_015.png" id="29_1lkxx"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_000.png" id="30_eb7gm"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_001.png" id="31_7gjki"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_002.png" id="32_qey0w"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_003.png" id="33_ahr24"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_004.png" id="34_7jrds"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_005.png" id="35_am2no"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_006.png" id="36_ge72f"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_007.png" id="37_doft3"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_008.png" id="38_sb8tl"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_009.png" id="39_hj846"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_010.png" id="40_mt73l"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/rolly/production/move/rolly_move_011.png" id="41_skeot"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_tjxbx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_rg1xa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_mok1q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_lvire")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_wi5q0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_u6awn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_4qltp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_77tc7")
+}],
+"loop": 0,
+"name": &"defeat",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_646g1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_2uhke")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_pgrij")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_n3c7g")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_4sscu")
+}],
+"loop": 0,
+"name": &"hit",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("14_txaju")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_f8qch")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_4ec58")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_62fb7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_ke2ox")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_j112t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_1wljg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_mvndu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_j6n6v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_dcs2b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("24_tcx1m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_bg0k1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_nibrb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_t8cm6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_3sjkg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_1lkxx")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 24.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("30_eb7gm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_7gjki")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_qey0w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_ahr24")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_7jrds")
+}, {
+"duration": 1.0,
+"texture": ExtResource("35_am2no")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_ge72f")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_doft3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_sb8tl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_hj846")
+}, {
+"duration": 1.0,
+"texture": ExtResource("40_mt73l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("41_skeot")
+}],
+"loop": 1,
+"name": &"move",
+"speed": 24.0
+}]

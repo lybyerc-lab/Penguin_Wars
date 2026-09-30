@@ -360,16 +360,21 @@ Acceptance:
 
 ## 6. First Driftfield encounter sequence
 
-These counts are **starting playtest values only**. Tune after human play.
+These counts are **provisional phone-playtest values only**. The first real-phone
+run proved the original 6 / 8 / 10 / 12 totals too sparse, so the current solo
+totals are 9 / 12 / 15 / 18. Each additional participating player adds 3 enemies to
+every wave: 2P adds 3, 3P adds 6, and 4P adds 9. Role caps remain 2 active
+Skuas and 1 active Tuskbull; the added population therefore lands primarily in
+the Rolly body count.
 
 The purpose is progressive teaching, not difficulty escalation for its own sake.
 
 ### Wave 1 - Swarm lesson
 1P baseline:
-- 6 Rollies
+- 9 Rollies
 
 For each extra player:
-- +2 Rollies
+- +3 total enemies, with special roles still constrained by their active caps
 
 Teach:
 - movement loop
@@ -380,13 +385,12 @@ Teach:
 No Skua. No Tuskbull.
 
 ### Wave 2 - Look away from the swarm
-1P baseline:
-- 6 Rollies
-- 1 Skua
+1P total:
+- 12 enemies
+- up to 2 active Skuas
 
 Extra players:
-- +2 Rollies each
-- add a second Skua only at 3-4 players
+- +3 total enemies each; Skua remains capped at 2 active
 
 Teach:
 - red landing ring
@@ -395,12 +399,13 @@ Teach:
 - maintaining swarm awareness while responding to artillery
 
 ### Wave 3 - Environment as a weapon
-1P baseline:
-- 8 Rollies
-- 1 Tuskbull
+1P total:
+- 15 enemies
+- up to 1 active Tuskbull
+- up to 2 active Skuas under the existing role-introduction cadence
 
 Extra players:
-- +2 Rollies each
+- +3 total enemies each; Tuskbull remains capped at 1 active
 
 Teach:
 - charge lane
@@ -408,17 +413,14 @@ Teach:
 - pillar/rib crash
 - punish window
 
-No Skua in the first Tuskbull lesson.
-
 ### Wave 4 - Mixed proof
-1P baseline:
-- 8 Rollies
-- 1 Skua
-- 1 Tuskbull
+1P total:
+- 18 enemies
+- up to 2 active Skuas
+- up to 1 active Tuskbull
 
 Extra players:
-- +2 Rollies each
-- second Skua at 3-4 players only
+- +3 total enemies each; role caps do not scale with party size
 
 Goal:
 - prove whether the three roles remain readable together.
@@ -428,14 +430,13 @@ Stop adding enemies if the field becomes visually noisy. Spawn cadence should so
 
 ## 7. Spawn behavior
 
-Phase A should use authored Driftfield spawn markers rather than arena-perimeter math if that seam can be added locally.
-
-Preferred marker groups:
-- swarm west
-- swarm east
-- swarm north
-- Skua perch markers
-- Tuskbull lane-entry markers
+Driftfield currently divides its room-owned perimeter ellipse into eight
+sectors. Each seeded wave chooses two pressure sectors separated by 135-225
+degrees and alternates spawn events between them. Candidate points must remain
+inside the encounter bounds, outside layer-1 authored collision, and have a
+clear world-collision ray toward the living party. Adjacent sectors are used
+only as deterministic safety fallbacks. This is the smallest seam supported by
+the production geometry; authored spawn markers remain deferred.
 
 Rules:
 - never spawn directly on a living player.

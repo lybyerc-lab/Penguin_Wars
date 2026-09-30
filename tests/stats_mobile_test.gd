@@ -42,6 +42,8 @@ func _run() -> void:
 	var hud: MobileHUD = arena.get_node("MobileHUD")
 	var controls: TouchControls = hud.controls
 	var center: Vector2 = controls.stick_center()
+	check(center == Vector2(145 + controls.safe_inset.x, controls.size.y - 130 - controls.safe_inset.y), "V2 art preserves the locked fixed stick centre and safe inset")
+	check(controls.dash_center() == Vector2(controls.size.x - 145 - controls.safe_inset.x, controls.size.y - 130 - controls.safe_inset.y), "V2 art preserves the locked dash centre")
 	controls._input(touch(0, center + Vector2(60, 0), true))
 	check(player.input_source.movement().x > 0.7, "touch movement reaches input adapter")
 	controls._input(touch(1, controls.dash_center(), true))

@@ -21,14 +21,10 @@ func _run() -> void:
 	var four: Array[WeaponDefinition] = [LANCE, LANCE, CLEAVER, CLEAVER]
 	player.configure_weapon_loadout(four)
 	var rack: WeaponRack = player.weapon_rack
-	var origins: Array[Vector2] = []
 	for slot: int in range(4):
 		var controller: WeaponController = rack.controller_at(slot)
-		origins.append(controller.presentation_origin(0.0))
 		check(controller.rack_slot == slot and controller.get_node("Visual") != null, "occupied slot %d owns stable controller and visual identity" % slot)
-	for left: int in range(origins.size()):
-		for right: int in range(left + 1, origins.size()):
-			check(origins[left] != origins[right], "four occupied slots have distinct mount origins")
+	check(rack.controller_at(0).presentation_origin(0.0) == rack.controller_at(3).presentation_origin(0.0), "combat effects now share the body-centred hand origin")
 	check(rack.controller_at(0).firing_phase_delay() == 0.0 and rack.controller_at(1).firing_phase_delay() > 0.0 and rack.controller_at(1).firing_phase_delay() != rack.controller_at(2).firing_phase_delay(), "per-slot duplicate firing phases are deterministic and distinct")
 	check(is_equal_approx(rack.controller_at(1).definition.cooldown, LANCE.cooldown), "stagger leaves sustained weapon cooldown definition-driven")
 	var old_slot_one: WeaponController = rack.controller_at(1)
@@ -38,17 +34,11 @@ func _run() -> void:
 	player.configure_weapon_loadout(four)
 	var changes: Array[WeaponMaturation] = rack.resolve_maturation_once()
 	check(changes.size() == 2 and rack.controller_at(0).rack_slot == 0 and rack.controller_at(2).rack_slot == 2 and rack.is_slot_empty(1) and rack.is_slot_empty(3), "maturation preserves remaining visual slot identities and gaps")
-	check(rack.controller_at(0).presentation_origin(0.0) != rack.controller_at(2).presentation_origin(0.0), "matured remaining weapons keep distinct visual lanes")
+	check(rack.controller_at(0).get_node("Visual") != rack.controller_at(2).get_node("Visual"), "matured remaining weapons keep separate presentation nodes")
 	var six: Array[WeaponDefinition] = [LANCE, LANCE, LANCE, CLEAVER, CLEAVER, CLEAVER]
 	player.configure_weapon_loadout(six)
-	var six_origins: Array[Vector2] = []
 	for slot: int in range(6):
-		six_origins.append(rack.controller_at(slot).presentation_origin(0.0))
-	var unique_origins: Array[Vector2] = []
-	for origin: Vector2 in six_origins:
-		if not unique_origins.has(origin):
-			unique_origins.append(origin)
-	check(unique_origins.size() == 6, "six occupied slots expose six separate mount positions")
+		check(rack.controller_at(slot).get_node("Visual") != null, "six occupied slots retain separate visual ownership")
 	arena.free()
 	await process_frame
 	var four_player := load("res://scenes/arena/test_arena.tscn").instantiate() as Node2D

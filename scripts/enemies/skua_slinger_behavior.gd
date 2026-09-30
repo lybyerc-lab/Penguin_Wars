@@ -9,6 +9,8 @@ extends RangedBehavior
 @export var attack_range: float = 390.0
 @export var egg_travel_time: float = 0.62
 @export var landing_radius: float = 42.0
+@export var lead_fraction: float = 0.0
+@export var lead_max: float = 150.0
 var locked_target := Vector2.ZERO
 
 func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2:
@@ -23,6 +25,8 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 			egg.landing_radius = landing_radius
 			egg.position = enemy.position
 			egg.landing_position = locked_target
+			var facing: float = -1.0 if direction.x < 0.0 else 1.0
+			egg.release_offset = Vector2(SkuaIceEgg.RELEASE_OFFSET_RIGHT.x * facing, SkuaIceEgg.RELEASE_OFFSET_RIGHT.y)
 			enemy.get_parent().add_child(egg)
 			state = State.RECOVER
 			remaining = shot_cooldown
@@ -33,7 +37,9 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 
 	var distance: float = enemy.global_position.distance_to(target.global_position)
 	if state == State.POSITION and remaining <= 0.0 and distance <= attack_range:
-		locked_target = target.global_position
+		var lead := target.velocity * (windup_time + egg_travel_time) * lead_fraction
+		locked_target = target.global_position + lead.limit_length(lead_max)
+		locked_target = locked_target.clamp(enemy.room_bounds.position + Vector2.ONE * 24.0, enemy.room_bounds.end - Vector2.ONE * 24.0)
 		direction = enemy.global_position.direction_to(locked_target)
 		state = State.WINDUP
 		remaining = windup_time

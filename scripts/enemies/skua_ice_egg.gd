@@ -3,11 +3,16 @@ extends Node2D
 ## Lobbed artillery shot. Movement is visual until the locked landing point is
 ## reached; damage happens only inside the telegraphed ring.
 
+const RELEASE_OFFSET_RIGHT := Vector2(10.0, -24.0)
+
 var party: PartyRoster
 var damage: float = 10.0
 var travel_time: float = 0.62
 var landing_radius: float = 42.0
 var landing_position := Vector2.ZERO
+## Presentation-only start offset from the actor origin. Landing and damage
+## continue to use landing_position exactly as before.
+var release_offset := Vector2.ZERO
 var room_bounds := Rect2(-540, -260, 1080, 520)
 var spent: bool = false
 var _elapsed: float = 0.0
@@ -30,7 +35,7 @@ func _physics_process(delta: float) -> void:
 	var t: float = clampf(_elapsed / duration, 0.0, 1.0)
 	var flat: Vector2 = _start.lerp(landing_position, t)
 	var height: float = minf(74.0, _start.distance_to(landing_position) * 0.24)
-	global_position = flat + Vector2(0, -sin(t * PI) * height)
+	global_position = flat + Vector2(0, -sin(t * PI) * height) + release_offset * (1.0 - t)
 	if t >= 1.0:
 		global_position = landing_position
 		for player: PenguinPlayer in party.members(true):

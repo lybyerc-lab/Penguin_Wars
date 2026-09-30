@@ -45,7 +45,14 @@ func _physics_process(delta: float) -> void:
 	_knockback = _knockback.move_toward(Vector2.ZERO, 1000.0 * delta)
 	move_and_slide()
 	if behavior is ChargeBehavior and get_slide_collision_count() > 0:
-		(behavior as ChargeBehavior).on_world_collision()
+		var hard_impact := false
+		for collision_index: int in range(get_slide_collision_count()):
+			var collision := get_slide_collision(collision_index)
+			var collider: Object = collision.get_collider()
+			if collider is not Node or not (collider as Node).is_in_group(&"tuskbull_no_stun"):
+				hard_impact = true
+				break
+		(behavior as ChargeBehavior).on_world_collision(hard_impact)
 	global_position = global_position.clamp(arena_bounds.position, arena_bounds.end)
 	if global_position.distance_to(target.global_position) < contact_radius and _attack_remaining <= 0.0 and (behavior == null or behavior.contact_enabled()):
 		target.health.take_damage(DamageEvent.new(contact_damage))

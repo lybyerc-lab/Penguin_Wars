@@ -27,6 +27,7 @@ script = ExtResource("5")
 [node name="CharacterVisual" type="Node2D" parent="."]
 script = ExtResource("9")
 profile = ExtResource("10")
+[node name="WeaponFront" type="Node2D" parent="."]
 [node name="Dash" type="Node" parent="."]
 script = ExtResource("7")
 [node name="HitFeedback" type="Node" parent="."]

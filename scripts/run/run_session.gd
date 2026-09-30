@@ -30,6 +30,13 @@ var mobile: bool = false
 var modifiers := RunModifiers.new()
 ## Ordered selection for slots 1..4. Shorter lists wrap.
 var roster: Array[CharacterDefinition] = DEFAULT_ROSTER.duplicate()
+var claimed_discoveries: Dictionary = {}
+
+func claim_discovery(id: StringName) -> void:
+	if id != &"": claimed_discoveries[id] = true
+
+func is_discovery_claimed(id: StringName) -> bool:
+	return bool(claimed_discoveries.get(id, false))
 
 func wire() -> void:
 	encounter.modifiers = modifiers

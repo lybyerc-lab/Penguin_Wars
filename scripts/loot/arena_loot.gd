@@ -8,6 +8,7 @@ var actor_root: Node2D
 var encounter: EncounterDirector
 ## Room-owned snowman placement; defaults to the original centered arena.
 var supply_points: Array[Vector2] = [Vector2(-330, 110), Vector2(330, 110)]
+var supply_scene: PackedScene
 var _supplied_wave: int = 0
 
 ## A new room resupplies from scratch.
@@ -29,7 +30,11 @@ func resupply() -> void:
 			if node is SupplySnowman and node.health.is_alive() and node.position.distance_to(point) < 10:
 				occupied = true
 		if not occupied:
-			var snowman: SupplySnowman = preload("res://scenes/props/supply_snowman.tscn").instantiate()
+			for decal: Node in actor_root.get_tree().get_nodes_in_group("room_decals"):
+				if decal.get_parent() == actor_root and (decal as Node2D).position.distance_to(point) < 10.0:
+					decal.queue_free()
+			var scene: PackedScene = supply_scene if supply_scene != null else preload("res://scenes/props/supply_snowman.tscn")
+			var snowman: SupplySnowman = scene.instantiate() as SupplySnowman
 			snowman.position = point
 			snowman.broken.connect(_on_snowman_broken)
 			actor_root.add_child(snowman)
