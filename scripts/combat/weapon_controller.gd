@@ -31,20 +31,11 @@ func firing_phase_delay() -> float:
 ## A cosmetic flipper origin for held art and attack effects. Slot identity and
 ## firing phase remain stable; only occupied weapons are centred in the fan.
 func presentation_origin(angle: float, thrust: float = 0.0) -> Vector2:
-	var facing: float = 1.0
-	var sway_x: float = 0.0
 	var lift: float = 0.0
 	var visual := wielder.get_node_or_null("CharacterVisual") as CharacterVisual if wielder != null else null
 	if visual != null:
-		facing = visual.facing_direction()
-		sway_x = visual.presentation_sway_x()
 		lift = visual.presentation_lift()
-	var lane: Vector2i = _occupied_lane()
-	var lateral: float = (float(lane.x) - (float(lane.y) - 1.0) * 0.5) * 7.0
-	var anchor := Vector2(11.0 * facing + sway_x * 0.6 * facing, -11.0 - lift * 1.5)
-	var forward := Vector2.from_angle(angle) * (_hold_distance() + thrust)
-	var side := Vector2.from_angle(angle + PI * 0.5) * lateral
-	return anchor + forward + side
+	return Vector2(0.0, -17.0) + Vector2(cos(angle) * 15.0, sin(angle) * 11.0 - lift * 1.5) + Vector2.from_angle(angle) * thrust
 
 func _occupied_lane() -> Vector2i:
 	if wielder == null or wielder.weapon_rack == null:
@@ -191,6 +182,9 @@ func _hit_from(enemy: Node2D, impulse_origin: Vector2) -> void:
 
 func is_attacking() -> bool:
 	return _flash > 0.0 or _pending_area
+
+func has_target() -> bool:
+	return _had_target
 
 func is_projectile_in_flight() -> bool:
 	return _pending_area

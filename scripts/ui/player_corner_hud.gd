@@ -125,6 +125,14 @@ func setup(index: int, inset: Vector2 = Vector2(18, 12)) -> void:
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		frame.add_child(icon)
+		var empty := Label.new()
+		empty.name = "Empty"
+		empty.text = "·"
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		empty.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.add_child(empty)
 		_weapon_row.add_child(frame)
 		_weapon_slots.append(frame)
 	_toast = Label.new()
@@ -204,6 +212,7 @@ func _process(delta: float) -> void:
 		_weapon_slots[slot].add_theme_stylebox_override("panel", style)
 		var icon := _weapon_slots[slot].get_node("Icon") as TextureRect
 		icon.texture = definition.icon_texture if definition != null and definition.icon_texture != null else (definition.held_texture if definition != null else null)
+		(_weapon_slots[slot].get_node("Empty") as Label).visible = definition == null
 	if _toast_time > 0.0:
 		_toast_time = maxf(0.0, _toast_time - delta)
 		_toast.visible = _toast_time > 0.0

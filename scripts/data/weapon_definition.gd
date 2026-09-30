@@ -28,6 +28,9 @@ enum DamageKind { MELEE, RANGED }
 @export var tint: Color = Color("baf9ff")
 @export var held_texture: Texture2D
 @export var icon_texture: Texture2D
+@export var held_grip_texel := Vector2(-1, -1)
+@export var presentation_family: StringName = &""
+@export var held_base_rotation: float = 0.0
 @export var visual_scale: float = 0.56
 
 func tier_label() -> String:

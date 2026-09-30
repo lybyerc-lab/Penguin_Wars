@@ -14,9 +14,12 @@ var owner_player: PenguinPlayer
 var _loadout: Array[WeaponDefinition] = []
 var _slots: Array[WeaponDefinition] = []
 var _controllers: Array[WeaponController] = []
+var _hand := {&"front": -1, &"back": -1}
 
 func setup(player: PenguinPlayer) -> void:
 	owner_player = player
+	owner_player.health.died.connect(func(_event: DamageEvent) -> void: clear_hands())
+	owner_player.health.revived.connect(func(_current: float) -> void: clear_hands())
 	_reset_slots(slot_capacity)
 	for index: int in range(mini(_loadout.size(), slot_capacity)):
 		_set_slot(index, _loadout[index])
@@ -116,6 +119,7 @@ func remove_weapon(slot: int) -> WeaponDefinition:
 	var removed := _slots[slot]
 	if removed == null:
 		return null
+	release_hand(slot)
 	_set_slot(slot, null)
 	changed.emit()
 	return removed
@@ -187,6 +191,7 @@ func resolve_maturation_once() -> Array[WeaponMaturation]:
 	return changes
 
 func _reset_slots(new_capacity: int) -> void:
+	clear_hands()
 	for controller: WeaponController in _controllers:
 		if is_instance_valid(controller):
 			controller.queue_free()
@@ -224,3 +229,34 @@ func _eligible_for_maturation(definition: WeaponDefinition) -> bool:
 
 func _valid_slot(slot: int) -> bool:
 	return slot >= 0 and slot < slot_capacity
+
+func request_hand(slot: int) -> StringName:
+	var existing := hand_of(slot)
+	if existing != &"": return existing
+	if int(_hand[&"front"]) < 0:
+		_hand[&"front"] = slot
+		return &"front"
+	if int(_hand[&"back"]) < 0:
+		_hand[&"back"] = slot
+		return &"back"
+	var front_slot: int = int(_hand[&"front"])
+	var front_controller: WeaponController = controller_at(front_slot)
+	if front_controller != null and not front_controller.is_attacking():
+		_hand[&"front"] = slot
+		if int(_hand[&"back"]) < 0:
+			_hand[&"back"] = front_slot
+		return &"front"
+	return &""
+
+func release_hand(slot: int) -> void:
+	for hand: StringName in [&"front", &"back"]:
+		if int(_hand[hand]) == slot: _hand[hand] = -1
+
+func hand_of(slot: int) -> StringName:
+	for hand: StringName in [&"front", &"back"]:
+		if int(_hand[hand]) == slot: return hand
+	return &""
+
+func clear_hands() -> void:
+	_hand[&"front"] = -1
+	_hand[&"back"] = -1
