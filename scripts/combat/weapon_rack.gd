@@ -125,6 +125,7 @@ func remove_weapon(slot: int) -> WeaponDefinition:
 	return removed
 
 func clear() -> void:
+	clear_hands()
 	for slot: int in range(slot_capacity):
 		_set_slot(slot, null)
 	changed.emit()
@@ -203,6 +204,7 @@ func _reset_slots(new_capacity: int) -> void:
 func _set_slot(slot: int, definition: WeaponDefinition) -> void:
 	if not _valid_slot(slot):
 		return
+	release_hand(slot)
 	var previous: WeaponController = _controllers[slot]
 	if is_instance_valid(previous):
 		previous.queue_free()

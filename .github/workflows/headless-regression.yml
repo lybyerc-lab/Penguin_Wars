@@ -56,6 +56,12 @@ jobs:
       - name: Weapon presentation
         run: godot --headless --path . --script res://tests/weapon_presentation_test.gd
 
+      - name: Weapon presentation V2
+        run: godot --headless --path . --script res://tests/weapon_presentation_v2_test.gd
+
+      - name: Driftfield discoveries
+        run: godot --headless --path . --script res://tests/discovery_test.gd
+
       - name: Snow pickup
         run: godot --headless --path . --script res://tests/snow_pickup_test.gd
 

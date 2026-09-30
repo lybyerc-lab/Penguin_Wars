@@ -176,7 +176,9 @@ func _run() -> void:
 			node.set_physics_process(false)
 	var projectile_skua := SKUA.instantiate() as ArenaEnemy
 	projectile_skua.party = arena.party
-	projectile_skua.position = Vector2(80, 20)
+	# Keep this presentation fixture outside every starter weapon's reach; the
+	# test drives its throw directly and must not race autonomous player fire.
+	projectile_skua.position = Vector2(450, 20)
 	arena.get_node("Actors").add_child(projectile_skua)
 	await process_frame
 	projectile_skua.set_physics_process(false)

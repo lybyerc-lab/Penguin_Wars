@@ -15,6 +15,8 @@ enum Palette { ICE, CAVE, DEEP }
 ## Half-extents of the perimeter ellipse the director spawns enemies on.
 @export var spawn_ring := Vector2(515, 235)
 @export var supply_points: Array[Vector2] = [Vector2(-330, 110), Vector2(330, 110)]
+@export var supply_scene: PackedScene
+@export var discoveries: Array[DiscoveryDefinition] = []
 @export var entry_point := Vector2(0, 40)
 @export var encounter: EncounterDefinition
 @export var exits: Array[RoomExit] = []

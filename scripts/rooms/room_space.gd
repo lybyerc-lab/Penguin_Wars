@@ -34,6 +34,7 @@ static func apply(room: RoomDefinition, party: PartyRoster = null, encounter: En
 		builder.room_bounds = room.bounds
 	if loot != null:
 		loot.supply_points = room.supply_points
+		loot.supply_scene = room.supply_scene
 	if camera != null:
 		camera.follow_party = room.kind == RoomDefinition.Kind.TOWN or room.camera_follow_party
 		camera.clear_focus()

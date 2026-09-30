@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DiscoveryDefinition" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/discovery_definition.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/discoveries/fcd_whalers_cache_closed.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/discoveries/fcd_whalers_cache_open.png" id="3"]
+[ext_resource type="Resource" path="res://resources/weapons/fish_spear.tres" id="4"]
+
+[resource]
+script = ExtResource("1")
+id = &"driftfield_whalers_cache"
+kind = 0
+position = Vector2(60, -1392)
+closed_texture = ExtResource("2")
+open_texture = ExtResource("3")
+dig_time = 1.5
+glint_offset = Vector2(58, -92)
+hint = "Something is wedged in the whale's ribs…"
+reward_weapon = ExtResource("4")
+salvage_snow = 30

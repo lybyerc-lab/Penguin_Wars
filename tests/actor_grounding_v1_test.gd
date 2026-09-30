@@ -83,8 +83,8 @@ func _run() -> void:
 	check(player.dash.burst_speed == dash_speed_before and player.dash.duration == dash_duration_before, "dash mechanics remain unchanged")
 	check(CharacterVisual.WADDLE_CYCLE_DISTANCE == 108.0, "Waddle cadence uses the approved 108 px candidate")
 
-	# Held presentation moves to a centred occupied fan at the flipper while the
-	# stable rack slots and controller-driven attack still behave normally.
+	# Combat effects share the body-centred hand origin while stowed weapon art
+	# uses its authored grip and the rack/controller mechanics stay unchanged.
 	player.configure_weapon_loadout([FISH_SPEAR, SLINGSHOT, SNOWBOMB])
 	var rack: WeaponRack = player.weapon_rack
 	var spear: WeaponController = rack.controller_at(0)
@@ -93,15 +93,14 @@ func _run() -> void:
 	visual._frame_sway_x = 0.0
 	visual._frame_lift = 0.0
 	visual._facing_direction = 1.0
-	check(spear.presentation_origin(0.0).x >= 19.0 and spear.presentation_origin(0.0).y < -11.0, "Fish Spear is held at the front-flipper fan")
-	check(sling.presentation_origin(0.0).x > spear.presentation_origin(0.0).x, "Slingshot uses its supplied 9 px hold distance")
-	check(spear.presentation_origin(0.0).y < sling.presentation_origin(0.0).y and bomb.presentation_origin(0.0).y > sling.presentation_origin(0.0).y, "occupied weapons are centred in slot order")
+	check(spear.presentation_origin(0.0) == Vector2(15.0, -17.0), "Fish Spear combat effect uses the shared body-centred hand origin")
+	check(sling.presentation_origin(0.0) == spear.presentation_origin(0.0) and bomb.presentation_origin(0.0) == spear.presentation_origin(0.0), "all combat effects use the same body-centred origin")
 	var spear_visual := spear.get_node("Visual") as WeaponVisual
 	spear_visual._process(0.0)
-	check(spear_visual._sprite.offset == Vector2(24.0, 0.0), "Fish Spear grip, rather than texture centre, sits on the mount")
-	check(spear_visual._sprite.modulate.is_equal_approx(WeaponVisual.AMBIENT_TINT), "held weapon receives actor ambient tint")
+	check(spear_visual._back.offset == Vector2(39.0, -6.0), "Fish Spear authored grip, rather than texture centre, sits on the socket")
+	check(spear_visual._back.modulate.is_equal_approx(WeaponVisual.AMBIENT_TINT), "stowed weapon receives actor ambient tint")
 	check(spear.z_index == 0 and spear_visual.z_index == 0, "weapon presentation adds no z-index override")
-	check(rack.get_index() < visual.get_index(), "existing weapon-behind-character tree order remains authoritative")
+	check(rack.get_index() < visual.get_index() and visual.get_index() < player.get_node("WeaponFront").get_index(), "back/body/front scene order remains authoritative")
 
 	var target := ROLLY.instantiate() as ArenaEnemy
 	target.party = arena.party

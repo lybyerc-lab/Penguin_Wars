@@ -212,6 +212,15 @@ func _enter_room(next: RoomDefinition, entry_side: int = -1, arrival_override_en
 	if next == null:
 		return
 	_load_room(next, entry_side, arrival_override_enabled, arrival_position)
+	for definition: DiscoveryDefinition in next.discoveries:
+		var site := preload("res://scenes/props/discovery_site.tscn").instantiate() as DiscoverySite
+		site.definition = definition
+		site.party = party
+		site.encounter = encounter
+		site.loot = $Loot
+		site.session = session
+		site.claimed = session.is_discovery_claimed(definition.id)
+		$Actors.add_child(site)
 	for spec: RoomExit in next.exits:
 		var gate: PartyGate = _add_gate(spec)
 		gate.locked = next.has_encounter()
@@ -378,7 +387,11 @@ func _on_gate_travelled(gate: PartyGate) -> void:
 func _on_room_cleared() -> void:
 	journal.record_room(room)
 	_unlock_gates()
-	overlay.banner = ""
+	overlay.banner = "%s is clear.  The way is open." % room.display_name
+	for definition: DiscoveryDefinition in room.discoveries:
+		if not session.is_discovery_claimed(definition.id):
+			$HUD.set_clear_hint(definition.hint)
+			break
 
 func _on_encounter_state() -> void:
 	if encounter.state != EncounterDirector.State.FAILED or _routed:

@@ -1,5 +1,5 @@
 class_name PlayerCornerHUD
-extends PanelContainer
+extends Control
 signal selected
 
 const CARD_SIZE := Vector2(252, 64)
@@ -50,6 +50,7 @@ func setup(index: int, inset: Vector2 = Vector2(18, 12)) -> void:
 	scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	scrim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	scrim.stretch_mode = TextureRect.STRETCH_SCALE
+	scrim.modulate = Color("0f2233", 0.72)
 	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(scrim)
 	var medallion := Control.new()
