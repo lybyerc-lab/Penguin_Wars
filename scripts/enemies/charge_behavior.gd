@@ -9,6 +9,9 @@ enum State { APPROACH, WINDUP, CHARGE, RECOVER }
 @export var charge_speed: float = 360.0
 @export var charge_time: float = 0.65
 @export var recovery_time: float = 1.1
+@export var windup_trigger_range: float = 255.0
+@export var lead_fraction: float = 0.0
+@export var lead_max: float = 120.0
 ## Phase A Tuskbulls opt into a longer punish window when their committed lane
 ## hits solid world collision. Ordinary chargers keep the old behavior.
 @export var crash_on_world_collision: bool = false
@@ -25,8 +28,10 @@ func movement(enemy: ArenaEnemy, target: PenguinPlayer, delta: float) -> Vector2
 	remaining = maxf(0.0, remaining - delta)
 	match state:
 		State.APPROACH:
-			if enemy.global_position.distance_to(target.global_position) <= 255.0:
-				direction = enemy.global_position.direction_to(target.global_position)
+			if enemy.global_position.distance_to(target.global_position) <= windup_trigger_range:
+				var travel: float = enemy.global_position.distance_to(target.global_position) / maxf(1.0, charge_speed)
+				var lead := target.velocity * (windup_time + travel) * lead_fraction
+				direction = enemy.global_position.direction_to(target.global_position + lead.limit_length(lead_max))
 				state = State.WINDUP
 				remaining = windup_time
 				return Vector2.ZERO

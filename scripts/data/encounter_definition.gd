@@ -2,6 +2,8 @@ class_name EncounterDefinition
 extends Resource
 
 enum PacingMode { CLEAR_ALL, TIMED }
+enum SpawnMode { RING, PARTY_OFFSCREEN }
+enum SectorMode { RANDOM_PAIR, HEADING }
 
 @export var enemy_scene: PackedScene
 @export var charger_scene: PackedScene
@@ -26,6 +28,13 @@ enum PacingMode { CLEAR_ALL, TIMED }
 ## Opt-in perimeter pressure: two separated deterministic sectors alternate
 ## spawn events. Other encounters retain the original global safest-point pick.
 @export var split_spawn_pressure: bool = false
+@export var spawn_mode: SpawnMode = SpawnMode.RING
+@export var sector_mode: SectorMode = SectorMode.RANDOM_PAIR
+@export var offscreen_half_extents := Vector2(880.0, 440.0)
+@export var heading_min_speed: float = 40.0
+@export_range(0.0, 1.0) var heading_smoothing: float = 0.6
+@export var charger_caps_by_wave: PackedInt32Array = PackedInt32Array()
+@export var ranged_caps_by_wave: PackedInt32Array = PackedInt32Array()
 ## Legacy encounters wait for every enemy. Timed encounters survive until the
 ## per-wave duration expires and are enabled only by explicit encounter data.
 @export var pacing_mode: PacingMode = PacingMode.CLEAR_ALL
@@ -53,3 +62,13 @@ func population_for_wave(wave_number: int, active_player_count: int) -> int:
 	if index >= 0 and index < solo_wave_populations.size():
 		solo = solo_wave_populations[index]
 	return solo + maxi(0, active_player_count - 1) * additional_enemies_per_player
+
+func charger_cap_for_wave(wave_number: int) -> int:
+	return _wave_cap(charger_caps_by_wave, wave_number, charger_cap)
+
+func ranged_cap_for_wave(wave_number: int) -> int:
+	return _wave_cap(ranged_caps_by_wave, wave_number, ranged_cap)
+
+func _wave_cap(values: PackedInt32Array, wave_number: int, fallback: int) -> int:
+	if values.is_empty(): return fallback
+	return values[clampi(wave_number - 1, 0, values.size() - 1)]

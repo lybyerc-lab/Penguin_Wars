@@ -29,6 +29,9 @@ recovery_time = 1.25
 crash_on_world_collision = true
 crash_recovery_time = 1.75
 soft_charge_speed_multiplier = 0.65
+windup_trigger_range = 360.0
+lead_fraction = 0.35
+lead_max = 120.0
 
 [node name="AttackVisual" type="Node2D" parent="."]
 script = ExtResource("3")

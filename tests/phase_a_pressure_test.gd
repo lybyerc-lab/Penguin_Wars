@@ -57,8 +57,10 @@ func _spawn_positions(director: EncounterDirector, count: int) -> Array[Vector2]
 	return positions
 
 func _normalized_angle(director: EncounterDirector, point: Vector2) -> float:
-	var offset: Vector2 = point - director.spawn_center
-	return fposmod(atan2(offset.y / director.spawn_ring.y, offset.x / director.spawn_ring.x), TAU)
+	var centre: Vector2 = director._party_center() if director.definition.spawn_mode == EncounterDefinition.SpawnMode.PARTY_OFFSCREEN else director.spawn_center
+	var extents: Vector2 = director.definition.offscreen_half_extents if director.definition.spawn_mode == EncounterDefinition.SpawnMode.PARTY_OFFSCREEN else director.spawn_ring
+	var offset: Vector2 = point - centre
+	return fposmod(atan2(offset.y / extents.y, offset.x / extents.x), TAU)
 
 func _sector_for(director: EncounterDirector, point: Vector2) -> int:
 	return floori(_normalized_angle(director, point) / (TAU / float(EncounterDirector.SPAWN_SECTOR_COUNT)))
@@ -137,8 +139,8 @@ func _run() -> void:
 	for index: int in range(DRIFTFIELD.population_for_wave(4, 4)):
 		coop_director._spawn_enemy()
 	var roles: Dictionary = _role_counts(coop_director.actor_root)
-	check(roles == {"rolly": 24, "skua": 2, "tuskbull": 1},
-		"four-player wave 4 keeps one active charger and two active ranged enemies")
+	check(roles == {"rolly": 23, "skua": 2, "tuskbull": 2},
+		"four-player wave 4 respects the authored two-charger/two-ranged caps")
 	coop.free()
 
 	# Exercise the split-sector selector against the real production collision.
@@ -160,18 +162,13 @@ func _run() -> void:
 	check(first_positions.size() == 8 and first_sectors.size() == 2,
 		"production selector produces both seeded pressure lanes")
 	if first_positions.size() == 8:
-		var even_sector: int = _sector_for(production_director, first_positions[0])
-		var odd_sector: int = _sector_for(production_director, first_positions[1])
-		var alternates: bool = even_sector != odd_sector
-		for index: int in range(first_positions.size()):
-			alternates = alternates and _sector_for(production_director, first_positions[index]) == (even_sector if index % 2 == 0 else odd_sector)
-		check(alternates, "spawn events alternate between two meaningfully distinct production sectors")
-		check(_angular_distance(
-			_normalized_angle(production_director, first_positions[0]),
-			_normalized_angle(production_director, first_positions[1])
-		) > PI * 0.5, "paired production pressure lanes are separated by more than 90 degrees")
 		var party_center: Vector2 = production_director._party_center()
 		for position: Vector2 in first_positions:
+			var relative := position - party_center
+			check(absf(relative.x) >= 807.0 or absf(relative.y) >= 372.0,
+				"production spawns stay outside the 1560x720 gameplay view")
+			check(absf(relative.x) <= 881.0 and absf(relative.y) <= 441.0,
+				"production spawns stay within the authored offscreen perimeter")
 			check(production_director.actor_bounds.grow(-EncounterDirector.SPAWN_EDGE_MARGIN).has_point(position),
 				"spawn stays inside inset Driftfield encounter bounds")
 			check(_collision_clear(production_director.actor_root, position, party_center),
@@ -184,6 +181,17 @@ func _run() -> void:
 	var repeated_positions: Array[Vector2] = _spawn_positions(production_director, 8)
 	check(production_director._pressure_sectors == first_sectors and repeated_positions == first_positions,
 		"same run seed reproduces the same sectors and production spawn positions")
+
+	# Heading sectors are role-aware without creating a second spawn system.
+	production_director._smoothed_heading = Vector2.RIGHT
+	production_director._rng.seed = DRIFTFIELD.run_seed
+	var base_a: int = production_director._primary_sector_for(0, &"base")
+	var base_b: int = production_director._primary_sector_for(1, &"base")
+	var ranged: int = production_director._primary_sector_for(2, &"ranged")
+	var charger: int = production_director._primary_sector_for(3, &"charger")
+	check(base_a == 0 and base_b == 4, "base pressure alternates heading and opposite sectors")
+	check(ranged == 0, "ranged pressure follows the party heading")
+	check(charger in [2, 6], "charger pressure arrives from a heading flank")
 
 	run.free()
 	print("PHASE A PRESSURE TESTS: ", "PASS" if failures == 0 else "FAIL", " (", failures, " failures)")

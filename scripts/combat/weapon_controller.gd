@@ -214,8 +214,8 @@ func _draw() -> void:
 			var t: float = float(index) / 9.0
 			var inv: float = 1.0 - t
 			var point: Vector2 = origin * inv * inv + midpoint * 2.0 * inv * t + target * t * t
-			draw_circle(point, 3.5, Color("f4cf88", 0.82))
-		draw_arc(target, definition.area_radius, 0.0, TAU, 36, Color("f4cf88", 0.48), 2.5)
+			draw_circle(point, 3.5, Color("dff8ff", 0.60))
+		draw_arc(target, definition.area_radius, 0.0, TAU, 36, Color("8fe6f2", 0.40), 2.5)
 		return
 	if _flash <= 0.0:
 		return
